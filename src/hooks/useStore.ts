@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AppData, Habit, Achievement, ToDo, MetricData } from '../types';
+import type { AppData } from '../types';
 
 const STORAGE_KEY = 'digital-journal-data-v1';
 
@@ -106,6 +106,13 @@ export function useStore() {
         }));
     };
 
+    const resetProgress = () => {
+        setData(prev => ({
+            ...prev,
+            habits: prev.habits.map(h => ({ ...h, completedDates: [] }))
+        }));
+    };
+
     const exportData = () => {
         const dataStr = JSON.stringify(data, null, 2);
         const blob = new Blob([dataStr], { type: "application/json" });
@@ -139,6 +146,7 @@ export function useStore() {
         addTodo,
         removeTodo,
         updateJournal,
+        resetProgress,
         exportData,
         importData
     };

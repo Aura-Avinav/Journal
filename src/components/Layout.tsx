@@ -1,5 +1,5 @@
 import React from 'react';
-import { Book, CheckSquare, BarChart, Settings, Award } from 'lucide-react';
+import { Book, CheckSquare, Settings } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface LayoutProps {

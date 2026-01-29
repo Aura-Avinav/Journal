@@ -4,7 +4,9 @@
 
 @layer base {
   body {
-    @apply bg-background text-primary antialiased;
+    background-color: #09090b;
+    color: #e4e4e7;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
@@ -14,8 +16,9 @@
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  @apply bg-background;
+  background-color: #09090b;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-surfaceHighlight rounded-full;
+  background-color: #27272a;
+  border-radius: 9999px;
 }

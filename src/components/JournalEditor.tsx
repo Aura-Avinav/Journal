@@ -68,7 +68,9 @@ export function JournalEditor() {
                     </span>
                     <div className="flex items-center gap-2 text-xs text-secondary">
                         {content !== (data.journal[selectedDate] || '') ? 'Saving...' : 'Saved'}
-                        <Save className="w-4 h-4 opacity-50" />
+                        <button onClick={handleSave} aria-label="Save" className="p-1 rounded hover:bg-surfaceHighlight/10">
+                            <Save className="w-4 h-4 opacity-50" />
+                        </button>
                     </div>
                 </div>
                 <textarea

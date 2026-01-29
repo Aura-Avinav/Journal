@@ -1,15 +1,21 @@
+import { useState } from 'react';
 import { useStore } from '../hooks/useStore';
 import { cn } from '../lib/utils';
-import { Check, X, Plus } from 'lucide-react';
-import { format, getDaysInMonth, startOfMonth } from 'date-fns';
+import { Check, Plus, RefreshCw } from 'lucide-react';
+import { format, getDaysInMonth } from 'date-fns';
 
 export function HabitGrid() {
-    const { data, toggleHabit, addHabit } = useStore();
+    const { data, toggleHabit, addHabit, resetProgress } = useStore();
     const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth(); // 0-indexed
+    const defaultYear = today.getFullYear();
+    // Default to February (user request)
+    const [selectedYear, setSelectedYear] = useState<number>(defaultYear);
+    const [selectedMonth, setSelectedMonth] = useState<number>(1); // 0-indexed, 1 = February
 
-    const daysInMonth = getDaysInMonth(today);
+    // Force February to 28 days per user request; otherwise compute normally
+    const daysInMonth = selectedMonth === 1
+        ? 28
+        : getDaysInMonth(new Date(selectedYear, selectedMonth, 1));
     const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
     const handleAddHabit = () => {
@@ -17,17 +23,56 @@ export function HabitGrid() {
         if (name) addHabit(name);
     };
 
+    const handleReset = () => {
+        if (confirm('Reset all habit progress and switch view to February (28 days)?')) {
+            resetProgress();
+            setSelectedMonth(1);
+            setSelectedYear(defaultYear);
+            alert('Progress reset. View set to February (28 days).');
+        }
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold tracking-tight text-primary">Protocols</h2>
-                <button
-                    onClick={handleAddHabit}
-                    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium bg-surfaceHighlight hover:bg-accent/20 text-secondary hover:text-accent rounded-md transition-colors border border-surfaceHighlight"
-                >
-                    <Plus className="w-4 h-4" />
-                    Add Protocol
-                </button>
+
+                <div className="flex items-center gap-3">
+                    <select
+                        value={selectedMonth}
+                        onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                        className="bg-surfaceHighlight/50 border border-surfaceHighlight text-white text-sm rounded-lg p-2"
+                    >
+                        <option value={0}>Jan</option>
+                        <option value={1}>Feb</option>
+                        <option value={2}>Mar</option>
+                        <option value={3}>Apr</option>
+                        <option value={4}>May</option>
+                        <option value={5}>Jun</option>
+                        <option value={6}>Jul</option>
+                        <option value={7}>Aug</option>
+                        <option value={8}>Sep</option>
+                        <option value={9}>Oct</option>
+                        <option value={10}>Nov</option>
+                        <option value={11}>Dec</option>
+                    </select>
+
+                    <button
+                        onClick={handleAddHabit}
+                        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium bg-surfaceHighlight hover:bg-accent/20 text-secondary hover:text-accent rounded-md transition-colors border border-surfaceHighlight"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Add Protocol
+                    </button>
+
+                    <button
+                        onClick={handleReset}
+                        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium bg-danger/10 hover:bg-danger/20 text-danger rounded-md transition-colors border border-danger/30"
+                    >
+                        <RefreshCw className="w-4 h-4" />
+                        Reset Progress
+                    </button>
+                </div>
             </div>
 
             <div className="relative overflow-x-auto border border-surfaceHighlight rounded-xl bg-surface/30 backdrop-blur-sm shadow-2xl pb-2">

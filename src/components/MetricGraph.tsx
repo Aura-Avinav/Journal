@@ -1,11 +1,8 @@
-import { useState } from 'react';
-import { useStore } from '../hooks/useStore';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { Activity, Plus, Minus } from 'lucide-react';
-import { format, subDays, startOfMonth, eachDayOfInterval } from 'date-fns';
+import { Activity } from 'lucide-react';
+import { format, subDays, eachDayOfInterval } from 'date-fns';
 
 export function MetricGraph() {
-    const { data } = useStore();
     // We'll simulate data for now or add a way to input "Daily Score".
     // Since I don't have a "Daily Score" input yet, I'll add a micro-interaction to set today's score internally.
     // Actually, let's just visualize "Habit Completion Rate" for now to make it useful immediately?
@@ -34,7 +31,7 @@ export function MetricGraph() {
 
             <div className="h-[200px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={getChartData(data)}>
+                    <AreaChart data={getChartData()}>
                         <defs>
                             <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
@@ -69,7 +66,7 @@ export function MetricGraph() {
     );
 }
 
-function getChartData(data: any) {
+function getChartData() {
     // Generate last 14 days
     const days = eachDayOfInterval({
         start: subDays(new Date(), 13),
@@ -77,10 +74,9 @@ function getChartData(data: any) {
     });
 
     return days.map(day => {
-        const dateStr = format(day, 'yyyy-MM-dd');
         // Mock randomized data for visual if empty, or read from metrics
         // For prototype, let's just make it look cool with some randomness seeded by date
-        // Real implementation would read data.metrics[dateStr]
+        // Real implementation would read data.metrics
         const seed = day.getDate();
         const mockValue = 4 + (seed % 5);
 
