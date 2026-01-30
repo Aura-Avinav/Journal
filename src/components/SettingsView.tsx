@@ -84,7 +84,7 @@ export function SettingsView({ onBack }: { onBack: () => void }) {
                 {/* About Section */}
                 <section className="pt-8 text-center">
                     <p className="text-sm text-secondary">
-                        ituts v1.1
+                        Ituts v1.2
                         <br />
                         Designed for focus and clarity.
                     </p>
