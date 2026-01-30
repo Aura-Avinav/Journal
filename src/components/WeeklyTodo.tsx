@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useStore } from '../hooks/useStore';
 import { CheckCircle2, Circle, Plus, Trash2, CalendarDays } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { Modal, Button } from './ui/Modal';
 
 export function WeeklyTodo() {
     const { data, toggleTodo, addTodo, removeTodo } = useStore();
@@ -8,9 +10,15 @@ export function WeeklyTodo() {
     // In a real app, we'd filter by week. For now, showing all "active" todos.
     const todos = data.todos;
 
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [newTodo, setNewTodo] = useState("");
+
     const handleAdd = () => {
-        const text = prompt("New task for this week:");
-        if (text) addTodo(text);
+        if (newTodo.trim()) {
+            addTodo(newTodo);
+            setNewTodo("");
+            setIsAddModalOpen(false);
+        }
     };
 
     return (
@@ -21,7 +29,7 @@ export function WeeklyTodo() {
                     Weekly To-Do
                 </h3>
                 <button
-                    onClick={handleAdd}
+                    onClick={() => setIsAddModalOpen(true)}
                     className="p-1.5 hover:bg-surfaceHighlight rounded-md transition-colors text-secondary hover:text-primary"
                 >
                     <Plus className="w-4 h-4" />
@@ -33,7 +41,7 @@ export function WeeklyTodo() {
                     <div className="h-full flex flex-col items-center justify-center text-center text-secondary/50">
                         <CheckCircle2 className="w-12 h-12 mb-2 opacity-20" />
                         <p className="text-sm">All caught up!</p>
-                        <button onClick={handleAdd} className="mt-4 text-pink-500 text-sm hover:underline">Add a task</button>
+                        <button onClick={() => setIsAddModalOpen(true)} className="mt-4 text-pink-500 text-sm hover:underline">Add a task</button>
                     </div>
                 ) : (
                     <ul className="space-y-2">
@@ -65,6 +73,28 @@ export function WeeklyTodo() {
                     </ul>
                 )}
             </div>
+
+            <Modal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                title="Add New Task"
+            >
+                <div className="space-y-4">
+                    <input
+                        type="text"
+                        placeholder="What do you need to do?"
+                        value={newTodo}
+                        onChange={(e) => setNewTodo(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+                        className="w-full bg-background border border-surfaceHighlight rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-accent"
+                        autoFocus
+                    />
+                    <div className="flex justify-end gap-2">
+                        <Button variant="secondary" onClick={() => setIsAddModalOpen(false)}>Cancel</Button>
+                        <Button onClick={handleAdd} disabled={!newTodo.trim()}>Add Task</Button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }

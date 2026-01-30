@@ -1,10 +1,13 @@
 import { useStore } from '../hooks/useStore';
+import type { AppData } from '../types';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { Activity } from 'lucide-react';
 import { format, subDays, eachDayOfInterval } from 'date-fns';
 
-export function MetricGraph() {
+export function MetricGraph({ date }: { date: Date }) {
     const { data } = useStore();
+    // For now, metrics are generic, but accepting date allows future filtering
+    console.log("Graph for date:", date);
 
     return (
         <div className="p-6 border border-surfaceHighlight rounded-xl bg-surface/30 backdrop-blur-sm">
@@ -55,21 +58,21 @@ export function MetricGraph() {
     );
 }
 
-// @ts-ignore - Ignoring unused data param warning for mock function
-function getChartData(data: any) {
+// @ts-ignore
+function getChartData(data: AppData) {
+    // Generate last 14 days
     const days = eachDayOfInterval({
         start: subDays(new Date(), 13),
         end: new Date()
     });
 
-    return days.map(day => {
-        // const dateStr = format(day, 'yyyy-MM-dd');
-        const seed = day.getDate();
-        const mockValue = 4 + (seed % 5);
+    const metricsMap = new Map(data.metrics.map(m => [m.date, m.value]));
 
+    return days.map(day => {
+        const dateStr = format(day, 'yyyy-MM-dd');
         return {
             day: format(day, 'd'),
-            value: mockValue
+            value: metricsMap.get(dateStr) || 0
         };
     });
 }

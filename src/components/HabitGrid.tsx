@@ -1,15 +1,14 @@
 import { useStore } from '../hooks/useStore';
 import { cn } from '../lib/utils';
-import { Check, Plus } from 'lucide-react';
+import { Check, Plus, Trash2 } from 'lucide-react';
 import { format, getDaysInMonth } from 'date-fns';
 
-export function HabitGrid() {
-    const { data, toggleHabit, addHabit } = useStore();
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth(); // 0-indexed
+export function HabitGrid({ date }: { date: Date }) {
+    const { data, toggleHabit, addHabit, removeHabit } = useStore();
+    const currentYear = date.getFullYear();
+    const currentMonth = date.getMonth(); // 0-indexed
 
-    const daysInMonth = getDaysInMonth(today);
+    const daysInMonth = getDaysInMonth(date);
     const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
     const handleAddHabit = () => {
@@ -17,10 +16,16 @@ export function HabitGrid() {
         if (name) addHabit(name);
     };
 
+    const handleRemoveHabit = (id: string, name: string) => {
+        if (confirm(`Are you sure you want to remove "${name}"?`)) {
+            removeHabit(id);
+        }
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold tracking-tight text-primary">Protocols</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-primary">Productivity Flow</h2>
                 <button
                     onClick={handleAddHabit}
                     className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium bg-surfaceHighlight hover:bg-accent/20 text-secondary hover:text-accent rounded-md transition-colors border border-surfaceHighlight"
@@ -48,7 +53,16 @@ export function HabitGrid() {
                         {data.habits.map((habit) => (
                             <tr key={habit.id} className="border-b border-surfaceHighlight/50 hover:bg-surfaceHighlight/10 transition-colors group">
                                 <th scope="row" className="sticky left-0 z-20 px-4 py-3 font-medium text-primary bg-surface/95 backdrop-blur-md border-r border-surfaceHighlight whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px] group-hover:bg-surfaceHighlight/20 transition-colors">
-                                    {habit.name}
+                                    <div className="flex items-center justify-between gap-2">
+                                        <span className="truncate">{habit.name}</span>
+                                        <button
+                                            onClick={() => handleRemoveHabit(habit.id, habit.name)}
+                                            className="opacity-0 group-hover:opacity-100 text-secondary hover:text-red-500 transition-all"
+                                            title="Remove habit"
+                                        >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
                                 </th>
                                 {days.map(day => {
                                     // Construct date string YYYY-MM-DD reliably
@@ -60,7 +74,12 @@ export function HabitGrid() {
                                     const dateStr = format(dateObj, 'yyyy-MM-dd');
 
                                     const isCompleted = habit.completedDates.includes(dateStr);
-                                    const isToday = day === today.getDate();
+
+                                    // Highlight today if looking at current month/year
+                                    const today = new Date();
+                                    const isToday = day === today.getDate() &&
+                                        currentMonth === today.getMonth() &&
+                                        currentYear === today.getFullYear();
 
                                     return (
                                         <td key={day} className={cn(
@@ -94,7 +113,7 @@ export function HabitGrid() {
 
                 {data.habits.length === 0 && (
                     <div className="p-8 text-center text-secondary">
-                        No habits protocols defined. Add one to start tracking.
+                        No flow defined. Add a protocol to start tracking.
                     </div>
                 )}
             </div>

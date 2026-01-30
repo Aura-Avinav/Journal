@@ -1,11 +1,12 @@
 import React from 'react';
-import { Book, CheckSquare, Settings } from 'lucide-react';
+import { Book, CheckSquare, Settings, Calendar, Trash2 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useStore } from '../hooks/useStore';
 
 interface LayoutProps {
     children: React.ReactNode;
-    currentView: 'dashboard' | 'journal' | 'achievements';
-    onNavigate: (view: 'dashboard' | 'journal' | 'achievements') => void;
+    currentView: 'dashboard' | 'journal' | 'achievements' | 'year' | 'settings';
+    onNavigate: (view: 'dashboard' | 'journal' | 'achievements' | 'year' | 'settings') => void;
 }
 
 export function Layout({ children, currentView, onNavigate }: LayoutProps) {
@@ -31,12 +32,24 @@ export function Layout({ children, currentView, onNavigate }: LayoutProps) {
                         active={currentView === 'journal'}
                         onClick={() => onNavigate('journal')}
                     />
+                    <NavItem
+                        icon={<Calendar />}
+                        label="2026 Overview"
+                        active={currentView === 'year'}
+                        onClick={() => onNavigate('year')}
+                    />
                     {/* <NavItem icon={<Award />} label="Achievements" /> */}
                     {/* <NavItem icon={<BarChart />} label="Analytics" /> */}
                 </nav>
 
-                <div className="mt-auto">
-                    <NavItem icon={<Settings />} label="Settings" />
+                <div className="mt-auto space-y-2">
+                    <ResetButton />
+                    <NavItem
+                        icon={<Settings />}
+                        label="Settings"
+                        active={currentView === 'settings'}
+                        onClick={() => onNavigate('settings')}
+                    />
                 </div>
             </aside>
 
@@ -52,6 +65,10 @@ export function Layout({ children, currentView, onNavigate }: LayoutProps) {
     );
 }
 
+
+
+import { Modal } from './ui/Modal';
+
 function NavItem({ icon, label, active, onClick }: { icon: React.ReactNode, label: string, active?: boolean, onClick?: () => void }) {
     return (
         <button
@@ -66,4 +83,48 @@ function NavItem({ icon, label, active, onClick }: { icon: React.ReactNode, labe
             <span className="font-medium hidden md:block">{label}</span>
         </button>
     )
+}
+
+function ResetButton() {
+    const { resetData } = useStore();
+    const [isConfirmOpen, setIsConfirmOpen] = React.useState(false);
+
+    return (
+        <>
+            <NavItem
+                icon={<Trash2 className="text-red-400" />}
+                label="Reset Data"
+                onClick={() => setIsConfirmOpen(true)}
+            />
+
+            <Modal
+                isOpen={isConfirmOpen}
+                onClose={() => setIsConfirmOpen(false)}
+                title="Reset All Data?"
+            >
+                <div className="space-y-4">
+                    <p className="text-secondary">
+                        This will <span className="text-red-400 font-bold">permanently delete</span> all your habits, todos, and achievements. This action cannot be undone.
+                    </p>
+                    <div className="flex justify-end gap-2">
+                        <button
+                            onClick={() => setIsConfirmOpen(false)}
+                            className="px-4 py-2 rounded-lg font-medium bg-surfaceHighlight text-secondary hover:text-foreground hover:bg-surfaceHighlight/80 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={() => {
+                                resetData();
+                                setIsConfirmOpen(false);
+                            }}
+                            className="px-4 py-2 rounded-lg font-medium bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 transition-colors"
+                        >
+                            Reset Everything
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+        </>
+    );
 }

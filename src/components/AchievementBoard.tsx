@@ -1,15 +1,23 @@
+import { useState } from 'react';
 import { useStore } from '../hooks/useStore';
 import { Award, Plus, Trash2 } from 'lucide-react';
+import { Modal, Button } from './ui/Modal';
 
-export function AchievementBoard() {
+export function AchievementBoard({ date }: { date: Date }) {
     const { data, addAchievement, removeAchievement } = useStore();
-    const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+    const currentMonth = date.toISOString().slice(0, 7); // YYYY-MM
 
     const monthAchievements = data.achievements.filter(a => a.month === currentMonth);
 
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [newAchievement, setNewAchievement] = useState("");
+
     const handleAdd = () => {
-        const text = prompt("What did you achieve?");
-        if (text) addAchievement(text);
+        if (newAchievement.trim()) {
+            addAchievement(newAchievement, currentMonth);
+            setNewAchievement("");
+            setIsAddModalOpen(false);
+        }
     };
 
     return (
@@ -20,7 +28,7 @@ export function AchievementBoard() {
                     Achievements
                 </h3>
                 <button
-                    onClick={handleAdd}
+                    onClick={() => setIsAddModalOpen(true)}
                     className="p-1.5 hover:bg-surfaceHighlight rounded-md transition-colors text-secondary hover:text-primary"
                 >
                     <Plus className="w-4 h-4" />
@@ -32,7 +40,7 @@ export function AchievementBoard() {
                     <div className="h-full flex flex-col items-center justify-center text-center text-secondary/50">
                         <Award className="w-12 h-12 mb-2 opacity-20" />
                         <p className="text-sm">No achievements yet.</p>
-                        <button onClick={handleAdd} className="mt-4 text-accent text-sm hover:underline">Add your first win</button>
+                        <button onClick={() => setIsAddModalOpen(true)} className="mt-4 text-accent text-sm hover:underline">Add your first win</button>
                     </div>
                 ) : (
                     <ul className="space-y-3">
@@ -55,6 +63,27 @@ export function AchievementBoard() {
                     </ul>
                 )}
             </div>
+
+            <Modal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                title="Add Achievement"
+            >
+                <div className="space-y-4">
+                    <textarea
+                        placeholder="What did you achieve?"
+                        value={newAchievement}
+                        onChange={(e) => setNewAchievement(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && e.ctrlKey && handleAdd()}
+                        className="w-full bg-background border border-surfaceHighlight rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-accent min-h-[100px] resize-none"
+                        autoFocus
+                    />
+                    <div className="flex justify-end gap-2">
+                        <Button variant="secondary" onClick={() => setIsAddModalOpen(false)}>Cancel</Button>
+                        <Button onClick={handleAdd} disabled={!newAchievement.trim()}>Add Win</Button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }

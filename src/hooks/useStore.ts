@@ -1,24 +1,18 @@
 import { useState, useEffect } from 'react';
 import type { AppData } from '../types';
 
-const STORAGE_KEY = 'digital-journal-data-v1';
+const STORAGE_KEY = 'digital-journal-data-v2';
 
 const DEFAULT_DATA: AppData = {
-    habits: [
-        { id: '1', name: 'Wake up early', completedDates: [] },
-        { id: '2', name: 'Run', completedDates: [] },
-        { id: '3', name: 'Study', completedDates: [] },
-        { id: '4', name: 'No Sugar', completedDates: [] },
-        { id: '5', name: 'Read Book', completedDates: [] },
-    ],
-    achievements: [
-        { id: '1', month: '2024-01', text: 'Started Digital Journal' }
-    ],
-    todos: [
-        { id: '1', text: 'Plan the week', completed: false, createdAt: new Date().toISOString() }
-    ],
+    habits: [],
+    achievements: [],
+    todos: [],
     journal: {},
     metrics: [],
+    preferences: {
+        theme: 'dark',
+        reducedMotion: false
+    }
 };
 
 export function useStore() {
@@ -35,6 +29,13 @@ export function useStore() {
     useEffect(() => {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+            // Apply theme
+            if (data.preferences?.theme === 'light') {
+                document.documentElement.classList.add('light');
+            } else {
+                document.documentElement.classList.remove('light');
+            }
         } catch (e) {
             console.error("Failed to save data", e);
         }
@@ -63,8 +64,15 @@ export function useStore() {
         }));
     };
 
-    const addAchievement = (text: string) => {
-        const month = new Date().toISOString().slice(0, 7); // YYYY-MM
+    const removeHabit = (id: string) => {
+        setData(prev => ({
+            ...prev,
+            habits: prev.habits.filter(h => h.id !== id)
+        }));
+    };
+
+    const addAchievement = (text: string, monthStr?: string) => {
+        const month = monthStr || new Date().toISOString().slice(0, 7); // YYYY-MM
         setData(prev => ({
             ...prev,
             achievements: [...prev.achievements, { id: crypto.randomUUID(), month, text }]
@@ -128,10 +136,38 @@ export function useStore() {
         }
     };
 
+    const resetData = () => {
+        const emptyData: AppData = {
+            habits: [],
+            achievements: [],
+            todos: [],
+            journal: {},
+            metrics: [],
+            preferences: {
+                theme: 'dark',
+                reducedMotion: false
+            }
+        };
+        setData(emptyData);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(emptyData));
+        window.location.reload();
+    };
+
+    const toggleTheme = () => {
+        setData(prev => ({
+            ...prev,
+            preferences: {
+                theme: prev.preferences?.theme === 'light' ? 'dark' : 'light',
+                reducedMotion: prev.preferences?.reducedMotion ?? false
+            }
+        }));
+    };
+
     return {
         data,
         toggleHabit,
         addHabit,
+        removeHabit,
         addAchievement,
         removeAchievement,
         toggleTodo,
@@ -139,6 +175,8 @@ export function useStore() {
         removeTodo,
         updateJournal,
         exportData,
-        importData
+        importData,
+        resetData,
+        toggleTheme
     };
 }

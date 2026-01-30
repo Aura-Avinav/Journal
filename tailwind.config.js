@@ -7,15 +7,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Premium Dark Theme Palette
-        background: "#09090b", // Zinc 950
-        surface: "#18181b", // Zinc 900
-        surfaceHighlight: "#27272a", // Zinc 800
-        primary: "#e4e4e7", // Zinc 200
-        secondary: "#a1a1aa", // Zinc 400
-        accent: "#3b82f6", // Blue 500 (subtle)
-        success: "#22c55e", // Green 500
-        danger: "#ef4444", // Red 500
+        // Premium Theme Palette using CSS Variables
+        background: "rgb(var(--background) / <alpha-value>)",
+        surface: "rgb(var(--surface) / <alpha-value>)",
+        surfaceHighlight: "rgb(var(--surface-highlight) / <alpha-value>)",
+        primary: "rgb(var(--primary) / <alpha-value>)",
+        secondary: "rgb(var(--secondary) / <alpha-value>)",
+        accent: "rgb(var(--accent) / <alpha-value>)",
+        success: "rgb(var(--success) / <alpha-value>)",
+        danger: "rgb(var(--danger) / <alpha-value>)",
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

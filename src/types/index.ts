@@ -34,4 +34,8 @@ export interface AppData {
     todos: ToDo[];
     journal: Record<string, string>; // date -> content mapping for O(1) access
     metrics: MetricData[];
+    preferences?: {
+        theme: 'dark' | 'light';
+        reducedMotion: boolean;
+    };
 }
