@@ -16,7 +16,7 @@ export function Layout({ children, currentView, onNavigate }: LayoutProps) {
             <aside className="w-16 md:w-64 border-r border-surfaceHighlight bg-surface/50 hidden md:flex flex-col p-4 fixed h-full z-10 backdrop-blur-md">
                 <div className="flex items-center gap-3 mb-8 px-2">
                     <Book className="w-6 h-6 text-accent" />
-                    <span className="text-xl font-bold tracking-tight hidden md:block">LifeOS</span>
+                    <span className="text-2xl font-bold tracking-tighter lowercase font-mono hidden md:block">ituts</span>
                 </div>
 
                 <nav className="space-y-2">

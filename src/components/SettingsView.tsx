@@ -84,7 +84,7 @@ export function SettingsView({ onBack }: { onBack: () => void }) {
                 {/* About Section */}
                 <section className="pt-8 text-center">
                     <p className="text-sm text-secondary">
-                        LifeOS v1.2
+                        ituts v1.1
                         <br />
                         Designed for focus and clarity.
                     </p>
