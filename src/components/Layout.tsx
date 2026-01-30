@@ -14,9 +14,8 @@ export function Layout({ children, currentView, onNavigate }: LayoutProps) {
         <div className="min-h-screen bg-background text-foreground flex font-sans selection:bg-accent/20">
             {/* Sidebar - Desktop */}
             <aside className="w-16 md:w-64 border-r border-surfaceHighlight bg-surface/50 hidden md:flex flex-col p-4 fixed h-full z-10 backdrop-blur-md">
-                <div className="flex items-center gap-3 mb-8 px-2">
-                    <Book className="w-6 h-6 text-accent" />
-                    <span className="text-2xl font-serif font-semibold tracking-tight hidden md:block">Ituts</span>
+                <div className="flex items-center justify-center md:justify-start gap-3 mb-8 px-2">
+                    <img src="/ituts-logo.png" alt="Ituts Logo" className="h-12 w-auto object-contain" />
                 </div>
 
                 <nav className="space-y-2">
