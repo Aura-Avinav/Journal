@@ -7,13 +7,15 @@ import { JournalEditor } from './components/JournalEditor';
 import { MetricGraph } from './components/MetricGraph';
 import { YearView } from './components/YearView';
 import { SettingsView } from './components/SettingsView';
-import { getDaysInMonth } from 'date-fns';
+import { getDaysInMonth, differenceInCalendarDays, startOfYear, endOfYear } from 'date-fns';
+import { useStore } from './hooks/useStore';
 
 type ViewState = 'dashboard' | 'journal' | 'achievements' | 'year' | 'settings';
 
 function App() {
   const [view, setView] = useState<ViewState>('dashboard');
   const [currentDate, setCurrentDate] = useState(new Date());
+  const { data } = useStore();
 
   const currentMonthName = currentDate.toLocaleString('default', { month: 'long' });
   const currentYear = currentDate.getFullYear();
@@ -29,10 +31,55 @@ function App() {
   const daysInMonth = getDaysInMonth(currentDate);
   const todayDate = new Date().getDate();
   const isCurrentMonth = new Date().getMonth() === currentDate.getMonth() && new Date().getFullYear() === currentDate.getFullYear();
+  const isRealCurrentYear = new Date().getFullYear() === currentYear;
 
   const dayDisplay = isCurrentMonth
     ? `Day ${todayDate} / ${daysInMonth}`
     : `${daysInMonth} Days`;
+
+  // Progress Calculations
+  const calculateProgress = () => {
+    const habits = data.habits;
+    if (habits.length === 0) return { monthly: 0, yearly: 0 };
+
+    // Monthly Progress
+    let monthlyCompleted = 0;
+    const daysElapsedInMonth = isCurrentMonth ? todayDate : daysInMonth;
+    const totalPossibleMonthly = habits.length * daysElapsedInMonth;
+
+    // Yearly Progress
+    let yearlyCompleted = 0;
+    const daysElapsedInYear = isRealCurrentYear
+      ? differenceInCalendarDays(new Date(), startOfYear(currentDate)) + 1
+      : differenceInCalendarDays(endOfYear(currentDate), startOfYear(currentDate)) + 1;
+    const totalPossibleYearly = habits.length * daysElapsedInYear;
+
+    habits.forEach(habit => {
+      habit.completedDates.forEach(dateStr => {
+        const date = new Date(dateStr);
+        // Monthly check
+        if (date.getMonth() === currentDate.getMonth() && date.getFullYear() === currentYear) {
+          // Only count if within "elapsed" days (future days shouldn't count mainly to cap at 100% logically, 
+          // but technically user can't check future dates usually. Let's just count all for simplicty if they checked it)
+          // Actually, strictly following "elapsed" denominator means we should count all found completions 
+          // but if user checked future days it might go > 100%. 
+          // For now assuming no future checks possible.
+          monthlyCompleted++;
+        }
+        // Yearly check
+        if (date.getFullYear() === currentYear) {
+          yearlyCompleted++;
+        }
+      });
+    });
+
+    return {
+      monthly: totalPossibleMonthly > 0 ? Math.round((monthlyCompleted / totalPossibleMonthly) * 100) : 0,
+      yearly: totalPossibleYearly > 0 ? Math.round((yearlyCompleted / totalPossibleYearly) * 100) : 0
+    };
+  };
+
+  const progress = calculateProgress();
 
   return (
     <Layout currentView={view} onNavigate={setView}>
@@ -53,9 +100,19 @@ function App() {
                   </button>
                 )}
               </div>
-              <p className="text-secondary mt-1 text-lg">
-                {currentMonthName} {currentYear} Dashboard
-              </p>
+              <div className="flex items-center gap-6 mt-2">
+                <p className="text-secondary text-lg">
+                  {currentMonthName} {currentYear} Dashboard
+                </p>
+                <div className="flex items-center gap-4 text-sm font-medium">
+                  <div className="px-3 py-1 rounded-full bg-surfaceHighlight/30 text-primary border border-surfaceHighlight/50 backdrop-blur-sm">
+                    Monthly: {progress.monthly}%
+                  </div>
+                  <div className="px-3 py-1 rounded-full bg-surfaceHighlight/30 text-primary border border-surfaceHighlight/50 backdrop-blur-sm">
+                    Yearly: {progress.yearly}%
+                  </div>
+                </div>
+              </div>
             </div>
             <div className="text-right hidden md:block">
               <div className="text-sm text-secondary font-mono">
