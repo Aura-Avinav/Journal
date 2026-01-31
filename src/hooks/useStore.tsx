@@ -418,6 +418,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useStore() {
     const context = useContext(StoreContext);
     if (context === undefined) {
