@@ -85,14 +85,11 @@ function App() {
     <Layout currentView={view} onNavigate={setView}>
       {view === 'dashboard' ? (
         <div className="space-y-8 pb-10">
-          <header className="flex flex-col md:flex-row md::items-end justify-between gap-4 border-b border-surfaceHighlight pb-6">
+          <header className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-surfaceHighlight pb-6">
             <div>
               <div className="flex items-center gap-4">
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-white to-secondary bg-clip-text text-transparent flex items-center gap-4">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-white to-secondary bg-clip-text text-transparent">
                   {isCurrentYear ? 'Year of Growth' : `${currentYear} Overview`}
-                  <span className="text-2xl opacity-80 font-normal text-white">
-                    {progress.yearly}%
-                  </span>
                 </h1>
                 {!isCurrentYear && (
                   <button
@@ -114,8 +111,37 @@ function App() {
                 </div>
               </div>
             </div>
-            <div className="text-right hidden md:block">
-              <div className="text-sm text-secondary font-mono">
+
+            <div className="flex flex-col items-end gap-2">
+              {/* Professional Progress Box */}
+              <div className="flex items-center gap-3 bg-surfaceHighlight/10 border border-surfaceHighlight/20 rounded-xl p-3 px-5 backdrop-blur-md">
+                <div className="flex flex-col items-end">
+                  <span className="text-xs uppercase tracking-wider text-secondary font-medium">Year Completion</span>
+                  <span className="text-2xl font-bold text-primary">{progress.yearly}%</span>
+                </div>
+                <div className="h-10 w-10 rounded-full border-2 border-surfaceHighlight/30 flex items-center justify-center relative">
+                  {/* Simple visual indicator */}
+                  <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                    <path
+                      className="text-surfaceHighlight/30"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                    />
+                    <path
+                      className="text-accent"
+                      strokeDasharray={`${progress.yearly}, 100`}
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              <div className="text-sm text-secondary font-mono hidden md:block">
                 {dayDisplay}
               </div>
             </div>

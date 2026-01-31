@@ -48,15 +48,26 @@ export function YearView({ onSelectMonth }: YearViewProps) {
         <div className="space-y-8 pb-10">
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-surfaceHighlight pb-6">
                 <div>
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-white to-secondary bg-clip-text text-transparent flex items-center gap-4">
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-white to-secondary bg-clip-text text-transparent">
                         {year} Overview
-                        <span className="text-2xl opacity-80 font-normal text-white">
-                            {yearlyProgress}%
-                        </span>
                     </h1>
                     <p className="text-secondary mt-1 text-lg">
                         Year at a Glance
                     </p>
+                </div>
+
+                {/* Professional Progress Box */}
+                <div className="flex flex-col items-end">
+                    <div className="flex items-center gap-3 bg-surfaceHighlight/10 border border-surfaceHighlight/20 rounded-xl p-3 px-5 backdrop-blur-md">
+                        <div className="flex flex-col items-end">
+                            <span className="text-xs uppercase tracking-wider text-secondary font-medium">Year Completion</span>
+                            <span className="text-2xl font-bold text-primary">{yearlyProgress}%</span>
+                        </div>
+                        <div className="h-10 w-10 rounded-full border-2 border-surfaceHighlight/30 flex items-center justify-center relative">
+                            <div className="absolute inset-0 rounded-full border-2 border-accent border-t-transparent animate-spin-slow" style={{ opacity: 0.5 }}></div>
+                            <div className="h-2 w-2 bg-accent rounded-full"></div>
+                        </div>
+                    </div>
                 </div>
             </header>
 
