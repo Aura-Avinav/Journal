@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
+import type { ReactNode } from 'react';
 import type { AppData } from '../types';
 
 const STORAGE_KEY = 'digital-journal-data-v2';
@@ -15,7 +16,26 @@ const DEFAULT_DATA: AppData = {
     }
 };
 
-export function useStore() {
+interface StoreContextType {
+    data: AppData;
+    toggleHabit: (habitId: string, date: string) => void;
+    addHabit: (name: string) => void;
+    removeHabit: (id: string) => void;
+    addAchievement: (text: string, monthStr?: string) => void;
+    removeAchievement: (id: string) => void;
+    toggleTodo: (id: string) => void;
+    addTodo: (text: string) => void;
+    removeTodo: (id: string) => void;
+    updateJournal: (date: string, content: string) => void;
+    exportData: () => void;
+    importData: (jsonData: string) => void;
+    resetData: () => void;
+    toggleTheme: () => void;
+}
+
+const StoreContext = createContext<StoreContextType | undefined>(undefined);
+
+export function StoreProvider({ children }: { children: ReactNode }) {
     const [data, setData] = useState<AppData>(() => {
         try {
             const stored = localStorage.getItem(STORAGE_KEY);
@@ -163,7 +183,7 @@ export function useStore() {
         }));
     };
 
-    return {
+    const value = {
         data,
         toggleHabit,
         addHabit,
@@ -179,4 +199,18 @@ export function useStore() {
         resetData,
         toggleTheme
     };
+
+    return (
+        <StoreContext.Provider value={value}>
+            {children}
+        </StoreContext.Provider>
+    );
+}
+
+export function useStore() {
+    const context = useContext(StoreContext);
+    if (context === undefined) {
+        throw new Error('useStore must be used within a StoreProvider');
+    }
+    return context;
 }
