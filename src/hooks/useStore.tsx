@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import type { AppData } from '../types';
 import { supabase } from '../lib/supabase';
 
-const STORAGE_KEY = 'digital-journal-data-v2';
+// const STORAGE_KEY = 'digital-journal-data-v2';
 
 const DEFAULT_DATA: AppData = {
     habits: [],
