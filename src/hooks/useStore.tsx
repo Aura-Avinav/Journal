@@ -29,7 +29,6 @@ interface StoreContextType {
     updateJournal: (date: string, content: string) => void;
     exportData: () => void;
     importData: (jsonData: string) => void;
-    importData: (jsonData: string) => void;
     resetData: () => void;
     resetMonthlyData: (date: Date) => void;
     toggleTheme: () => void;
