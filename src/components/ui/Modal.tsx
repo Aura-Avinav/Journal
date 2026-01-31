@@ -68,7 +68,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 export function Button({ variant = 'primary', className, ...props }: ButtonProps) {
     const variants = {
-        primary: "bg-primary text-primary-foreground hover:bg-primary/90",
+        primary: "bg-accent text-white hover:bg-accent/90",
         secondary: "bg-surfaceHighlight text-secondary hover:text-foreground hover:bg-surfaceHighlight/80",
         danger: "bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20",
         ghost: "hover:bg-accent/10 hover:text-accent"
