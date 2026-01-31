@@ -1,6 +1,7 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
 import type { AppData } from '../types';
+import { supabase } from '../lib/supabase';
 
 const STORAGE_KEY = 'digital-journal-data-v2';
 
@@ -17,6 +18,8 @@ const DEFAULT_DATA: AppData = {
 };
 
 interface StoreContextType {
+    session: any;
+    user: any;
     data: AppData;
     toggleHabit: (habitId: string, date: string) => void;
     addHabit: (name: string) => void;
@@ -37,6 +40,7 @@ interface StoreContextType {
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
+    const [session, setSession] = useState<any>(null);
     const [data, setData] = useState<AppData>(() => {
         try {
             const stored = localStorage.getItem(STORAGE_KEY);
@@ -46,6 +50,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             return DEFAULT_DATA;
         }
     });
+
+    useEffect(() => {
+        // Auth session initialization
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSession(session);
+        });
+
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            setSession(session);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
 
     useEffect(() => {
         try {
@@ -62,6 +81,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
     }, [data]);
 
+    // ... existing functions (toggleHabit, addHabit, etc.) ...
     const toggleHabit = (habitId: string, date: string) => {
         setData(prev => ({
             ...prev,
@@ -215,6 +235,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     };
 
     const value = {
+        session,
+        user: session?.user ?? null,
         data,
         toggleHabit,
         addHabit,

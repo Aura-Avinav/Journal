@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Layout } from './components/Layout';
+import { AuthPage } from './components/AuthPage';
 import { HabitGrid } from './components/HabitGrid';
 import { AchievementBoard } from './components/AchievementBoard';
 import { WeeklyTodo } from './components/WeeklyTodo';
@@ -15,10 +16,15 @@ type ViewState = 'dashboard' | 'journal' | 'achievements' | 'year' | 'settings';
 function App() {
   const [view, setView] = useState<ViewState>('dashboard');
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { data } = useStore();
+  const { data, user } = useStore();
+
+  if (!user) {
+    return <AuthPage />;
+  }
 
   const currentMonthName = currentDate.toLocaleString('default', { month: 'long' });
   const currentYear = currentDate.getFullYear();
+  // ... rest of component starts ...
 
   const handleMonthSelect = (date: Date) => {
     setCurrentDate(date);
