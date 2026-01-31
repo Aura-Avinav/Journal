@@ -1,5 +1,6 @@
 import React from 'react';
 import { Book, CheckSquare, Settings, Calendar, Trash2 } from 'lucide-react';
+
 import { cn } from '../lib/utils';
 import { useStore } from '../hooks/useStore';
 
@@ -50,6 +51,7 @@ export function Layout({ children, currentView, onNavigate, currentDate = new Da
                         active={currentView === 'settings'}
                         onClick={() => onNavigate('settings')}
                     />
+
                 </div>
             </aside>
 
@@ -132,3 +134,5 @@ function ResetButton({ currentDate }: { currentDate: Date }) {
         </>
     );
 }
+
+

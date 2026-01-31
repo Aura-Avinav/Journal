@@ -1,5 +1,6 @@
 import { useStore } from '../hooks/useStore';
-import { Moon, Sun, Monitor, ArrowLeft, RotateCcw } from 'lucide-react';
+import { Moon, Sun, Monitor, ArrowLeft, RotateCcw, LogOut, User } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import { cn } from '../lib/utils';
 import { Modal } from './ui/Modal';
 import { useState } from 'react';
@@ -54,6 +55,32 @@ export function SettingsView({ onBack }: { onBack: () => void }) {
                                         <Moon className="h-4 w-4 m-1.5 text-slate-700" />
                                     )}
                                 </span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Account Section */}
+                <section className="space-y-4">
+                    <h2 className="text-xl font-semibold flex items-center gap-2">
+                        <User className="w-5 h-5 text-accent" />
+                        Account
+                    </h2>
+                    <div className="bg-surface/30 border border-surfaceHighlight rounded-xl p-4 backdrop-blur-sm">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="font-medium text-foreground">Sign Out</h3>
+                                <p className="text-sm text-secondary">Log out of your account on this device</p>
+                            </div>
+                            <button
+                                onClick={async () => {
+                                    const { error } = await supabase.auth.signOut();
+                                    if (error) alert('Error logging out');
+                                }}
+                                className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded-lg transition-colors font-medium text-sm flex items-center gap-2"
+                            >
+                                <LogOut className="w-4 h-4" />
+                                Log Out
                             </button>
                         </div>
                     </div>
