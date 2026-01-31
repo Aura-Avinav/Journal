@@ -1,4 +1,5 @@
-import { format } from 'date-fns';
+import { format, differenceInCalendarDays, startOfYear, endOfYear } from 'date-fns';
+import { useStore } from '../hooks/useStore';
 
 interface YearViewProps {
     onSelectMonth: (date: Date) => void;
@@ -7,13 +8,51 @@ interface YearViewProps {
 export function YearView({ onSelectMonth }: YearViewProps) {
     const year = 2026;
     const months = Array.from({ length: 12 }, (_, i) => new Date(year, i, 1));
+    const { data } = useStore();
+
+    // Calculate Yearly Progress
+    const calculateYearlyProgress = () => {
+        const habits = data.habits;
+        if (habits.length === 0) return 0;
+
+        const currentDate = new Date();
+        const viewDate = new Date(year, 0, 1);
+        const isCurrentYear = currentDate.getFullYear() === year;
+
+        // If viewing future year, progress is 0. If past, it's based on full year.
+        if (year > currentDate.getFullYear()) return 0;
+
+        // Days elapsed calculation
+        const daysElapsedInYear = isCurrentYear
+            ? differenceInCalendarDays(currentDate, startOfYear(viewDate)) + 1
+            : differenceInCalendarDays(endOfYear(viewDate), startOfYear(viewDate)) + 1;
+
+        const totalPossibleYearly = habits.length * daysElapsedInYear;
+
+        let yearlyCompleted = 0;
+        habits.forEach(habit => {
+            habit.completedDates.forEach(dateStr => {
+                const date = new Date(dateStr);
+                if (date.getFullYear() === year) {
+                    yearlyCompleted++;
+                }
+            });
+        });
+
+        return totalPossibleYearly > 0 ? Math.round((yearlyCompleted / totalPossibleYearly) * 100) : 0;
+    };
+
+    const yearlyProgress = calculateYearlyProgress();
 
     return (
         <div className="space-y-8 pb-10">
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-surfaceHighlight pb-6">
                 <div>
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-white to-secondary bg-clip-text text-transparent">
-                        2026 Overview
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-white to-secondary bg-clip-text text-transparent flex items-center gap-4">
+                        {year} Overview
+                        <span className="text-2xl opacity-80 font-normal text-white">
+                            {yearlyProgress}%
+                        </span>
                     </h1>
                     <p className="text-secondary mt-1 text-lg">
                         Year at a Glance
