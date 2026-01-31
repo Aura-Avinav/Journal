@@ -46,7 +46,7 @@ export function YearView({ onSelectMonth }: YearViewProps) {
 
     return (
         <div className="space-y-8 pb-10">
-            <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-surfaceHighlight pb-6">
+            <header className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-surfaceHighlight pb-6">
                 <div>
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-white to-secondary bg-clip-text text-transparent">
                         {year} Overview
@@ -64,8 +64,23 @@ export function YearView({ onSelectMonth }: YearViewProps) {
                             <span className="text-2xl font-bold text-primary">{yearlyProgress}%</span>
                         </div>
                         <div className="h-10 w-10 rounded-full border-2 border-surfaceHighlight/30 flex items-center justify-center relative">
-                            <div className="absolute inset-0 rounded-full border-2 border-accent border-t-transparent animate-spin-slow" style={{ opacity: 0.5 }}></div>
-                            <div className="h-2 w-2 bg-accent rounded-full"></div>
+                            <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                                <path
+                                    className="text-surfaceHighlight/30"
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="3"
+                                />
+                                <path
+                                    className="text-accent"
+                                    strokeDasharray={`${yearlyProgress}, 100`}
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="3"
+                                />
+                            </svg>
                         </div>
                     </div>
                 </div>
