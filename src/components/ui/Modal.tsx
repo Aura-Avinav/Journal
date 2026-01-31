@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -11,6 +12,12 @@ interface ModalProps {
 }
 
 export function Modal({ isOpen, onClose, title, children, className }: ModalProps) {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
@@ -27,13 +34,13 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
         };
     }, [isOpen, onClose]);
 
-    if (!isOpen) return null;
+    if (!mounted || !isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
+    return createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
             <div
                 className={cn(
-                    "relative w-full max-w-md bg-surface border border-surfaceHighlight rounded-xl shadow-2xl animate-in zoom-in-95 duration-200",
+                    "relative w-full max-w-md bg-surface border border-surfaceHighlight rounded-xl shadow-2xl",
                     className
                 )}
             >
@@ -50,7 +57,8 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
                     {children}
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
 

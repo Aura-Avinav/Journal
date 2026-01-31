@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { useStore } from '../hooks/useStore';
 import { cn } from '../lib/utils';
 import { Check, Plus, Trash2 } from 'lucide-react';
 import { format, getDaysInMonth } from 'date-fns';
+import { Modal, Button } from './ui/Modal';
 
 export function HabitGrid({ date }: { date: Date }) {
     const { data, toggleHabit, addHabit, removeHabit } = useStore();
@@ -11,23 +13,43 @@ export function HabitGrid({ date }: { date: Date }) {
     const daysInMonth = getDaysInMonth(date);
     const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
-    const handleAddHabit = () => {
-        const name = prompt("Enter new habit name:");
-        if (name) addHabit(name);
+    // Modal State
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [newHabitName, setNewHabitName] = useState('');
+    const [habitToDelete, setHabitToDelete] = useState<{ id: string, name: string } | null>(null);
+
+    const handleAddClick = () => {
+        setNewHabitName('');
+        setIsAddModalOpen(true);
     };
 
-    const handleRemoveHabit = (id: string, name: string) => {
-        if (confirm(`Are you sure you want to remove "${name}"?`)) {
-            removeHabit(id);
+    const confirmAddHabit = () => {
+        if (newHabitName.trim()) {
+            addHabit(newHabitName.trim());
+            setIsAddModalOpen(false);
+        }
+    };
+
+    const handleDeleteClick = (id: string, name: string) => {
+        setHabitToDelete({ id, name });
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDeleteHabit = () => {
+        if (habitToDelete) {
+            removeHabit(habitToDelete.id);
+            setHabitToDelete(null);
+            setIsDeleteModalOpen(false);
         }
     };
 
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold tracking-tight text-primary">Productivity Flow</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-primary">Habit Tracker</h2>
                 <button
-                    onClick={handleAddHabit}
+                    onClick={handleAddClick}
                     className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium bg-surfaceHighlight hover:bg-accent/20 text-secondary hover:text-accent rounded-md transition-colors border border-surfaceHighlight"
                 >
                     <Plus className="w-4 h-4" />
@@ -56,7 +78,7 @@ export function HabitGrid({ date }: { date: Date }) {
                                     <div className="flex items-center justify-between gap-2">
                                         <span className="truncate">{habit.name}</span>
                                         <button
-                                            onClick={() => handleRemoveHabit(habit.id, habit.name)}
+                                            onClick={() => handleDeleteClick(habit.id, habit.name)}
                                             className="opacity-0 group-hover:opacity-100 text-secondary hover:text-red-500 transition-all"
                                             title="Remove habit"
                                         >
@@ -67,10 +89,6 @@ export function HabitGrid({ date }: { date: Date }) {
                                 {days.map(day => {
                                     // Construct date string YYYY-MM-DD reliably
                                     const dateObj = new Date(currentYear, currentMonth, day);
-                                    // Format to YYYY-MM-DD local time manually to avoid timezone shifts if not careful, 
-                                    // but date-fns format() handles Date objects well.
-                                    // However, for consistency with 'completedDates' usually being strict ISO dates or 'YYYY-MM-DD'.
-                                    // Let's use a helper or just strict string construction.
                                     const dateStr = format(dateObj, 'yyyy-MM-dd');
 
                                     const isCompleted = habit.completedDates.includes(dateStr);
@@ -96,10 +114,6 @@ export function HabitGrid({ date }: { date: Date }) {
                                                 {isCompleted ? (
                                                     <Check className="w-5 h-5" strokeWidth={3} />
                                                 ) : (
-                                                    // Show a dot or X or nothing? The image shows X for some, Check for others?
-                                                    // Actually the image shows Checks.
-                                                    // User image row 1: X X Check X ...
-                                                    // Let's stick to Check for completed, empty (or faint dot) for not.
                                                     <div className="w-1.5 h-1.5 rounded-full bg-current opacity-20" />
                                                 )}
                                             </button>
@@ -117,6 +131,62 @@ export function HabitGrid({ date }: { date: Date }) {
                     </div>
                 )}
             </div>
+
+            {/* Add Habit Modal */}
+            <Modal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                title="Add New Protocol"
+            >
+                <div className="space-y-4">
+                    <div>
+                        <label htmlFor="habitName" className="block text-sm font-medium text-secondary mb-1">
+                            Protocol Name
+                        </label>
+                        <input
+                            id="habitName"
+                            type="text"
+                            value={newHabitName}
+                            onChange={(e) => setNewHabitName(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && confirmAddHabit()}
+                            placeholder="e.g. Read 30 mins"
+                            className="w-full bg-surfaceHighlight/10 border border-surfaceHighlight rounded-md px-3 py-2 text-primary focus:outline-none focus:ring-2 focus:ring-accent/50"
+                            autoFocus
+                        />
+                    </div>
+                    <div className="flex justify-end gap-3 pt-2">
+                        <Button variant="secondary" onClick={() => setIsAddModalOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={confirmAddHabit} disabled={!newHabitName.trim()}>
+                            Add Protocol
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Delete Habit Modal */}
+            <Modal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                title="Remove Protocol"
+            >
+                <div className="space-y-4">
+                    <p className="text-secondary">
+                        Are you sure you want to remove <span className="text-primary font-medium">"{habitToDelete?.name}"</span>?
+                        <br />
+                        This action cannot be undone.
+                    </p>
+                    <div className="flex justify-end gap-3 pt-2">
+                        <Button variant="secondary" onClick={() => setIsDeleteModalOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="danger" onClick={confirmDeleteHabit}>
+                            Remove
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }
