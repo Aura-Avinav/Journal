@@ -113,34 +113,6 @@ function App() {
             </div>
 
             <div className="flex flex-col items-end gap-2">
-              {/* Professional Progress Box */}
-              <div className="flex items-center gap-3 bg-surfaceHighlight/10 border border-surfaceHighlight/20 rounded-xl p-3 px-5 backdrop-blur-md">
-                <div className="flex flex-col items-end">
-                  <span className="text-xs uppercase tracking-wider text-secondary font-medium">Year Completion</span>
-                  <span className="text-2xl font-bold text-primary">{progress.yearly}%</span>
-                </div>
-                <div className="h-10 w-10 rounded-full border-2 border-surfaceHighlight/30 flex items-center justify-center relative">
-                  {/* Simple visual indicator */}
-                  <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                    <path
-                      className="text-surfaceHighlight/30"
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                    />
-                    <path
-                      className="text-accent"
-                      strokeDasharray={`${progress.yearly}, 100`}
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                    />
-                  </svg>
-                </div>
-              </div>
-
               <div className="text-sm text-secondary font-mono hidden md:block">
                 {dayDisplay}
               </div>
