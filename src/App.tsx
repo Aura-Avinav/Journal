@@ -85,11 +85,14 @@ function App() {
     <Layout currentView={view} onNavigate={setView}>
       {view === 'dashboard' ? (
         <div className="space-y-8 pb-10">
-          <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-surfaceHighlight pb-6">
+          <header className="flex flex-col md:flex-row md::items-end justify-between gap-4 border-b border-surfaceHighlight pb-6">
             <div>
               <div className="flex items-center gap-4">
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-white to-secondary bg-clip-text text-transparent">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-white to-secondary bg-clip-text text-transparent flex items-center gap-4">
                   {isCurrentYear ? 'Year of Growth' : `${currentYear} Overview`}
+                  <span className="text-2xl opacity-80 font-normal text-white">
+                    {progress.yearly}%
+                  </span>
                 </h1>
                 {!isCurrentYear && (
                   <button
@@ -107,9 +110,6 @@ function App() {
                 <div className="flex items-center gap-4 text-sm font-medium">
                   <div className="px-3 py-1 rounded-full bg-surfaceHighlight/30 text-primary border border-surfaceHighlight/50 backdrop-blur-sm">
                     Monthly: {progress.monthly}%
-                  </div>
-                  <div className="px-3 py-1 rounded-full bg-surfaceHighlight/30 text-primary border border-surfaceHighlight/50 backdrop-blur-sm">
-                    Yearly: {progress.yearly}%
                   </div>
                 </div>
               </div>
