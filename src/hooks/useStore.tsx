@@ -98,8 +98,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             // Assuming metrics are simplified for now
 
             // 6. Preferences (Profiles)
-            const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
-            const preferences = {
+            // const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
+            const preferences: { theme: 'dark' | 'light', reducedMotion: boolean } = {
                 theme: 'dark', // Default or fetch from profile if structure matches
                 reducedMotion: false
             };
@@ -143,7 +143,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
         // DB Update
         const currentHabit = data.habits.find(h => h.id === habitId);
-        const isCompleted = currentHabit?.completedDates.includes(date); // State before optimistic update would be better, but this works for toggle logic distinctness
+        // const isCompleted = currentHabit?.completedDates.includes(date); // State before optimistic update would be better, but this works for toggle logic distinctness
         // Actually, we need to check if we are ADDING or REMOVING.
         // Simplest: Check if it WAS there. 
         // We can just rely on try/catch insert/delete
@@ -175,7 +175,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             habits: [...prev.habits, { id: tempId, name, completedDates: [] }]
         }));
 
-        const { data: inserted, error } = await supabase.from('habits').insert({
+        const { data: inserted } = await supabase.from('habits').insert({
             name,
             user_id: session.user.id
         }).select().single();
