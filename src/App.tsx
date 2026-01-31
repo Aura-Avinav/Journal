@@ -82,7 +82,7 @@ function App() {
   const progress = calculateProgress();
 
   return (
-    <Layout currentView={view} onNavigate={setView}>
+    <Layout currentView={view} onNavigate={setView} currentDate={currentDate}>
       {view === 'dashboard' ? (
         <div className="space-y-8 pb-10">
           <header className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-surfaceHighlight pb-6">

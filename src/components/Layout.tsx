@@ -7,9 +7,10 @@ interface LayoutProps {
     children: React.ReactNode;
     currentView: 'dashboard' | 'journal' | 'achievements' | 'year' | 'settings';
     onNavigate: (view: 'dashboard' | 'journal' | 'achievements' | 'year' | 'settings') => void;
+    currentDate?: Date;
 }
 
-export function Layout({ children, currentView, onNavigate }: LayoutProps) {
+export function Layout({ children, currentView, onNavigate, currentDate = new Date() }: LayoutProps) {
     return (
         <div className="min-h-screen bg-background text-foreground flex font-sans selection:bg-accent/20">
             {/* Sidebar - Desktop */}
@@ -42,7 +43,7 @@ export function Layout({ children, currentView, onNavigate }: LayoutProps) {
                 </nav>
 
                 <div className="mt-auto space-y-2">
-                    <ResetButton />
+                    <ResetButton currentDate={currentDate} />
                     <NavItem
                         icon={<Settings />}
                         label="Settings"
@@ -84,9 +85,11 @@ function NavItem({ icon, label, active, onClick }: { icon: React.ReactNode, labe
     )
 }
 
-function ResetButton() {
-    const { resetData } = useStore();
+function ResetButton({ currentDate }: { currentDate: Date }) {
+    const { resetMonthlyData } = useStore();
     const [isConfirmOpen, setIsConfirmOpen] = React.useState(false);
+
+    const monthName = currentDate.toLocaleString('default', { month: 'long' });
 
     return (
         <>
@@ -99,11 +102,13 @@ function ResetButton() {
             <Modal
                 isOpen={isConfirmOpen}
                 onClose={() => setIsConfirmOpen(false)}
-                title="Reset All Data?"
+                title={`Reset ${monthName} Data?`}
             >
                 <div className="space-y-4">
                     <p className="text-secondary">
-                        This will <span className="text-red-400 font-bold">permanently delete</span> all your habits, todos, and achievements. This action cannot be undone.
+                        This will delete tracked habits and data for <span className="text-primary font-bold">{monthName}</span> only.
+                        <br />
+                        Other months will remain unchanged.
                     </p>
                     <div className="flex justify-end gap-2">
                         <button
@@ -114,12 +119,12 @@ function ResetButton() {
                         </button>
                         <button
                             onClick={() => {
-                                resetData();
+                                resetMonthlyData(currentDate);
                                 setIsConfirmOpen(false);
                             }}
                             className="px-4 py-2 rounded-lg font-medium bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 transition-colors"
                         >
-                            Reset Everything
+                            Reset {monthName}
                         </button>
                     </div>
                 </div>

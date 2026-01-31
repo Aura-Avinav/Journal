@@ -29,7 +29,9 @@ interface StoreContextType {
     updateJournal: (date: string, content: string) => void;
     exportData: () => void;
     importData: (jsonData: string) => void;
+    importData: (jsonData: string) => void;
     resetData: () => void;
+    resetMonthlyData: (date: Date) => void;
     toggleTheme: () => void;
 }
 
@@ -173,6 +175,36 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         window.location.reload();
     };
 
+    const resetMonthlyData = (date: Date) => {
+        const monthStr = date.toISOString().slice(0, 7); // YYYY-MM
+
+        setData(prev => {
+            const newHabits = prev.habits.map(h => ({
+                ...h,
+                completedDates: h.completedDates.filter(d => !d.startsWith(monthStr))
+            }));
+
+            const newAchievements = prev.achievements.filter(a => a.month !== monthStr);
+
+            const newJournal = { ...prev.journal };
+            Object.keys(newJournal).forEach(key => {
+                if (key.startsWith(monthStr)) {
+                    delete newJournal[key];
+                }
+            });
+
+            const newMetrics = prev.metrics.filter(m => !m.date.startsWith(monthStr));
+
+            return {
+                ...prev,
+                habits: newHabits,
+                achievements: newAchievements,
+                journal: newJournal,
+                metrics: newMetrics
+            };
+        });
+    };
+
     const toggleTheme = () => {
         setData(prev => ({
             ...prev,
@@ -197,6 +229,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         exportData,
         importData,
         resetData,
+        resetMonthlyData,
         toggleTheme
     };
 
