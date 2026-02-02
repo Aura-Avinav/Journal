@@ -38,16 +38,20 @@ export function JournalEditor() {
         <div className="flex flex-col md:flex-row h-[80vh] gap-6 animate-in fade-in duration-500">
             {/* Sidebar: Date Picker / List */}
             <div className="w-full md:w-64 bg-surface/30 border border-surfaceHighlight rounded-xl flex flex-col p-4 shrink-0">
-                <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-accent" />
-                    Entries
+                <div className="mb-6">
+                    <label className="text-xs font-semibold text-secondary uppercase tracking-wider mb-2 block">Select Date</label>
+                    <input
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        className="bg-surfaceHighlight/50 border border-surfaceHighlight text-white text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                    />
+                </div>
+
+                <h3 className="text-sm font-semibold text-secondary uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    Past Entries
                 </h3>
-                <input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    className="bg-surfaceHighlight/50 border border-surfaceHighlight text-white text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 mb-4"
-                />
 
                 <div className="flex-1 overflow-y-auto space-y-1">
                     {Object.keys(data.journal)
@@ -67,7 +71,7 @@ export function JournalEditor() {
                                 <ChevronRight className={cn("w-4 h-4 opacity-0 transition-opacity", date === selectedDate ? "opacity-100" : "group-hover:opacity-50")} />
                             </button>
                         ))}
-                    {Object.keys(data.journal).length === 0 && <span className="text-secondary/50 text-xs text-center block mt-10">No entries yet</span>}
+                    {Object.keys(data.journal).length === 0 && <span className="text-secondary/50 text-xs text-center block mt-4">No saved entries</span>}
                 </div>
             </div>
 
@@ -78,8 +82,14 @@ export function JournalEditor() {
                         Journaling - <span className="text-primary font-bold">{selectedDate}</span>
                     </span>
                     <div className="flex items-center gap-2 text-xs text-secondary">
-                        {content !== (data.journal[selectedDate] || '') ? 'Saving...' : 'Saved'}
-                        <Save className="w-4 h-4 opacity-50" />
+                        {content.trim() ? (
+                            <>
+                                {content !== (data.journal[selectedDate] || '') ? 'Saving...' : 'Saved'}
+                                <Save className="w-4 h-4 opacity-50" />
+                            </>
+                        ) : (
+                            <span className="opacity-50 italic">Empty</span>
+                        )}
                     </div>
                 </div>
                 <textarea
