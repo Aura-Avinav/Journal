@@ -36,7 +36,7 @@ export function WeeklyTodo() {
                 </button>
             </div>
 
-            <div className="flex-1 bg-surface/30 border border-surfaceHighlight rounded-xl p-4 overflow-y-auto min-h-[300px]">
+            <div className="flex-1 overflow-y-auto min-h-[300px]">
                 {todos.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-center p-6">
                         <div className="w-12 h-12 bg-pink-500/10 rounded-full flex items-center justify-center mb-4 text-pink-500">

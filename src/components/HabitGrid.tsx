@@ -57,15 +57,15 @@ export function HabitGrid({ date }: { date: Date }) {
                 </button>
             </div>
 
-            <div className="relative overflow-x-auto border border-surfaceHighlight rounded-xl bg-surface/30 backdrop-blur-sm shadow-2xl pb-2">
-                <table className="w-full text-sm text-left">
-                    <thead className="text-xs uppercase bg-surfaceHighlight/50 text-secondary">
+            <div className="relative overflow-x-auto">
+                <table className="w-full text-sm text-left border-separate border-spacing-0">
+                    <thead className="text-xs uppercase text-secondary">
                         <tr>
-                            <th scope="col" className="sticky left-0 z-20 px-4 py-3 bg-surfaceHighlight/90 backdrop-blur-md min-w-[150px] border-r border-surfaceHighlight font-semibold">
+                            <th scope="col" className="sticky left-0 z-20 px-4 py-3 bg-background/95 backdrop-blur-md min-w-[150px] font-semibold text-primary/80 border-b border-surfaceHighlight/20">
                                 Habit
                             </th>
                             {days.map(d => (
-                                <th key={d} scope="col" className="px-1 py-3 text-center min-w-[32px] font-medium border-l border-surfaceHighlight/20">
+                                <th key={d} scope="col" className="px-1 py-3 text-center min-w-[32px] font-medium border-b border-surfaceHighlight/20 text-secondary/70">
                                     {d}
                                 </th>
                             ))}
@@ -73,8 +73,8 @@ export function HabitGrid({ date }: { date: Date }) {
                     </thead>
                     <tbody>
                         {data.habits.map((habit) => (
-                            <tr key={habit.id} className="border-b border-surfaceHighlight/50 hover:bg-surfaceHighlight/10 transition-colors group">
-                                <th scope="row" className="sticky left-0 z-20 px-4 py-3 font-medium text-primary bg-surface/95 backdrop-blur-md border-r border-surfaceHighlight whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px] group-hover:bg-surfaceHighlight/20 transition-colors">
+                            <tr key={habit.id} className="group hover:bg-surfaceHighlight/5 transition-colors">
+                                <th scope="row" className="sticky left-0 z-20 px-4 py-3 font-medium text-primary bg-background/95 backdrop-blur-md whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px] border-b border-surfaceHighlight/10">
                                     <div className="flex items-center justify-between gap-2">
                                         <span className="truncate">{habit.name}</span>
                                         <button
@@ -101,18 +101,18 @@ export function HabitGrid({ date }: { date: Date }) {
 
                                     return (
                                         <td key={day} className={cn(
-                                            "p-0 text-center border-l border-surfaceHighlight/20 relative",
+                                            "p-0 text-center border-b border-surfaceHighlight/10 relative",
                                             isToday && "bg-accent/5"
                                         )}>
                                             <button
                                                 onClick={() => toggleHabit(habit.id, dateStr)}
                                                 className={cn(
                                                     "w-full h-10 flex items-center justify-center transition-all duration-200",
-                                                    isCompleted ? "text-accent" : "text-surfaceHighlight/20 hover:text-secondary/50"
+                                                    isCompleted ? "text-accent scale-110" : "text-surfaceHighlight/20 hover:text-secondary/50 hover:scale-105"
                                                 )}
                                             >
                                                 {isCompleted ? (
-                                                    <Check className="w-5 h-5" strokeWidth={3} />
+                                                    <Check className="w-5 h-5 shadow-sm" strokeWidth={3} />
                                                 ) : (
                                                     <div className="w-1.5 h-1.5 rounded-full bg-current opacity-20" />
                                                 )}

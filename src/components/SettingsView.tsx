@@ -30,7 +30,7 @@ export function SettingsView({ onBack }: { onBack: () => void }) {
                         <Monitor className="w-5 h-5 text-accent" />
                         Appearance
                     </h2>
-                    <div className="bg-surface/30 border border-surfaceHighlight rounded-xl p-4 backdrop-blur-sm">
+                    <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-6 shadow-xl">
                         <div className="flex items-center justify-between">
                             <div>
                                 <h3 className="font-medium text-foreground">Theme Mode</h3>
@@ -66,7 +66,7 @@ export function SettingsView({ onBack }: { onBack: () => void }) {
                         <User className="w-5 h-5 text-accent" />
                         Account
                     </h2>
-                    <div className="bg-surface/30 border border-surfaceHighlight rounded-xl p-4 backdrop-blur-sm">
+                    <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-6 shadow-xl">
                         <div className="flex items-center justify-between">
                             <div>
                                 <h3 className="font-medium text-foreground">Sign Out</h3>
@@ -92,7 +92,7 @@ export function SettingsView({ onBack }: { onBack: () => void }) {
                         <RotateCcw className="w-5 h-5" />
                         Danger Zone
                     </h2>
-                    <div className="bg-danger/5 border border-danger/20 rounded-xl p-4 backdrop-blur-sm">
+                    <div className="bg-danger/5 backdrop-blur-md border border-danger/20 rounded-2xl p-6 shadow-lg">
                         <div className="flex items-center justify-between">
                             <div>
                                 <h3 className="font-medium text-danger">Reset Application</h3>

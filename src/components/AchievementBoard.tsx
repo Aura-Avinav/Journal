@@ -35,7 +35,7 @@ export function AchievementBoard({ date }: { date: Date }) {
                 </button>
             </div>
 
-            <div className="flex-1 bg-surface/30 border border-surfaceHighlight rounded-xl p-4 overflow-y-auto min-h-[300px]">
+            <div className="flex-1 overflow-y-auto min-h-[300px]">
                 {monthAchievements.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-center p-6">
                         <div className="w-12 h-12 bg-yellow-500/10 rounded-full flex items-center justify-center mb-4 text-yellow-500">
