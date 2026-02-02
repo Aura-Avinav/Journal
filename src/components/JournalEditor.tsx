@@ -3,6 +3,8 @@ import { useStore } from '../hooks/useStore';
 import { cn } from '../lib/utils';
 import { ChevronRight, Calendar, Save } from 'lucide-react';
 
+import { format } from 'date-fns';
+
 export function JournalEditor() {
     const { data, updateJournal } = useStore();
     const [selectedDate, setSelectedDate] = useState(() => {
@@ -36,6 +38,8 @@ export function JournalEditor() {
         }, 1000);
         return () => clearTimeout(timer);
     }, [content, selectedDate, data.journal, updateJournal]);
+
+    const formattedDate = dateFnsFormat(selectedDate);
 
     return (
         <div className="flex flex-col md:flex-row h-[80vh] gap-6 animate-in fade-in duration-500">
@@ -86,8 +90,8 @@ export function JournalEditor() {
             {/* Main Editor */}
             <div className="flex-1 bg-surface/30 border border-surfaceHighlight rounded-xl flex flex-col relative overflow-hidden focus-within:ring-1 focus-within:ring-accent/50 transition-all">
                 <div className="p-4 border-b border-surfaceHighlight flex items-center justify-between bg-surface/50">
-                    <span className="text-secondary font-mono text-sm">
-                        Journaling - <span className="text-primary font-bold">{selectedDate}</span>
+                    <span className="text-secondary text-sm">
+                        Journaling - <span className="text-primary font-bold">{formattedDate}</span>
                     </span>
                     <div className="flex items-center gap-2 text-xs text-secondary">
                         {content.trim() ? (
@@ -110,3 +114,13 @@ export function JournalEditor() {
         </div>
     );
 }
+
+const dateFnsFormat = (dateStr: string) => {
+    try {
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
+        return format(date, 'PPP');
+    } catch {
+        return dateStr;
+    }
+};
