@@ -90,7 +90,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             const { data: journalEntries } = await supabase.from('journal_entries').select('*').eq('user_id', userId);
             const journalFormatted: Record<string, string> = {};
             (journalEntries || []).forEach((e: any) => {
-                journalFormatted[e.date] = e.content;
+                if (e.content && e.content.trim()) {
+                    journalFormatted[e.date] = e.content;
+                }
             });
 
             // 5. Metrics
@@ -274,6 +276,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     };
 
     const updateJournal = async (date: string, content: string) => {
+        if (!content.trim()) {
+            // Remove entry if content is empty
+            setData(prev => {
+                const newJournal = { ...prev.journal };
+                delete newJournal[date];
+                return { ...prev, journal: newJournal };
+            });
+
+            if (session?.user) {
+                await supabase.from('journal_entries').delete().match({
+                    user_id: session.user.id,
+                    date: date
+                });
+            }
+            return;
+        }
+
         setData(prev => ({
             ...prev,
             journal: { ...prev.journal, [date]: content }

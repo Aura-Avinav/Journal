@@ -39,9 +39,7 @@ function App() {
   const isCurrentMonth = new Date().getMonth() === currentDate.getMonth() && new Date().getFullYear() === currentDate.getFullYear();
   const isRealCurrentYear = new Date().getFullYear() === currentYear;
 
-  const dayDisplay = isCurrentMonth
-    ? `Day ${todayDate} / ${daysInMonth}`
-    : `${daysInMonth} Days`;
+
 
   // Progress Calculations
   const calculateProgress = () => {
@@ -91,36 +89,48 @@ function App() {
     <Layout currentView={view} onNavigate={setView} currentDate={currentDate}>
       {view === 'dashboard' ? (
         <div className="space-y-8 pb-10">
-          <header className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-surfaceHighlight pb-6">
-            <div>
-              <div className="flex items-center gap-4">
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-white to-secondary bg-clip-text text-transparent">
+          <header className="flex flex-col gap-6 md:flex-row md:items-end justify-between border-b border-surfaceHighlight pb-6">
+            <div className="space-y-4 flex-1">
+              <div>
+                <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-blue-100 to-secondary bg-clip-text text-transparent pb-1">
                   {isCurrentYear ? 'Year of Growth' : `${currentYear} Overview`}
                 </h1>
-                {!isCurrentYear && (
-                  <button
-                    onClick={() => handleMonthSelect(new Date())}
-                    className="text-xs px-2 py-1 bg-accent/10 text-accent rounded hover:bg-accent/20 transition-colors"
-                  >
-                    Back to Today
-                  </button>
-                )}
-              </div>
-              <div className="flex items-center gap-6 mt-2">
-                <p className="text-secondary text-lg">
-                  {currentMonthName} {currentYear} Dashboard
+                <p className="text-secondary text-lg mt-1">
+                  {currentMonthName} {currentYear}
                 </p>
-                <div className="flex items-center gap-4 text-sm font-medium">
-                  <div className="px-3 py-1 rounded-full bg-surfaceHighlight/30 text-primary border border-surfaceHighlight/50 backdrop-blur-sm">
-                    Monthly: {progress.monthly}%
+              </div>
+
+              {!isCurrentYear && (
+                <button
+                  onClick={() => handleMonthSelect(new Date())}
+                  className="text-xs px-2 py-1 bg-accent/10 text-accent rounded hover:bg-accent/20 transition-colors"
+                >
+                  Back to Today
+                </button>
+              )}
+
+              <div className="flex gap-8 max-w-md">
+                <div className="flex-1 space-y-2">
+                  <div className="flex justify-between text-xs font-medium text-secondary uppercase tracking-wider">
+                    <span>Monthly Progress</span>
+                    <span className="text-primary">{progress.monthly}%</span>
+                  </div>
+                  <div className="h-2 w-full bg-surfaceHighlight rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-1000 ease-out"
+                      style={{ width: `${progress.monthly}%` }}
+                    />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col items-end gap-2">
-              <div className="text-sm text-secondary font-mono hidden md:block">
-                {dayDisplay}
+            <div className="flex flex-col items-end gap-2 shrink-0">
+              <div className="px-4 py-2 bg-surfaceHighlight/30 rounded-xl border border-surfaceHighlight/50 backdrop-blur-sm text-center min-w-[120px]">
+                <span className="block text-2xl font-bold text-foreground">{isCurrentMonth ? todayDate : daysInMonth}</span>
+                <span className="text-xs text-secondary font-medium uppercase tracking-wider">
+                  {isCurrentMonth ? 'Current Day' : 'Total Days'}
+                </span>
               </div>
             </div>
           </header>

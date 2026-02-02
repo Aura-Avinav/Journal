@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../hooks/useStore';
-import { Award, Plus, Trash2 } from 'lucide-react';
+import { Award, Plus, Trash2, Trophy } from 'lucide-react';
 import { Modal, Button } from './ui/Modal';
 
 export function AchievementBoard({ date }: { date: Date }) {
@@ -37,10 +37,20 @@ export function AchievementBoard({ date }: { date: Date }) {
 
             <div className="flex-1 bg-surface/30 border border-surfaceHighlight rounded-xl p-4 overflow-y-auto min-h-[300px]">
                 {monthAchievements.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center text-secondary/50">
-                        <Award className="w-12 h-12 mb-2 opacity-20" />
-                        <p className="text-sm">No achievements yet.</p>
-                        <button onClick={() => setIsAddModalOpen(true)} className="mt-4 text-accent text-sm hover:underline">Add your first win</button>
+                    <div className="h-full flex flex-col items-center justify-center text-center p-6">
+                        <div className="w-12 h-12 bg-yellow-500/10 rounded-full flex items-center justify-center mb-4 text-yellow-500">
+                            <Trophy className="w-6 h-6" />
+                        </div>
+                        <h4 className="text-lg font-bold text-foreground mb-1">Celebrate Wins</h4>
+                        <p className="text-sm text-secondary mb-4 max-w-[200px]">
+                            "Small wins lead to big victories. Record your progress here."
+                        </p>
+                        <button
+                            onClick={() => setIsAddModalOpen(true)}
+                            className="px-4 py-2 bg-surfaceHighlight text-foreground text-sm font-medium rounded-lg hover:bg-surfaceHighlight/80 transition-colors"
+                        >
+                            Log Achievement
+                        </button>
                     </div>
                 ) : (
                     <ul className="space-y-3">

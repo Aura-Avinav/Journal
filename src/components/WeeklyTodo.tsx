@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../hooks/useStore';
-import { CheckCircle2, Circle, Plus, Trash2, CalendarDays } from 'lucide-react';
+import { CheckCircle2, Circle, Plus, Trash2, CalendarDays, ListTodo } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Modal, Button } from './ui/Modal';
 
@@ -38,10 +38,20 @@ export function WeeklyTodo() {
 
             <div className="flex-1 bg-surface/30 border border-surfaceHighlight rounded-xl p-4 overflow-y-auto min-h-[300px]">
                 {todos.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center text-secondary/50">
-                        <CheckCircle2 className="w-12 h-12 mb-2 opacity-20" />
-                        <p className="text-sm">All caught up!</p>
-                        <button onClick={() => setIsAddModalOpen(true)} className="mt-4 text-pink-500 text-sm hover:underline">Add a task</button>
+                    <div className="h-full flex flex-col items-center justify-center text-center p-6">
+                        <div className="w-12 h-12 bg-pink-500/10 rounded-full flex items-center justify-center mb-4 text-pink-500">
+                            <ListTodo className="w-6 h-6" />
+                        </div>
+                        <h4 className="text-lg font-bold text-foreground mb-1">Plan Your Week</h4>
+                        <p className="text-sm text-secondary mb-4 max-w-[200px]">
+                            "The key is not to prioritize what's on your schedule, but to schedule your priorities."
+                        </p>
+                        <button
+                            onClick={() => setIsAddModalOpen(true)}
+                            className="px-4 py-2 bg-surfaceHighlight text-foreground text-sm font-medium rounded-lg hover:bg-surfaceHighlight/80 transition-colors"
+                        >
+                            Add New Task
+                        </button>
                     </div>
                 ) : (
                     <ul className="space-y-2">

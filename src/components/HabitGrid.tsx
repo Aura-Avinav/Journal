@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useStore } from '../hooks/useStore';
 import { cn } from '../lib/utils';
-import { Check, Plus, Trash2 } from 'lucide-react';
+import { Check, Plus, Trash2, Sparkles } from 'lucide-react';
 import { format, getDaysInMonth } from 'date-fns';
 import { Modal, Button } from './ui/Modal';
 
@@ -126,8 +126,20 @@ export function HabitGrid({ date }: { date: Date }) {
                 </table>
 
                 {data.habits.length === 0 && (
-                    <div className="p-8 text-center text-secondary">
-                        No flow defined. Add a protocol to start tracking.
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                        <div className="w-16 h-16 bg-surfaceHighlight/30 rounded-full flex items-center justify-center mb-4 text-accent animate-pulse">
+                            <Sparkles className="w-8 h-8" />
+                        </div>
+                        <h3 className="text-xl font-bold text-primary mb-2">Start Your Journey</h3>
+                        <p className="text-secondary max-w-sm mb-6">
+                            "We are what we repeatedly do. Excellence, then, is not an act, but a habit."
+                        </p>
+                        <button
+                            onClick={handleAddClick}
+                            className="px-6 py-2.5 bg-accent text-background font-bold rounded-lg hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-accent/20"
+                        >
+                            Create First Protocol
+                        </button>
                     </div>
                 )}
             </div>

@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export function AuthPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [mode, setMode] = useState<'signin' | 'signup'>('signin');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [message, setMessage] = useState<{ type: 'error' | 'success', text: string } | null>(null);
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+        setMessage(null);
         try {
             if (mode === 'signup') {
                 const { error } = await supabase.auth.signUp({
@@ -18,7 +20,7 @@ export function AuthPage() {
                     password,
                 });
                 if (error) throw error;
-                alert('Account created! Please check your email to confirm your account.');
+                setMessage({ type: 'success', text: 'Account created! Please check your email to confirm your account.' });
             } else {
                 const { error } = await supabase.auth.signInWithPassword({
                     email,
@@ -27,7 +29,11 @@ export function AuthPage() {
                 if (error) throw error;
             }
         } catch (error) {
-            alert(error instanceof Error ? error.message : 'An error occurred');
+            let errorMessage = error instanceof Error ? error.message : 'An error occurred';
+            if (errorMessage === 'Invalid login credentials') {
+                errorMessage = 'Invalid email or password. Please check your credentials or sign up if you don\'t have an account.';
+            }
+            setMessage({ type: 'error', text: errorMessage });
         } finally {
             setIsLoading(false);
         }
@@ -52,6 +58,20 @@ export function AuthPage() {
 
                 <div className="bg-surface/30 border border-surfaceHighlight rounded-2xl p-8 backdrop-blur-md shadow-xl">
                     <form onSubmit={handleAuth} className="space-y-6">
+                        {message && (
+                            <div className={`p-4 rounded-xl flex items-start gap-3 text-sm ${message.type === 'success'
+                                    ? 'bg-green-500/10 border border-green-500/20 text-green-500'
+                                    : 'bg-red-500/10 border border-red-500/20 text-red-500'
+                                }`}>
+                                {message.type === 'success' ? (
+                                    <CheckCircle2 className="w-5 h-5 shrink-0" />
+                                ) : (
+                                    <AlertCircle className="w-5 h-5 shrink-0" />
+                                )}
+                                <span>{message.text}</span>
+                            </div>
+                        )}
+
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-secondary" htmlFor="email">
@@ -63,7 +83,10 @@ export function AuthPage() {
                                     placeholder="name@example.com"
                                     required
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={(e) => {
+                                        setEmail(e.target.value);
+                                        if (message) setMessage(null);
+                                    }}
                                     className="w-full px-4 py-3 bg-surfaceHighlight/30 border border-surfaceHighlight rounded-xl text-foreground placeholder:text-secondary/50 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
                                 />
                             </div>
@@ -78,7 +101,10 @@ export function AuthPage() {
                                     required
                                     minLength={6}
                                     value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    onChange={(e) => {
+                                        setPassword(e.target.value);
+                                        if (message) setMessage(null);
+                                    }}
                                     className="w-full px-4 py-3 bg-surfaceHighlight/30 border border-surfaceHighlight rounded-xl text-foreground placeholder:text-secondary/50 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
                                 />
                             </div>
@@ -120,7 +146,10 @@ export function AuthPage() {
                                     });
                                     if (error) throw error;
                                 } catch (error) {
-                                    alert(error instanceof Error ? error.message : 'Error logging in with Google');
+                                    setMessage({
+                                        type: 'error',
+                                        text: error instanceof Error ? error.message : 'Error logging in with Google'
+                                    });
                                 }
                             }}
                             className="w-full py-3 px-4 bg-white text-gray-900 font-bold rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-background transition-all transform active:scale-[0.98] flex items-center justify-center gap-3 shadow-lg"

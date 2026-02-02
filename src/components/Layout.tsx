@@ -97,7 +97,7 @@ function ResetButton({ currentDate }: { currentDate: Date }) {
         <>
             <NavItem
                 icon={<Trash2 className="text-red-400" />}
-                label="Reset Data"
+                label="Reset Monthly Data"
                 onClick={() => setIsConfirmOpen(true)}
             />
 
