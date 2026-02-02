@@ -138,39 +138,44 @@ function App() {
                 <span className="text-[10px] text-secondary font-medium uppercase tracking-wider">
                   {isCurrentMonth ? 'Day' : 'Total Days'}
                 </span>
-                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
-                  <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-                    <HabitGrid date={currentDate} />
-                  </div>
-                </section>
-
-                {/* Section 2: Achievements & ToDo */}
-                <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
-                  <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl h-full min-h-[400px]">
-                    <AchievementBoard date={currentDate} />
-                  </div>
-                  <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl h-full min-h-[400px]">
-                    <WeeklyTodo />
-                  </div>
-                </section>
-
-                {/* Section 3: Metrics */}
-                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
-                  <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl">
-                    <MetricGraph date={currentDate} />
-                  </div>
-                </section>
               </div>
-              ) : view === 'journal' ? (
-              <JournalEditor />
-              ) : view === 'year' ? (
-              <YearView onSelectMonth={handleMonthSelect} />
-              ) : view === 'settings' ? (
-              <SettingsView onBack={() => setView('dashboard')} />
+            </div>
+          </header>
+
+          {/* Section 1: Protocols (Habits) */}
+          <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+            <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+              <HabitGrid date={currentDate} />
+            </div>
+          </section>
+
+          {/* Section 2: Achievements & ToDo */}
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+            <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl h-full min-h-[400px]">
+              <AchievementBoard date={currentDate} />
+            </div>
+            <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl h-full min-h-[400px]">
+              <WeeklyTodo />
+            </div>
+          </section>
+
+          {/* Section 3: Metrics */}
+          <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
+            <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl">
+              <MetricGraph date={currentDate} />
+            </div>
+          </section>
+        </div>
+      ) : view === 'journal' ? (
+        <JournalEditor />
+      ) : view === 'year' ? (
+        <YearView onSelectMonth={handleMonthSelect} />
+      ) : view === 'settings' ? (
+        <SettingsView onBack={() => setView('dashboard')} />
       ) : null}
-            </Layout>
-            );
+    </Layout>
+  );
 }
 
-            export default App;
+export default App;
