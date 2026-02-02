@@ -153,7 +153,7 @@ function NavItem({ icon, label, active, onClick }: { icon: React.ReactNode, labe
                     : "text-secondary hover:bg-surfaceHighlight hover:text-primary"
             )}>
             <div className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform">{icon}</div>
-            <span className="font-medium hidden md:block">{label}</span>
+            <span className="font-medium">{label}</span>
         </button>
     )
 }
