@@ -1,5 +1,5 @@
 import React from 'react';
-import { Book, CheckSquare, Settings, Calendar, Trash2 } from 'lucide-react';
+import { Book, CheckSquare, Settings, Calendar, Trash2, Menu, X } from 'lucide-react';
 
 import { cn } from '../lib/utils';
 import { useStore } from '../hooks/useStore';
@@ -12,11 +12,86 @@ interface LayoutProps {
 }
 
 export function Layout({ children, currentView, onNavigate, currentDate = new Date() }: LayoutProps) {
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+
+    const handleMobileNavigate = (view: 'dashboard' | 'journal' | 'achievements' | 'year' | 'settings') => {
+        onNavigate(view);
+        setIsMobileMenuOpen(false);
+    };
+
     return (
-        <div className="min-h-screen bg-background text-foreground flex font-sans selection:bg-accent/20">
-            {/* Sidebar - Desktop */}
-            <aside className="w-16 md:w-64 border-r border-surfaceHighlight bg-surface/50 hidden md:flex flex-col p-4 fixed h-full z-10 backdrop-blur-md">
-                <div className="flex items-center justify-center md:justify-start gap-3 mb-8 px-2">
+        <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row font-sans selection:bg-accent/20">
+            {/* Mobile Header */}
+            <header className="md:hidden flex items-center justify-between p-4 border-b border-surfaceHighlight bg-surface/50 backdrop-blur-md sticky top-0 z-20">
+                <div className="flex items-center gap-2">
+                    <img src="/ituts-logo.png" alt="Ituts Logo" className="h-8 w-auto object-contain" />
+                    <span className="font-bold text-lg">Ituts</span>
+                </div>
+                <button
+                    onClick={() => setIsMobileMenuOpen(true)}
+                    className="p-2 text-secondary hover:text-primary transition-colors"
+                >
+                    <Menu className="w-6 h-6" />
+                </button>
+            </header>
+
+            {/* Mobile Navigation Drawer */}
+            {isMobileMenuOpen && (
+                <div className="fixed inset-0 z-50 md:hidden">
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                    />
+
+                    {/* Drawer Content */}
+                    <aside className="absolute right-0 top-0 bottom-0 w-3/4 max-w-sm bg-surface border-l border-surfaceHighlight p-6 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+                        <div className="flex justify-end mb-8">
+                            <button
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="p-2 text-secondary hover:text-primary transition-colors"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <nav className="space-y-4">
+                            <NavItem
+                                icon={<CheckSquare />}
+                                label="Tracker"
+                                active={currentView === 'dashboard'}
+                                onClick={() => handleMobileNavigate('dashboard')}
+                            />
+                            <NavItem
+                                icon={<Book />}
+                                label="Journal"
+                                active={currentView === 'journal'}
+                                onClick={() => handleMobileNavigate('journal')}
+                            />
+                            <NavItem
+                                icon={<Calendar />}
+                                label="2026 Overview"
+                                active={currentView === 'year'}
+                                onClick={() => handleMobileNavigate('year')}
+                            />
+
+                            <hr className="border-surfaceHighlight my-4" />
+
+                            <ResetButton currentDate={currentDate} />
+                            <NavItem
+                                icon={<Settings />}
+                                label="Settings"
+                                active={currentView === 'settings'}
+                                onClick={() => handleMobileNavigate('settings')}
+                            />
+                        </nav>
+                    </aside>
+                </div>
+            )}
+
+            {/* Desktop Sidebar */}
+            <aside className="w-64 border-r border-surfaceHighlight bg-surface/50 hidden md:flex flex-col p-4 fixed h-full z-10 backdrop-blur-md">
+                <div className="flex items-center justify-start gap-3 mb-8 px-2">
                     <img src="/ituts-logo.png" alt="Ituts Logo" className="h-12 w-auto object-contain" />
                 </div>
 
@@ -39,8 +114,6 @@ export function Layout({ children, currentView, onNavigate, currentDate = new Da
                         active={currentView === 'year'}
                         onClick={() => onNavigate('year')}
                     />
-                    {/* <NavItem icon={<Award />} label="Achievements" /> */}
-                    {/* <NavItem icon={<BarChart />} label="Analytics" /> */}
                 </nav>
 
                 <div className="mt-auto space-y-2">
@@ -56,13 +129,11 @@ export function Layout({ children, currentView, onNavigate, currentDate = new Da
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 md:ml-64 p-4 md:p-8 overflow-x-hidden w-full max-w-[1920px] mx-auto animate-in fade-in duration-500">
+            <main className="flex-1 md:ml-64 p-4 md:p-8 overflow-x-hidden w-full max-w-[1920px] mx-auto animate-in fade-in duration-500 pt-6 md:pt-8">
                 <div className="max-w-7xl mx-auto">
                     {children}
                 </div>
             </main>
-
-            {/* Mobile Nav could go here (bottom bar) */}
         </div>
     );
 }
