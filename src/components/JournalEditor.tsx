@@ -48,34 +48,36 @@ export function JournalEditor() {
                     />
                 </div>
 
-                {Object.keys(data.journal).filter(date => data.journal[date]?.trim()).length > 0 && (
-                    <>
-                        <h3 className="text-sm font-semibold text-secondary uppercase tracking-wider mb-2 flex items-center gap-2">
-                            <Calendar className="w-4 h-4" />
-                            Saved Entries
-                        </h3>
+                <h3 className="text-sm font-semibold text-secondary uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    Saved Entries
+                </h3>
 
-                        <div className="flex-1 overflow-y-auto space-y-1">
-                            {Object.keys(data.journal)
-                                .filter(date => data.journal[date]?.trim())
-                                .sort()
-                                .reverse()
-                                .map(date => (
-                                    <button
-                                        key={date}
-                                        onClick={() => setSelectedDate(date)}
-                                        className={cn(
-                                            "w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center justify-between group",
-                                            date === selectedDate ? "bg-accent/20 text-accent" : "text-secondary hover:bg-surfaceHighlight"
-                                        )}
-                                    >
-                                        <span>{date}</span>
-                                        <ChevronRight className={cn("w-4 h-4 opacity-0 transition-opacity", date === selectedDate ? "opacity-100" : "group-hover:opacity-50")} />
-                                    </button>
-                                ))}
+                <div className="flex-1 overflow-y-auto space-y-1">
+                    {Object.keys(data.journal).filter(date => data.journal[date]?.trim()).length > 0 ? (
+                        Object.keys(data.journal)
+                            .filter(date => data.journal[date]?.trim())
+                            .sort()
+                            .reverse()
+                            .map(date => (
+                                <button
+                                    key={date}
+                                    onClick={() => setSelectedDate(date)}
+                                    className={cn(
+                                        "w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center justify-between group",
+                                        date === selectedDate ? "bg-accent/20 text-accent" : "text-secondary hover:bg-surfaceHighlight"
+                                    )}
+                                >
+                                    <span>{date}</span>
+                                    <ChevronRight className={cn("w-4 h-4 opacity-0 transition-opacity", date === selectedDate ? "opacity-100" : "group-hover:opacity-50")} />
+                                </button>
+                            ))
+                    ) : (
+                        <div className="flex flex-col items-center justify-center py-8 text-secondary/50">
+                            <span className="text-xs italic">No saved entries</span>
                         </div>
-                    </>
-                )}
+                    )}
+                </div>
             </div>
 
             {/* Main Editor */}
