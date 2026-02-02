@@ -39,7 +39,7 @@ export function JournalEditor() {
             {/* Sidebar: Date Picker / List */}
             <div className="w-full md:w-64 bg-surface/30 border border-surfaceHighlight rounded-xl flex flex-col p-4 shrink-0">
                 <div className="mb-6">
-                    <label className="text-xs font-semibold text-secondary uppercase tracking-wider mb-2 block">Select Date</label>
+                    <label className="text-xs font-semibold text-secondary uppercase tracking-wider mb-2 block">Jump to Date</label>
                     <input
                         type="date"
                         value={selectedDate}
@@ -48,31 +48,34 @@ export function JournalEditor() {
                     />
                 </div>
 
-                <h3 className="text-sm font-semibold text-secondary uppercase tracking-wider mb-2 flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    Past Entries
-                </h3>
+                {Object.keys(data.journal).filter(date => data.journal[date]?.trim()).length > 0 && (
+                    <>
+                        <h3 className="text-sm font-semibold text-secondary uppercase tracking-wider mb-2 flex items-center gap-2">
+                            <Calendar className="w-4 h-4" />
+                            Saved Entries
+                        </h3>
 
-                <div className="flex-1 overflow-y-auto space-y-1">
-                    {Object.keys(data.journal)
-                        .filter(date => data.journal[date]?.trim())
-                        .sort()
-                        .reverse()
-                        .map(date => (
-                            <button
-                                key={date}
-                                onClick={() => setSelectedDate(date)}
-                                className={cn(
-                                    "w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center justify-between group",
-                                    date === selectedDate ? "bg-accent/20 text-accent" : "text-secondary hover:bg-surfaceHighlight"
-                                )}
-                            >
-                                <span>{date}</span>
-                                <ChevronRight className={cn("w-4 h-4 opacity-0 transition-opacity", date === selectedDate ? "opacity-100" : "group-hover:opacity-50")} />
-                            </button>
-                        ))}
-                    {Object.keys(data.journal).length === 0 && <span className="text-secondary/50 text-xs text-center block mt-4">No saved entries</span>}
-                </div>
+                        <div className="flex-1 overflow-y-auto space-y-1">
+                            {Object.keys(data.journal)
+                                .filter(date => data.journal[date]?.trim())
+                                .sort()
+                                .reverse()
+                                .map(date => (
+                                    <button
+                                        key={date}
+                                        onClick={() => setSelectedDate(date)}
+                                        className={cn(
+                                            "w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center justify-between group",
+                                            date === selectedDate ? "bg-accent/20 text-accent" : "text-secondary hover:bg-surfaceHighlight"
+                                        )}
+                                    >
+                                        <span>{date}</span>
+                                        <ChevronRight className={cn("w-4 h-4 opacity-0 transition-opacity", date === selectedDate ? "opacity-100" : "group-hover:opacity-50")} />
+                                    </button>
+                                ))}
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Main Editor */}
@@ -88,7 +91,7 @@ export function JournalEditor() {
                                 <Save className="w-4 h-4 opacity-50" />
                             </>
                         ) : (
-                            <span className="opacity-50 italic">Empty</span>
+                            <span className="opacity-50 italic">No Entry Saved</span>
                         )}
                     </div>
                 </div>
