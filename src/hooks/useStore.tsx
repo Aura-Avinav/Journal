@@ -278,7 +278,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     };
 
     const updateJournal = async (date: string, content: string) => {
-        if (!content.trim()) {
+        if (!content || !content.trim()) {
             // Remove entry if content is empty
             setData(prev => {
                 const newJournal = { ...prev.journal };

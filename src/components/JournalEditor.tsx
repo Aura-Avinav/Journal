@@ -17,8 +17,18 @@ export function JournalEditor() {
     // Autosave after delay
     useEffect(() => {
         const timer = setTimeout(() => {
+            const cleanContent = content.trim();
+            const currentSaved = (data.journal[selectedDate] || '').trim();
+
             if (content !== (data.journal[selectedDate] || '')) {
-                updateJournal(selectedDate, content);
+                // If the user cleared the content (or it's just whitespace), send empty string to trigger deletion
+                if (!cleanContent) {
+                    if (currentSaved) {
+                        updateJournal(selectedDate, '');
+                    }
+                } else {
+                    updateJournal(selectedDate, content);
+                }
             }
         }, 1000);
         return () => clearTimeout(timer);
