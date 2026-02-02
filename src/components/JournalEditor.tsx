@@ -10,6 +10,7 @@ export function JournalEditor() {
 
     // Load content when date changes
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setContent(data.journal[selectedDate] || '');
     }, [selectedDate, data.journal]);
 
@@ -21,7 +22,7 @@ export function JournalEditor() {
             }
         }, 1000);
         return () => clearTimeout(timer);
-    }, [content, selectedDate]);
+    }, [content, selectedDate, data.journal, updateJournal]);
 
     return (
         <div className="flex flex-col md:flex-row h-[80vh] gap-6 animate-in fade-in duration-500">
@@ -39,19 +40,23 @@ export function JournalEditor() {
                 />
 
                 <div className="flex-1 overflow-y-auto space-y-1">
-                    {Object.keys(data.journal).sort().reverse().map(date => (
-                        <button
-                            key={date}
-                            onClick={() => setSelectedDate(date)}
-                            className={cn(
-                                "w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center justify-between group",
-                                date === selectedDate ? "bg-accent/20 text-accent" : "text-secondary hover:bg-surfaceHighlight"
-                            )}
-                        >
-                            <span>{date}</span>
-                            <ChevronRight className={cn("w-4 h-4 opacity-0 transition-opacity", date === selectedDate ? "opacity-100" : "group-hover:opacity-50")} />
-                        </button>
-                    ))}
+                    {Object.keys(data.journal)
+                        .filter(date => data.journal[date]?.trim())
+                        .sort()
+                        .reverse()
+                        .map(date => (
+                            <button
+                                key={date}
+                                onClick={() => setSelectedDate(date)}
+                                className={cn(
+                                    "w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center justify-between group",
+                                    date === selectedDate ? "bg-accent/20 text-accent" : "text-secondary hover:bg-surfaceHighlight"
+                                )}
+                            >
+                                <span>{date}</span>
+                                <ChevronRight className={cn("w-4 h-4 opacity-0 transition-opacity", date === selectedDate ? "opacity-100" : "group-hover:opacity-50")} />
+                            </button>
+                        ))}
                     {Object.keys(data.journal).length === 0 && <span className="text-secondary/50 text-xs text-center block mt-10">No entries yet</span>}
                 </div>
             </div>

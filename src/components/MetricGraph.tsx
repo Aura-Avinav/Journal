@@ -5,9 +5,9 @@ import { Activity } from 'lucide-react';
 import { format, subDays, eachDayOfInterval } from 'date-fns';
 
 export function MetricGraph({ date }: { date: Date }) {
+    void date; // Silence unused warning
     const { data } = useStore();
     // For now, metrics are generic, but accepting date allows future filtering
-    console.log("Graph for date:", date);
 
     return (
         <div className="h-full flex flex-col">
@@ -66,7 +66,7 @@ export function MetricGraph({ date }: { date: Date }) {
     );
 }
 
-// @ts-ignore
+
 function getChartData(data: AppData) {
     // Generate last 14 days
     const days = eachDayOfInterval({
