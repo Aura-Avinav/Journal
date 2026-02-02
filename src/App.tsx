@@ -48,11 +48,8 @@ function App() {
 
     // Monthly Progress
     let monthlyCompleted = 0;
-    const daysElapsedInMonth = isCurrentMonth ? todayDate : daysInMonth;
-    // We only count up to 'daysElapsedInMonth' checkboxes per habit to prevent > 100%
-    // Logic: Total possible = habits * elapsed days.
-    // Numerator = count of checks that are <= today (if current month).
-    const totalPossibleMonthly = habits.length * daysElapsedInMonth;
+    // Calculate based on TOTAL days in the month (e.g. 3/28 days = ~10%)
+    const totalPossibleMonthly = habits.length * daysInMonth;
 
     // Yearly Progress
     let yearlyCompleted = 0;
