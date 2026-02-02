@@ -49,6 +49,9 @@ function App() {
     // Monthly Progress
     let monthlyCompleted = 0;
     const daysElapsedInMonth = isCurrentMonth ? todayDate : daysInMonth;
+    // We only count up to 'daysElapsedInMonth' checkboxes per habit to prevent > 100%
+    // Logic: Total possible = habits * elapsed days.
+    // Numerator = count of checks that are <= today (if current month).
     const totalPossibleMonthly = habits.length * daysElapsedInMonth;
 
     // Yearly Progress
@@ -63,23 +66,25 @@ function App() {
         const date = new Date(dateStr);
         // Monthly check
         if (date.getMonth() === currentDate.getMonth() && date.getFullYear() === currentYear) {
-          // Only count if within "elapsed" days (future days shouldn't count mainly to cap at 100% logically, 
-          // but technically user can't check future dates usually. Let's just count all for simplicty if they checked it)
-          // Actually, strictly following "elapsed" denominator means we should count all found completions 
-          // but if user checked future days it might go > 100%. 
-          // For now assuming no future checks possible.
-          monthlyCompleted++;
+          // Logic to exclude future checks from calculation if user hacked them in somehow
+          const isFuture = isCurrentMonth && date.getDate() > todayDate;
+          if (!isFuture) {
+            monthlyCompleted++;
+          }
         }
         // Yearly check
         if (date.getFullYear() === currentYear) {
-          yearlyCompleted++;
+          const isFuture = isRealCurrentYear && date > new Date();
+          if (!isFuture) {
+            yearlyCompleted++;
+          }
         }
       });
     });
 
     return {
-      monthly: totalPossibleMonthly > 0 ? Math.round((monthlyCompleted / totalPossibleMonthly) * 100) : 0,
-      yearly: totalPossibleYearly > 0 ? Math.round((yearlyCompleted / totalPossibleYearly) * 100) : 0
+      monthly: totalPossibleMonthly > 0 ? Math.min(100, Math.round((monthlyCompleted / totalPossibleMonthly) * 100)) : 0,
+      yearly: totalPossibleYearly > 0 ? Math.min(100, Math.round((yearlyCompleted / totalPossibleYearly) * 100)) : 0
     };
   };
 
@@ -117,7 +122,7 @@ function App() {
                   </div>
                   <div className="h-2 w-full bg-surfaceHighlight rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-1000 ease-out"
+                      className="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-1000 ease-out"
                       style={{ width: `${progress.monthly}%` }}
                     />
                   </div>
@@ -133,44 +138,39 @@ function App() {
                 <span className="text-[10px] text-secondary font-medium uppercase tracking-wider">
                   {isCurrentMonth ? 'Day' : 'Total Days'}
                 </span>
+                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+                  <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                    <HabitGrid date={currentDate} />
+                  </div>
+                </section>
+
+                {/* Section 2: Achievements & ToDo */}
+                <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+                  <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl h-full min-h-[400px]">
+                    <AchievementBoard date={currentDate} />
+                  </div>
+                  <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl h-full min-h-[400px]">
+                    <WeeklyTodo />
+                  </div>
+                </section>
+
+                {/* Section 3: Metrics */}
+                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
+                  <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl">
+                    <MetricGraph date={currentDate} />
+                  </div>
+                </section>
               </div>
-            </div>
-          </header>
-
-          {/* Section 1: Protocols (Habits) */}
-          <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
-            <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-              <HabitGrid date={currentDate} />
-            </div>
-          </section>
-
-          {/* Section 2: Achievements & ToDo */}
-          <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
-            <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl h-full min-h-[400px]">
-              <AchievementBoard date={currentDate} />
-            </div>
-            <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl h-full min-h-[400px]">
-              <WeeklyTodo />
-            </div>
-          </section>
-
-          {/* Section 3: Metrics */}
-          <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
-            <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl">
-              <MetricGraph date={currentDate} />
-            </div>
-          </section>
-        </div>
-      ) : view === 'journal' ? (
-        <JournalEditor />
-      ) : view === 'year' ? (
-        <YearView onSelectMonth={handleMonthSelect} />
-      ) : view === 'settings' ? (
-        <SettingsView onBack={() => setView('dashboard')} />
+              ) : view === 'journal' ? (
+              <JournalEditor />
+              ) : view === 'year' ? (
+              <YearView onSelectMonth={handleMonthSelect} />
+              ) : view === 'settings' ? (
+              <SettingsView onBack={() => setView('dashboard')} />
       ) : null}
-    </Layout>
-  );
+            </Layout>
+            );
 }
 
-export default App;
+            export default App;

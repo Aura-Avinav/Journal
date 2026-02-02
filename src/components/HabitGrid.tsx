@@ -99,16 +99,22 @@ export function HabitGrid({ date }: { date: Date }) {
                                         currentMonth === today.getMonth() &&
                                         currentYear === today.getFullYear();
 
+                                    // Check if date is in the future
+                                    const isFuture = dateObj > new Date(new Date().setHours(23, 59, 59, 999));
+
                                     return (
                                         <td key={day} className={cn(
                                             "p-0 text-center border-b border-surfaceHighlight/10 relative",
-                                            isToday && "bg-accent/5"
+                                            isToday && "bg-accent/5",
+                                            isFuture && "bg-surface/5"
                                         )}>
                                             <button
-                                                onClick={() => toggleHabit(habit.id, dateStr)}
+                                                onClick={() => !isFuture && toggleHabit(habit.id, dateStr)}
+                                                disabled={isFuture}
                                                 className={cn(
                                                     "w-full h-10 flex items-center justify-center transition-all duration-200",
-                                                    isCompleted ? "text-accent scale-110" : "text-surfaceHighlight/20 hover:text-secondary/50 hover:scale-105"
+                                                    isFuture ? "cursor-not-allowed opacity-20" :
+                                                        isCompleted ? "text-accent scale-110" : "text-surfaceHighlight/20 hover:text-secondary/50 hover:scale-105"
                                                 )}
                                             >
                                                 {isCompleted ? (
