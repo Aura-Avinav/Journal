@@ -3,7 +3,7 @@ import { Layout } from './components/Layout';
 import { AuthPage } from './components/AuthPage';
 import { HabitGrid } from './components/HabitGrid';
 import { AchievementBoard } from './components/AchievementBoard';
-import { WeeklyTodo } from './components/WeeklyTodo';
+import { TodoBoard } from './components/TodoBoard';
 import { JournalEditor } from './components/JournalEditor';
 import { MetricGraph } from './components/MetricGraph';
 import { YearView } from './components/YearView';
@@ -153,7 +153,7 @@ function App() {
               <AchievementBoard date={currentDate} />
             </div>
             <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl h-full min-h-[400px]">
-              <WeeklyTodo />
+              <TodoBoard />
             </div>
           </section>
 
