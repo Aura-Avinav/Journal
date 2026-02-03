@@ -58,7 +58,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const [session, setSession] = useState<any>(null);
     const [data, setData] = useState<AppData>(DEFAULT_DATA);
 
-    // ... (Auth useEffects) ...
+    // Auth Listener
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSession(session);
+        });
+
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            setSession(session);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
 
     // Sync Theme to DOM
     useEffect(() => {
@@ -79,7 +92,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
                 const newTheme = e.matches ? 'dark' : 'light';
                 setData(prev => ({
                     ...prev,
-                    preferences: { ...prev.preferences, theme: newTheme }
+                    preferences: { theme: newTheme, reducedMotion: prev.preferences?.reducedMotion ?? false }
                 }));
             }
         };
@@ -138,14 +151,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             // Assuming metrics are simplified for now
 
             // 6. Preferences (Profiles)
-            // const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
-            // Use stored preference OR system default (via getInitialTheme logic if you wanted, but here we can check storage directly or assume state is already correct from init?)
-            // Actually, if we just logged in, we might want to respect the user's PREVIOUS session on this device.
+            const { data: profile } = await supabase.from('profiles').select('theme').eq('id', userId).single();
+
             const storedTheme = localStorage.getItem(THEME_STORAGE_KEY) as 'dark' | 'light' | null;
             const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 
+            // Priority: DB -> LocalStorage -> System
+            const dbTheme = profile?.theme as 'dark' | 'light' | null;
+            const finalTheme = dbTheme || storedTheme || systemTheme;
+
+            // Update local storage to match DB if it exists
+            if (dbTheme && dbTheme !== storedTheme) {
+                localStorage.setItem(THEME_STORAGE_KEY, dbTheme);
+            }
+
             const preferences: { theme: 'dark' | 'light', reducedMotion: boolean } = {
-                theme: storedTheme || systemTheme, // Prefer stored, fallback to system
+                theme: finalTheme,
                 reducedMotion: false
             };
 
@@ -450,9 +471,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         });
     };
 
-    const toggleTheme = () => {
+    const toggleTheme = async () => {
         const newTheme = data.preferences?.theme === 'light' ? 'dark' : 'light';
         localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+
         setData(prev => ({
             ...prev,
             preferences: {
@@ -460,7 +482,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
                 reducedMotion: prev.preferences?.reducedMotion ?? false
             }
         }));
-        // DOM update handled by useEffect
+
+        if (session?.user) {
+            // Upsert profile with new theme
+            await supabase.from('profiles').upsert({
+                id: session.user.id,
+                theme: newTheme,
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'id' });
+        }
     };
 
     const value = {
