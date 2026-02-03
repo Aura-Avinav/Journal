@@ -6,6 +6,13 @@ import { supabase } from '../lib/supabase';
 
 // const STORAGE_KEY = 'digital-journal-data-v2';
 
+const getSystemTheme = () => {
+    if (typeof window !== 'undefined' && window.matchMedia) {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'dark';
+};
+
 const DEFAULT_DATA: AppData = {
     habits: [],
     achievements: [],
@@ -13,7 +20,7 @@ const DEFAULT_DATA: AppData = {
     journal: {},
     metrics: [],
     preferences: {
-        theme: 'dark',
+        theme: getSystemTheme(),
         reducedMotion: false
     }
 };
@@ -58,11 +65,46 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         return () => subscription.unsubscribe();
     }, []);
 
+    // Sync Theme to DOM
+    useEffect(() => {
+        const theme = data.preferences?.theme || 'dark';
+        if (theme === 'light') {
+            document.documentElement.classList.add('light');
+        } else {
+            document.documentElement.classList.remove('light');
+        }
+    }, [data.preferences?.theme]);
+
+    // Listen for System Theme Changes
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const handleChange = (e: MediaQueryListEvent) => {
+            const newTheme = e.matches ? 'dark' : 'light';
+            setData(prev => ({
+                ...prev,
+                preferences: {
+                    theme: newTheme,
+                    reducedMotion: prev.preferences?.reducedMotion ?? false
+                }
+            }));
+        };
+
+        mediaQuery.addEventListener('change', handleChange);
+        return () => mediaQuery.removeEventListener('change', handleChange);
+    }, []);
+
     // Load initial data from Supabase on Login
     useEffect(() => {
         if (!session?.user) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setData(DEFAULT_DATA);
+            // Reset to defaults but update theme based on system
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            setData({
+                ...DEFAULT_DATA,
+                preferences: {
+                    theme: systemTheme,
+                    reducedMotion: false
+                }
+            });
             return;
         }
 
@@ -418,13 +460,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
                 reducedMotion: prev.preferences?.reducedMotion ?? false
             }
         }));
-
-        if (newTheme === 'light') {
-            document.documentElement.classList.add('light');
-        } else {
-            document.documentElement.classList.remove('light');
-        }
-        // Ideally sync profile theme preference to DB here
+        // DOM update handled by useEffect
     };
 
     const value = {
