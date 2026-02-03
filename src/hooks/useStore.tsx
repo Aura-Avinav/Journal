@@ -6,9 +6,16 @@ import { supabase } from '../lib/supabase';
 
 // const STORAGE_KEY = 'digital-journal-data-v2';
 
-const getSystemTheme = () => {
-    if (typeof window !== 'undefined' && window.matchMedia) {
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+const THEME_STORAGE_KEY = 'journal_theme_preference';
+
+const getInitialTheme = (): 'dark' | 'light' => {
+    if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem(THEME_STORAGE_KEY);
+        if (stored === 'dark' || stored === 'light') return stored;
+
+        if (window.matchMedia) {
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
     }
     return 'dark';
 };
@@ -20,7 +27,7 @@ const DEFAULT_DATA: AppData = {
     journal: {},
     metrics: [],
     preferences: {
-        theme: getSystemTheme(),
+        theme: getInitialTheme(),
         reducedMotion: false
     }
 };
@@ -51,19 +58,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const [session, setSession] = useState<any>(null);
     const [data, setData] = useState<AppData>(DEFAULT_DATA);
 
-    useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-        });
-
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session);
-        });
-
-        return () => subscription.unsubscribe();
-    }, []);
+    // ... (Auth useEffects) ...
 
     // Sync Theme to DOM
     useEffect(() => {
@@ -79,14 +74,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
         const handleChange = (e: MediaQueryListEvent) => {
-            const newTheme = e.matches ? 'dark' : 'light';
-            setData(prev => ({
-                ...prev,
-                preferences: {
-                    theme: newTheme,
-                    reducedMotion: prev.preferences?.reducedMotion ?? false
-                }
-            }));
+            // Only update if user hasn't manually overridden (no storage key)
+            if (!localStorage.getItem(THEME_STORAGE_KEY)) {
+                const newTheme = e.matches ? 'dark' : 'light';
+                setData(prev => ({
+                    ...prev,
+                    preferences: { ...prev.preferences, theme: newTheme }
+                }));
+            }
         };
 
         mediaQuery.addEventListener('change', handleChange);
@@ -96,12 +91,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     // Load initial data from Supabase on Login
     useEffect(() => {
         if (!session?.user) {
-            // Reset to defaults but update theme based on system
-            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            // Reset to defaults. Re-calculate initial theme to respect storage/system live.
             setData({
                 ...DEFAULT_DATA,
                 preferences: {
-                    theme: systemTheme,
+                    theme: getInitialTheme(),
                     reducedMotion: false
                 }
             });
@@ -145,8 +139,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
             // 6. Preferences (Profiles)
             // const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
+            // Use stored preference OR system default (via getInitialTheme logic if you wanted, but here we can check storage directly or assume state is already correct from init?)
+            // Actually, if we just logged in, we might want to respect the user's PREVIOUS session on this device.
+            const storedTheme = localStorage.getItem(THEME_STORAGE_KEY) as 'dark' | 'light' | null;
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
             const preferences: { theme: 'dark' | 'light', reducedMotion: boolean } = {
-                theme: 'dark', // Default or fetch from profile if structure matches
+                theme: storedTheme || systemTheme, // Prefer stored, fallback to system
                 reducedMotion: false
             };
 
@@ -453,6 +452,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
     const toggleTheme = () => {
         const newTheme = data.preferences?.theme === 'light' ? 'dark' : 'light';
+        localStorage.setItem(THEME_STORAGE_KEY, newTheme);
         setData(prev => ({
             ...prev,
             preferences: {
