@@ -15,7 +15,7 @@ export interface ToDo {
     id: string;
     text: string;
     completed: boolean;
-    type: 'daily' | 'monthly';
+    type: 'daily' | 'weekly' | 'monthly';
     createdAt: string; // ISO string
 }
 

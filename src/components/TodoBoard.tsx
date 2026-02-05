@@ -6,7 +6,7 @@ import { Modal, Button } from './ui/Modal';
 
 export function TodoBoard() {
     const { data, toggleTodo, addTodo, removeTodo } = useStore();
-    const [activeTab, setActiveTab] = useState<'daily' | 'monthly'>('daily');
+    const [activeTab, setActiveTab] = useState<'daily' | 'weekly' | 'monthly'>('daily');
 
     const todos = data.todos.filter(t => t.type === activeTab);
 
@@ -38,6 +38,18 @@ export function TodoBoard() {
                         Today
                     </button>
                     <button
+                        onClick={() => setActiveTab('weekly')}
+                        className={cn(
+                            "px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-2",
+                            activeTab === 'weekly'
+                                ? "bg-surfaceHighlight text-primary shadow-sm"
+                                : "text-secondary hover:text-primary hover:bg-surfaceHighlight/50"
+                        )}
+                    >
+                        <CalendarRange className="w-3.5 h-3.5" />
+                        Weekly
+                    </button>
+                    <button
                         onClick={() => setActiveTab('monthly')}
                         className={cn(
                             "px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-2",
@@ -66,18 +78,20 @@ export function TodoBoard() {
                             <ListTodo className="w-6 h-6" />
                         </div>
                         <h4 className="text-lg font-bold text-foreground mb-1">
-                            {activeTab === 'daily' ? "Plan Your Day" : "Monthly Goals"}
+                            {activeTab === 'daily' ? "Plan Your Day" : activeTab === 'weekly' ? "Weekly Targets" : "Monthly Goals"}
                         </h4>
                         <p className="text-sm text-secondary mb-4 max-w-[200px]">
                             {activeTab === 'daily'
                                 ? '"The secret of your future is hidden in your daily routine."'
-                                : '"Set your goals high, and don\'t stop until you get there."'}
+                                : activeTab === 'weekly'
+                                    ? '"Consistency is what transforms average into excellence."'
+                                    : '"Set your goals high, and don\'t stop until you get there."'}
                         </p>
                         <button
                             onClick={() => setIsAddModalOpen(true)}
                             className="px-4 py-2 bg-surfaceHighlight text-foreground text-sm font-medium rounded-lg hover:bg-surfaceHighlight/80 transition-colors"
                         >
-                            Add {activeTab === 'daily' ? 'Task' : 'Goal'}
+                            Add {activeTab === 'daily' ? 'Task' : activeTab === 'weekly' ? 'Weekly Task' : 'Goal'}
                         </button>
                     </div>
                 ) : (
@@ -114,12 +128,12 @@ export function TodoBoard() {
             <Modal
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
-                title={activeTab === 'daily' ? "Add Daily Task" : "Add Monthly Goal"}
+                title={activeTab === 'daily' ? "Add Daily Task" : activeTab === 'weekly' ? "Add Weekly Task" : "Add Monthly Goal"}
             >
                 <div className="space-y-4">
                     <input
                         type="text"
-                        placeholder={activeTab === 'daily' ? "What do you need to do today?" : "What's your goal for this month?"}
+                        placeholder={activeTab === 'daily' ? "What do you need to do today?" : activeTab === 'weekly' ? "What are your goals for this week?" : "What's your goal for this month?"}
                         value={newTodo}
                         onChange={(e) => setNewTodo(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
