@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Layout } from './components/Layout';
 import { AuthPage } from './components/AuthPage';
 import { HabitGrid } from './components/HabitGrid';
@@ -14,7 +14,18 @@ import { useStore } from './hooks/useStore';
 type ViewState = 'dashboard' | 'journal' | 'achievements' | 'year' | 'settings';
 
 function App() {
-  const [view, setView] = useState<ViewState>('dashboard');
+  const [view, setView] = useState<ViewState>(() => {
+    if (typeof window !== 'undefined') {
+      const savedView = localStorage.getItem('journal_current_view');
+      return (savedView as ViewState) || 'dashboard';
+    }
+    return 'dashboard';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('journal_current_view', view);
+  }, [view]);
+
   const [currentDate, setCurrentDate] = useState(new Date());
   const { data, user } = useStore();
 
