@@ -1,12 +1,13 @@
 import { useStore } from '../hooks/useStore';
-import { Moon, Sun, Monitor, ArrowLeft, RotateCcw, LogOut, User } from 'lucide-react';
+import { Moon, Sun, Monitor, ArrowLeft, RotateCcw, LogOut, User, Upload, Download, Database } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { cn } from '../lib/utils';
 import { Modal } from './ui/Modal';
+import { ImportModal } from './ui/ImportModal';
 import { useState, useEffect } from 'react';
 
 export function SettingsView({ onBack }: { onBack: () => void }) {
-    const { data, setTheme, resetData } = useStore();
+    const { data, setTheme, resetData, exportData } = useStore();
     const storeTheme = data.preferences?.theme || 'dark';
 
     // Local state for manual save
@@ -15,6 +16,7 @@ export function SettingsView({ onBack }: { onBack: () => void }) {
 
     // Restore modal state
     const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
     // Preview effect: Update DOM immediately when pendingTheme changes, but don't save yet
     // logic in useStore also updates DOM, but only when 'data' changes.
@@ -127,15 +129,54 @@ export function SettingsView({ onBack }: { onBack: () => void }) {
 
                 {/* Data Management Section */}
                 <section className="space-y-4">
-                    <h2 className="text-xl font-semibold flex items-center gap-2 text-danger">
-                        <RotateCcw className="w-5 h-5" />
-                        Danger Zone
+                    <h2 className="text-xl font-semibold flex items-center gap-2 text-foreground">
+                        <Database className="w-5 h-5 text-accent" />
+                        Data Management
                     </h2>
-                    <div className="bg-danger/5 backdrop-blur-md border border-danger/20 rounded-2xl p-6 shadow-lg">
-                        <div className="flex items-center justify-between">
+
+                    {/* Import / Export Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-6 shadow-xl flex flex-col justify-between">
                             <div>
-                                <h3 className="font-medium text-danger">Reset Application</h3>
-                                <p className="text-sm text-danger/70">Clear all data and return to defaults</p>
+                                <h3 className="font-medium text-foreground flex items-center gap-2">
+                                    <Upload className="w-4 h-4 text-accent" />
+                                    Import Data
+                                </h3>
+                                <p className="text-sm text-secondary mt-1">Bring in data from Notion or Obsidian.</p>
+                            </div>
+                            <button
+                                onClick={() => setIsImportModalOpen(true)}
+                                className="mt-4 px-4 py-2 bg-surfaceHighlight hover:bg-surfaceHighlight/80 text-foreground rounded-lg transition-colors font-medium text-sm w-full"
+                            >
+                                Import
+                            </button>
+                        </div>
+
+                        <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                            <div>
+                                <h3 className="font-medium text-foreground flex items-center gap-2">
+                                    <Download className="w-4 h-4 text-accent" />
+                                    Export Data
+                                </h3>
+                                <p className="text-sm text-secondary mt-1">Download a backup of your JSON data.</p>
+                            </div>
+                            <button
+                                onClick={exportData}
+                                className="mt-4 px-4 py-2 bg-surfaceHighlight hover:bg-surfaceHighlight/80 text-foreground rounded-lg transition-colors font-medium text-sm w-full"
+                            >
+                                Export JSON
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="bg-danger/5 backdrop-blur-md border border-danger/20 rounded-2xl p-6 shadow-lg mt-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <RotateCcw className="w-5 h-5 text-danger" />
+                                <div>
+                                    <h3 className="font-medium text-danger">Reset Application</h3>
+                                    <p className="text-sm text-danger/70">Clear all data and return to defaults</p>
+                                </div>
                             </div>
                             <button
                                 onClick={() => setIsResetModalOpen(true)}
@@ -185,6 +226,11 @@ export function SettingsView({ onBack }: { onBack: () => void }) {
                     </div>
                 </div>
             </Modal>
+
+            <ImportModal
+                isOpen={isImportModalOpen}
+                onClose={() => setIsImportModalOpen(false)}
+            />
 
             {/* Save/Cancel Floating Footer */}
             {hasChanges && (

@@ -51,6 +51,7 @@ interface StoreContextType {
     resetMonthlyData: (date: Date) => void;
     toggleTheme: () => void;
     setTheme: (theme: 'dark' | 'light') => void;
+    mergeData: (newData: Partial<AppData>) => Promise<void>;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -512,6 +513,58 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const mergeData = async (newData: Partial<AppData>) => {
+        // 1. Journal: Upsert locally + DB
+        if (newData.journal) {
+            const updates: Record<string, string> = {};
+            Object.entries(newData.journal).forEach(([date, content]) => {
+                const existing = data.journal[date];
+                // Append if exists, else set
+                updates[date] = existing ? existing + '\n\n' + content : content;
+            });
+
+            setData(prev => ({
+                ...prev,
+                journal: { ...prev.journal, ...updates }
+            }));
+
+            if (session?.user) {
+                const upserts = Object.entries(updates).map(([date, content]) => ({
+                    user_id: session.user.id,
+                    date,
+                    content
+                }));
+                // Batch upsert might be limited, but let's try
+                const { error } = await supabase.from('journal_entries').upsert(upserts, { onConflict: 'user_id,date' });
+                if (error) console.error("Error merging journal:", error);
+            }
+        }
+
+        // 2. Todos: Append locally + DB
+        if (newData.todos && newData.todos.length > 0) {
+            const newTodos = newData.todos.map(t => ({ ...t, id: crypto.randomUUID() })); // Ensure unique IDs on import just in case
+
+            setData(prev => ({
+                ...prev,
+                todos: [...prev.todos, ...newTodos]
+            }));
+
+            if (session?.user) {
+                const inserts = newTodos.map(t => ({
+                    user_id: session.user.id,
+                    text: t.text,
+                    completed: t.completed,
+                    type: t.type,
+                    created_at: t.createdAt
+                }));
+                const { error } = await supabase.from('todos').insert(inserts);
+                if (error) console.error("Error merging todos:", error);
+            }
+        }
+
+        // Future: Habits/Achievements logic
+    };
+
     const toggleTheme = () => {
         const currentTheme = data.preferences?.theme || 'dark';
         setTheme(currentTheme === 'light' ? 'dark' : 'light');
@@ -535,7 +588,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         resetData,
         resetMonthlyData,
         toggleTheme,
-        setTheme
+        setTheme,
+        mergeData
     };
 
     return (
