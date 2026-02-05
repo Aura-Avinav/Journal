@@ -93,6 +93,7 @@ create table todos (
   user_id uuid references auth.users not null,
   text text not null,
   completed boolean default false,
+  type text default 'daily',
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 

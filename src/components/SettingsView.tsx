@@ -3,19 +3,58 @@ import { Moon, Sun, Monitor, ArrowLeft, RotateCcw, LogOut, User } from 'lucide-r
 import { supabase } from '../lib/supabase';
 import { cn } from '../lib/utils';
 import { Modal } from './ui/Modal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function SettingsView({ onBack }: { onBack: () => void }) {
-    const { data, toggleTheme, resetData } = useStore();
-    const { theme } = data.preferences || { theme: 'dark' }; // fallback
+    const { data, setTheme, resetData } = useStore();
+    const storeTheme = data.preferences?.theme || 'dark';
 
+    // Local state for manual save
+    const [pendingTheme, setPendingTheme] = useState<'dark' | 'light'>(storeTheme);
+    const hasChanges = pendingTheme !== storeTheme;
+
+    // Restore modal state
     const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
+    // Preview effect: Update DOM immediately when pendingTheme changes, but don't save yet
+    // logic in useStore also updates DOM, but only when 'data' changes.
+    // So this local effect allows "Preview" behavior.
+    useEffect(() => {
+        if (pendingTheme === 'light') {
+            document.documentElement.classList.add('light');
+        } else {
+            document.documentElement.classList.remove('light');
+        }
+    }, [pendingTheme]);
+
+    // Cleanup: If user navigates away or cancels, ensure we revert to stored theme
+    useEffect(() => {
+        return () => {
+            // Revert visual to stored theme on unmount if not saved?
+            // Actually, if we unmount (go back), we should probably discard changes or prompt?
+            // Cleanup logic if needed
+        };
+    }, []);
+
+
+    // Re-sync DOM on unmount/cancel
+    const revertToStore = () => {
+        setPendingTheme(storeTheme);
+    };
+
+    const handleSave = () => {
+        setTheme(pendingTheme);
+        // DOM is already correct from preview
+    };
+
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="space-y-8 animate-in fade-in duration-500 pb-20">
             <div className="flex items-center gap-4">
                 <button
-                    onClick={onBack}
+                    onClick={() => {
+                        revertToStore(); // Discard changes on back
+                        onBack();
+                    }}
                     className="p-2 -ml-2 text-secondary hover:text-primary hover:bg-surfaceHighlight rounded-full transition-colors"
                 >
                     <ArrowLeft className="w-6 h-6" />
@@ -37,19 +76,19 @@ export function SettingsView({ onBack }: { onBack: () => void }) {
                                 <p className="text-sm text-secondary">Toggle between light and dark aesthetics</p>
                             </div>
                             <button
-                                onClick={toggleTheme}
+                                onClick={() => setPendingTheme(prev => prev === 'light' ? 'dark' : 'light')}
                                 className={cn(
                                     "relative inline-flex h-9 w-16 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background",
-                                    theme === 'light' ? "bg-accent" : "bg-surfaceHighlight"
+                                    pendingTheme === 'light' ? "bg-accent" : "bg-surfaceHighlight"
                                 )}
                             >
                                 <span
                                     className={cn(
                                         "inline-block h-7 w-7 transform rounded-full bg-white shadow-lg transition-transform",
-                                        theme === 'light' ? "translate-x-8" : "translate-x-1"
+                                        pendingTheme === 'light' ? "translate-x-8" : "translate-x-1"
                                     )}
                                 >
-                                    {theme === 'light' ? (
+                                    {pendingTheme === 'light' ? (
                                         <Sun className="h-4 w-4 m-1.5 text-orange-500" />
                                     ) : (
                                         <Moon className="h-4 w-4 m-1.5 text-slate-700" />
@@ -146,6 +185,31 @@ export function SettingsView({ onBack }: { onBack: () => void }) {
                     </div>
                 </div>
             </Modal>
+
+            {/* Save/Cancel Floating Footer */}
+            {hasChanges && (
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-md px-4 animate-in slide-in-from-bottom-10 fade-in duration-300">
+                    <div className="bg-surface border border-accent/20 rounded-xl shadow-2xl p-4 flex items-center justify-between backdrop-blur-xl">
+                        <span className="text-sm font-medium text-foreground pl-2">
+                            Unsaved Changes
+                        </span>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={revertToStore}
+                                className="px-4 py-2 text-sm font-medium text-secondary hover:text-foreground transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                className="px-5 py-2 text-sm font-semibold bg-accent text-white rounded-lg shadow-lg shadow-accent/20 hover:bg-accent/90 transition-all hover:scale-105 active:scale-95"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

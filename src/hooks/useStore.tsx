@@ -50,13 +50,20 @@ interface StoreContextType {
     resetData: () => void;
     resetMonthlyData: (date: Date) => void;
     toggleTheme: () => void;
+    setTheme: (theme: 'dark' | 'light') => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
     const [session, setSession] = useState<any>(null);
-    const [data, setData] = useState<AppData>(DEFAULT_DATA);
+    const [data, setData] = useState<AppData>(() => ({
+        ...DEFAULT_DATA,
+        preferences: {
+            theme: getInitialTheme(),
+            reducedMotion: DEFAULT_DATA.preferences?.reducedMotion ?? false
+        }
+    }));
 
     // Auth Listener
     useEffect(() => {
@@ -471,10 +478,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         });
     };
 
-    const toggleTheme = async () => {
-        const newTheme = data.preferences?.theme === 'light' ? 'dark' : 'light';
-        localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+    const setTheme = async (newTheme: 'dark' | 'light') => {
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        const isSystemMatch = newTheme === systemTheme;
 
+        // Optimistic Update
         setData(prev => ({
             ...prev,
             preferences: {
@@ -483,14 +491,30 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             }
         }));
 
-        if (session?.user) {
-            // Upsert profile with new theme
-            await supabase.from('profiles').upsert({
-                id: session.user.id,
-                theme: newTheme,
-                updated_at: new Date().toISOString()
-            }, { onConflict: 'id' });
+        if (isSystemMatch) {
+            // Re-enable Auto-Sync (Clear Override)
+            localStorage.removeItem(THEME_STORAGE_KEY);
+            if (session?.user) {
+                const { error } = await supabase.from('profiles').update({ theme: null, updated_at: new Date().toISOString() }).eq('id', session.user.id);
+                if (error) console.error("Error syncing theme (auto):", error);
+            }
+        } else {
+            // Enforce Manual Override
+            localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+            if (session?.user) {
+                const { error } = await supabase.from('profiles').upsert({
+                    id: session.user.id,
+                    theme: newTheme,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'id' });
+                if (error) console.error("Error syncing theme (manual):", error);
+            }
         }
+    };
+
+    const toggleTheme = () => {
+        const currentTheme = data.preferences?.theme || 'dark';
+        setTheme(currentTheme === 'light' ? 'dark' : 'light');
     };
 
     const value = {
@@ -510,7 +534,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         importData,
         resetData,
         resetMonthlyData,
-        toggleTheme
+        toggleTheme,
+        setTheme
     };
 
     return (

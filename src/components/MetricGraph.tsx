@@ -21,7 +21,7 @@ export function MetricGraph({ date }: { date: Date }) {
                 </div>
             </div>
 
-            <div className="h-[200px] w-full">
+            <div className="h-[200px] w-full min-h-[200px]">
                 <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={getChartData(data)}>
                         <defs>
