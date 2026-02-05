@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '../hooks/useStore';
 import { cn } from '../lib/utils';
-import { ChevronRight, Calendar, Save } from 'lucide-react';
+import { ChevronRight, Calendar, Save, Trash2 } from 'lucide-react';
 
 import { format } from 'date-fns';
 
@@ -93,14 +93,31 @@ export function JournalEditor() {
                     <span className="text-secondary text-sm">
                         Journaling - <span className="text-primary font-bold">{formattedDate}</span>
                     </span>
-                    <div className="flex items-center gap-2 text-xs text-secondary">
+                    <div className="flex items-center gap-4 text-xs text-secondary">
+                        {/* Status Indicator */}
                         {content.trim() ? (
-                            <>
+                            <div className="flex items-center gap-2">
                                 {content !== (data.journal[selectedDate] || '') ? 'Saving...' : 'Saved'}
                                 <Save className="w-4 h-4 opacity-50" />
-                            </>
+                            </div>
                         ) : (
                             <span className="opacity-50 italic">No Entry Saved</span>
+                        )}
+
+                        {/* Delete Button */}
+                        {(data.journal[selectedDate] || '').trim() && (
+                            <button
+                                onClick={() => {
+                                    if (confirm('Are you sure you want to delete this entry? This cannot be undone.')) {
+                                        updateJournal(selectedDate, '');
+                                        setContent(''); // Clear local state immediately
+                                    }
+                                }}
+                                className="p-1.5 hover:bg-red-500/10 hover:text-red-500 rounded-md transition-colors text-secondary"
+                                title="Delete entry"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
                         )}
                     </div>
                 </div>
