@@ -42,9 +42,9 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
                 parsedData = await parseNotionFiles(files);
             }
 
-            if ((!parsedData.todos || parsedData.todos.length === 0) && (!parsedData.journal || Object.keys(parsedData.journal).length === 0)) {
+            if ((!parsedData.todos || parsedData.todos.length === 0) && (!parsedData.habits || parsedData.habits.length === 0) && (!parsedData.journal || Object.keys(parsedData.journal).length === 0)) {
                 setStatus('error');
-                setStatusMessage("No data found. Check CSV column names (need 'Name' or 'Title').");
+                setStatusMessage("No data found. CSV needs a column named: 'Daily Work', 'Task', 'Habit', 'Name', 'Title' or 'Topic'.");
             } else {
                 await mergeData(parsedData);
                 setStatus('success');
