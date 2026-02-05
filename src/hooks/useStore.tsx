@@ -42,7 +42,7 @@ interface StoreContextType {
     addAchievement: (text: string, monthStr?: string) => void;
     removeAchievement: (id: string) => void;
     toggleTodo: (id: string) => void;
-    addTodo: (text: string, type?: 'daily' | 'monthly') => void;
+    addTodo: (text: string, type?: 'daily' | 'weekly' | 'monthly') => void;
     removeTodo: (id: string) => void;
     updateJournal: (date: string, content: string) => void;
     exportData: () => void;
@@ -317,7 +317,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         await supabase.from('todos').update({ completed: newStatus }).eq('id', id);
     };
 
-    const addTodo = async (text: string, type: 'daily' | 'monthly' = 'daily') => {
+    const addTodo = async (text: string, type: 'daily' | 'weekly' | 'monthly' = 'daily') => {
         const tempId = crypto.randomUUID();
         const now = new Date().toISOString();
 
