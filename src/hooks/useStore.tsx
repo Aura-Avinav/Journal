@@ -542,7 +542,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
         // 2. Todos: Append locally + DB
         if (newData.todos && newData.todos.length > 0) {
-            const newTodos = newData.todos.map(t => ({ ...t, id: crypto.randomUUID() })); // Ensure unique IDs on import just in case
+            const newTodos = newData.todos.map(t => ({ ...t, id: crypto.randomUUID() }));
 
             setData(prev => ({
                 ...prev,
@@ -562,7 +562,28 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             }
         }
 
-        // Future: Habits/Achievements logic
+        // 3. Habits: Append locally + DB
+        if (newData.habits && newData.habits.length > 0) {
+            const newHabits = newData.habits.filter(h => !data.habits.some(ex => ex.name === h.name));
+
+            if (newHabits.length > 0) {
+                const habitsWithIds = newHabits.map(h => ({ ...h, id: crypto.randomUUID(), completedDates: [] }));
+
+                setData(prev => ({
+                    ...prev,
+                    habits: [...prev.habits, ...habitsWithIds]
+                }));
+
+                if (session?.user) {
+                    const inserts = habitsWithIds.map(h => ({
+                        user_id: session.user.id,
+                        name: h.name
+                    }));
+                    const { error } = await supabase.from('habits').insert(inserts);
+                    if (error) console.error("Error merging habits:", error);
+                }
+            }
+        }
     };
 
     const toggleTheme = () => {
