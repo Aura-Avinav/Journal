@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Upload, FileText, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useStore } from '../../hooks/useStore';
+import type { AppData } from '../../types';
 import { parseObsidianFiles, parseNotionFiles } from '../../lib/importers';
 import { Modal } from './Modal';
 
@@ -33,7 +34,7 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
         setStatus('idle');
 
         try {
-            let parsedData = {};
+            let parsedData: Partial<AppData> = {};
 
             if (source === 'obsidian') {
                 parsedData = await parseObsidianFiles(files);
@@ -41,16 +42,21 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
                 parsedData = await parseNotionFiles(files);
             }
 
-            await mergeData(parsedData);
-
-            setStatus('success');
-            setStatusMessage(`Successfully imported ${files.length} files!`);
-            setTimeout(() => {
-                onClose();
-                setFiles([]);
-                setSource(null);
-                setStatus('idle');
-            }, 2000);
+            if ((!parsedData.todos || parsedData.todos.length === 0) && (!parsedData.journal || Object.keys(parsedData.journal).length === 0)) {
+                setStatus('error');
+                setStatusMessage("No data found. Check CSV column names (need 'Name' or 'Title').");
+            } else {
+                await mergeData(parsedData);
+                setStatus('success');
+                const count = (parsedData.todos?.length || 0) + Object.keys(parsedData.journal || {}).length;
+                setStatusMessage(`Successfully imported ${count} items!`);
+                setTimeout(() => {
+                    onClose();
+                    setFiles([]);
+                    setSource(null);
+                    setStatus('idle');
+                }, 2000);
+            }
         } catch (error) {
             console.error("Import failed:", error);
             setStatus('error');
