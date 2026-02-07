@@ -1,7 +1,6 @@
-import { User, Monitor, Database, Building, LogOut } from 'lucide-react';
+import { User, Monitor, Database, Building } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { useStore } from '../../hooks/useStore';
 
 export type SettingsTab = 'account' | 'preferences' | 'workspace' | 'data';
 
@@ -18,10 +17,10 @@ const MENU_ITEMS: { id: SettingsTab; label: string; icon: LucideIcon }[] = [
 ];
 
 export function SettingsSidebar({ activeTab, onTabChange }: SettingsSidebarProps) {
-    const { signOut } = useStore();
+    // const { signOut } = useStore(); // Not needed if we removed the button, but keeping imports clean
 
     return (
-        <nav className="w-full md:w-64 flex flex-col gap-1 pr-4 md:border-r border-border/10 h-full">
+        <nav className="w-full md:w-64 flex flex-col gap-1 pr-4 md:border-r border-border/10">
             <div className="text-xs font-semibold text-secondary uppercase tracking-wider mb-2 px-3">
                 Settings
             </div>
@@ -42,20 +41,6 @@ export function SettingsSidebar({ activeTab, onTabChange }: SettingsSidebarProps
                         {item.label}
                     </button>
                 ))}
-            </div>
-
-            <div className="pt-4 mt-4 border-t border-border/10">
-                <button
-                    onClick={() => {
-                        if (window.confirm('Are you sure you want to log out?')) {
-                            signOut();
-                        }
-                    }}
-                    className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors w-full text-left text-red-500 hover:bg-red-500/10 hover:border-red-500/20"
-                >
-                    <LogOut className="w-4 h-4" />
-                    Log Out
-                </button>
             </div>
         </nav>
     );
