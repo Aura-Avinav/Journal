@@ -12,6 +12,8 @@
     /* #27272a */
     --primary: 228 228 231;
     /* #e4e4e7 */
+    --primary-foreground: 24 24 27;
+    /* #18181b */
     --secondary: 161 161 170;
     /* #a1a1aa */
     --accent: 59 130 246;
@@ -31,6 +33,8 @@
     /* #f4f4f5 (Zinc 100) */
     --primary: 24 24 27;
     /* #18181b (Zinc 900) */
+    --primary-foreground: 250 250 250;
+    /* #fafafa */
     --secondary: 82 82 91;
     /* #52525b (Zinc 600) */
     --accent: 37 99 235;

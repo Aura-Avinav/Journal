@@ -202,6 +202,7 @@ export function AccountSettings() {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         placeholder="Enter your name"
+                        autoComplete="off"
                         className="w-full p-2.5 bg-surfaceHighlight/20 rounded-lg border border-border/10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all placeholder:text-secondary/50"
                     />
                 </div>
