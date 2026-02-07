@@ -1,0 +1,41 @@
+import { LucideIcon, User, Monitor, Database, Building } from 'lucide-react';
+import { cn } from '../../lib/utils';
+
+export type SettingsTab = 'account' | 'preferences' | 'workspace' | 'data';
+
+interface SettingsSidebarProps {
+    activeTab: SettingsTab;
+    onTabChange: (tab: SettingsTab) => void;
+}
+
+const MENU_ITEMS: { id: SettingsTab; label: string; icon: LucideIcon }[] = [
+    { id: 'account', label: 'My Account', icon: User },
+    { id: 'preferences', label: 'My Settings', icon: Monitor },
+    { id: 'workspace', label: 'Workspace', icon: Building }, // General workspace settings
+    { id: 'data', label: 'Data & Privacy', icon: Database },
+];
+
+export function SettingsSidebar({ activeTab, onTabChange }: SettingsSidebarProps) {
+    return (
+        <nav className="w-full md:w-64 flex flex-col gap-1 pr-4 md:border-r border-border/10">
+            <div className="text-xs font-semibold text-secondary uppercase tracking-wider mb-2 px-3">
+                Settings
+            </div>
+            {MENU_ITEMS.map((item) => (
+                <button
+                    key={item.id}
+                    onClick={() => onTabChange(item.id)}
+                    className={cn(
+                        "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors w-full text-left",
+                        activeTab === item.id
+                            ? "bg-surfaceHighlight text-primary"
+                            : "text-secondary hover:bg-surfaceHighlight/50 hover:text-foreground"
+                    )}
+                >
+                    <item.icon className="w-4 h-4" />
+                    {item.label}
+                </button>
+            ))}
+        </nav>
+    );
+}
