@@ -20,7 +20,7 @@ export function SettingsSidebar({ activeTab, onTabChange }: SettingsSidebarProps
     // const { signOut } = useStore(); // Not needed if we removed the button, but keeping imports clean
 
     return (
-        <nav className="w-full md:w-64 flex flex-col gap-1 pr-4 md:border-r border-border/10">
+        <nav className="w-full md:w-64 flex flex-col gap-1 pr-4">
             <div className="text-xs font-semibold text-secondary uppercase tracking-wider mb-2 px-3">
                 Settings
             </div>
