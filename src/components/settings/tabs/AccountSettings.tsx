@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { User, Loader2, Upload } from 'lucide-react';
 import { useStore } from '../../../hooks/useStore';
 import { supabase } from '../../../lib/supabase';
-import { cn } from '../../../lib/utils';
 
 export function AccountSettings() {
     const { session } = useStore();
