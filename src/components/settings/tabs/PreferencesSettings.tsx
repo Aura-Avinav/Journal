@@ -363,21 +363,25 @@ export function PreferencesSettings() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 50, scale: 0.9 }}
                         transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 p-2 pr-4 bg-foreground/95 backdrop-blur-xl text-background rounded-full shadow-2xl border border-white/10"
+                        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 p-1.5 pr-2 bg-card/95 backdrop-blur-xl text-foreground rounded-full shadow-2xl border border-primary/20 ring-1 ring-black/5 dark:ring-white/10"
                     >
-                        <div className="pl-4 text-sm font-medium whitespace-nowrap">
+                        <div className="pl-4 pr-2 text-sm font-medium whitespace-nowrap flex items-center gap-2">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                            </span>
                             Unsaved Changes
                         </div>
-                        <div className="h-4 w-px bg-background/20" />
+                        <div className="h-6 w-px bg-border mx-1" />
                         <button
                             onClick={handleCancel}
-                            className="px-4 py-2 text-sm font-medium bg-white/10 hover:bg-white/20 text-background rounded-full transition-colors"
+                            className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-surfaceHighlight rounded-full transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleSave}
-                            className="px-6 py-2 text-sm font-bold bg-primary text-primary-foreground rounded-full hover:opacity-90 transition-transform active:scale-95 shadow-lg"
+                            className="px-5 py-2 text-sm font-bold bg-primary text-primary-foreground rounded-full hover:opacity-90 transition-transform active:scale-95 shadow-sm"
                         >
                             Save Changes
                         </button>
