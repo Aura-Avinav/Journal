@@ -22,6 +22,10 @@
     /* #22c55e */
     --danger: 239 68 68;
     /* #ef4444 */
+    --card: 24 24 27;
+    /* #18181b - Matches surface for now, or slightly lighter? Let's use surface */
+    --card-foreground: 250 250 250;
+    /* #fafafa */
   }
 
   .light {
@@ -43,6 +47,10 @@
     /* #16a34a */
     --danger: 220 38 38;
     /* #dc2626 */
+    --card: 255 255 255;
+    /* #ffffff */
+    --card-foreground: 9 9 11;
+    /* #09090b */
   }
 
   body {

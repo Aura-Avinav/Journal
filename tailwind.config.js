@@ -17,6 +17,8 @@ export default {
         accent: "rgb(var(--accent) / <alpha-value>)",
         success: "rgb(var(--success) / <alpha-value>)",
         danger: "rgb(var(--danger) / <alpha-value>)",
+        card: "rgb(var(--card) / <alpha-value>)",
+        "card-foreground": "rgb(var(--card-foreground) / <alpha-value>)",
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

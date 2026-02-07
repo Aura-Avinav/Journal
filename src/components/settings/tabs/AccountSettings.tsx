@@ -224,26 +224,26 @@ export function AccountSettings() {
                         </div>
                     </div>
 
-                    {/* Action Buttons - Only visible if changes */}
-                    {hasChanges && (
-                        <div className="flex items-center gap-3 pt-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                            <button
-                                onClick={updateProfile}
-                                disabled={loading}
-                                className="px-5 py-2.5 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:opacity-90 transition-all shadow-sm active:scale-95 flex items-center gap-2"
-                            >
-                                {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                                Save Changes
-                            </button>
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-3 pt-4">
+                        <button
+                            onClick={updateProfile}
+                            disabled={loading || !hasChanges}
+                            className="px-5 py-2.5 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:opacity-90 transition-all shadow-sm active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+                        >
+                            {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                            {hasChanges ? 'Save Changes' : 'Saved'}
+                        </button>
+                        {hasChanges && (
                             <button
                                 onClick={() => setUsername(originalUsername)}
                                 disabled={loading}
-                                className="px-5 py-2.5 bg-transparent text-secondary hover:text-foreground text-sm font-medium rounded-lg transition-colors hover:bg-surfaceHighlight/50 active:scale-95"
+                                className="px-5 py-2.5 bg-transparent text-secondary hover:text-foreground text-sm font-medium rounded-lg transition-colors hover:bg-surfaceHighlight/50 active:scale-95 fade-in animate-in slide-in-from-left-2 duration-200"
                             >
                                 Cancel
                             </button>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
