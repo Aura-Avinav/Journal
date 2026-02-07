@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { User, Loader2, Upload, Mail, type LucideIcon } from 'lucide-react';
+import { User, Loader2, Upload, Mail } from 'lucide-react';
 import { useStore } from '../../../hooks/useStore';
 import { supabase } from '../../../lib/supabase';
-import { cn } from '../../../lib/utils'; // Make sure cn is imported
+
 
 export function AccountSettings() {
     const { session } = useStore();
