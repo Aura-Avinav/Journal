@@ -1,7 +1,8 @@
 import { User } from 'lucide-react';
-import { useStore } from '../../hooks/useStore';
+import { useStore } from '../../../hooks/useStore';
 
 export function AccountSettings() {
+    // Force redeploy
     const { session } = useStore();
     const email = session?.user?.email || 'guest@example.com';
 

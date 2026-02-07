@@ -1,5 +1,5 @@
-/* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
 

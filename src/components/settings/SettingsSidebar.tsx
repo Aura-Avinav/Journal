@@ -1,4 +1,5 @@
-import { LucideIcon, User, Monitor, Database, Building } from 'lucide-react';
+import { User, Monitor, Database, Building } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 export type SettingsTab = 'account' | 'preferences' | 'workspace' | 'data';

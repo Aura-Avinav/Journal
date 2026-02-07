@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
-import { AppData, Habit, ToDo, Achievement, MetricData } from '../types';
+import type { AppData, Habit, ToDo, Achievement, MetricData } from '../types';
 
 interface DataContextType {
     habits: Habit[];

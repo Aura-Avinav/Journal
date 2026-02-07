@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { SettingsSidebar, SettingsTab } from './settings/SettingsSidebar';
+import { SettingsSidebar } from './settings/SettingsSidebar';
+import type { SettingsTab } from './settings/SettingsSidebar';
 import { AccountSettings } from './settings/tabs/AccountSettings';
 import { PreferencesSettings } from './settings/tabs/PreferencesSettings';
 import { WorkspaceSettings } from './settings/tabs/WorkspaceSettings';
