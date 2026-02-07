@@ -71,7 +71,7 @@ export function PreferencesSettings() {
     return (
         <div className="space-y-8 animate-in fade-in duration-300 max-w-4xl px-1">
             {/* Header with Actions */}
-            <div className="flex items-center justify-between sticky top-0 bg-background/95 backdrop-blur-md z-20 py-4 -my-4 px-1 border-b border-border/5">
+            <div className="flex items-center justify-between sticky top-16 md:top-0 bg-background/95 backdrop-blur-md z-30 py-4 -my-4 px-1 border-b border-border/5">
                 <div className="space-y-1">
                     <h2 className="text-xl font-semibold text-foreground tracking-tight">Preferences</h2>
                     <p className="text-sm text-secondary leading-relaxed">Customize your experience.</p>
