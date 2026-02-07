@@ -151,7 +151,7 @@ export function AccountSettings() {
                 </div>
 
                 <div className="space-y-2">
-                    <div className="font-medium text-foreground">Profile Photo</div>
+                    <div className="font-medium text-foreground text-lg">{username || 'Your Profile'}</div>
                     <div className="flex gap-3">
                         <button
                             onClick={() => fileInputRef.current?.click()}
