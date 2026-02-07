@@ -94,8 +94,8 @@ export function AccountSettings() {
             const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
             setAvatarUrl(publicUrlData.publicUrl);
 
-        } catch (error) {
-            alert('Error uploading avatar!');
+        } catch (error: any) {
+            alert(`Error uploading avatar: ${error.message || 'Unknown error'}`);
             console.error(error);
         } finally {
             setUploading(false);
