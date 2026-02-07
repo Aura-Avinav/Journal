@@ -37,8 +37,12 @@ export interface AppData {
     metrics: MetricData[];
     preferences?: {
         theme: 'dark' | 'light' | 'system';
-        reducedMotion: boolean;
+        reducedMotion?: boolean;
         language?: 'en-US' | 'en-GB' | 'en-IN';
         spellCheck?: boolean;
+        dateFormat?: 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD';
+        timeFormat?: '12' | '24';
+        startOfWeek?: 'monday' | 'sunday';
+        privacyBlur?: boolean;
     };
 }

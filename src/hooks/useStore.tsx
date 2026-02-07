@@ -20,7 +20,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 // Legacy hook that combines everything
 export function useStore() {
     const { session, user, signOut } = useAuth();
-    const { preferences, setTheme, toggleTheme, setLanguage, toggleSpellCheck } = usePreferences();
+    const {
+        preferences, setTheme, toggleTheme, setLanguage, toggleSpellCheck,
+        setDateFormat, setTimeFormat, setStartOfWeek, togglePrivacyBlur, toggleReducedMotion
+    } = usePreferences();
+
     const {
         habits, achievements, todos, journal, metrics,
         toggleHabit, addHabit, removeHabit,
@@ -42,7 +46,11 @@ export function useStore() {
             theme: preferences.theme,
             reducedMotion: preferences.reducedMotion,
             language: preferences.language,
-            spellCheck: preferences.spellCheck
+            spellCheck: preferences.spellCheck,
+            dateFormat: preferences.dateFormat,
+            timeFormat: preferences.timeFormat,
+            startOfWeek: preferences.startOfWeek,
+            privacyBlur: preferences.privacyBlur
         }
     };
 
@@ -57,6 +65,11 @@ export function useStore() {
         toggleTheme,
         setLanguage,
         toggleSpellCheck,
+        setDateFormat,
+        setTimeFormat,
+        setStartOfWeek,
+        togglePrivacyBlur,
+        toggleReducedMotion,
 
         // Data Actions
         toggleHabit,
@@ -85,7 +98,11 @@ export function useStore() {
                     theme: preferences.theme,
                     reducedMotion: preferences.reducedMotion,
                     language: preferences.language,
-                    spellCheck: preferences.spellCheck
+                    spellCheck: preferences.spellCheck,
+                    dateFormat: preferences.dateFormat,
+                    timeFormat: preferences.timeFormat,
+                    startOfWeek: preferences.startOfWeek,
+                    privacyBlur: preferences.privacyBlur
                 }
             };
 

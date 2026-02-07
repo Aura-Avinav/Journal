@@ -6,12 +6,19 @@ import { useAuth } from './AuthContext';
 
 type Theme = 'dark' | 'light' | 'system';
 type Language = 'en-US' | 'en-GB' | 'en-IN';
+type DateFormat = 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD';
+type TimeFormat = '12' | '24';
+type StartOfWeek = 'monday' | 'sunday';
 
 interface PreferencesState {
     theme: Theme;
     reducedMotion: boolean;
     language: Language;
     spellCheck: boolean;
+    dateFormat: DateFormat;
+    timeFormat: TimeFormat;
+    startOfWeek: StartOfWeek;
+    privacyBlur: boolean;
 }
 
 interface PreferencesContextType {
@@ -20,6 +27,11 @@ interface PreferencesContextType {
     toggleTheme: () => void;
     setLanguage: (lang: Language) => void;
     toggleSpellCheck: () => void;
+    setDateFormat: (format: DateFormat) => void;
+    setTimeFormat: (format: TimeFormat) => void;
+    setStartOfWeek: (start: StartOfWeek) => void;
+    togglePrivacyBlur: () => void;
+    toggleReducedMotion: () => void;
 }
 
 const THEME_STORAGE_KEY = 'journal_theme_preference';
@@ -40,7 +52,11 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         theme: getInitialTheme(),
         reducedMotion: false,
         language: 'en-US',
-        spellCheck: true
+        spellCheck: true,
+        dateFormat: 'MM/DD/YYYY',
+        timeFormat: '12',
+        startOfWeek: 'sunday',
+        privacyBlur: false
     });
 
     // 1. Sync Theme to DOM (Handle System Theme)
@@ -77,7 +93,34 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 
     }, [preferences.theme]);
 
-    // 2. Load Preferences from DB on Auth
+    // 2. Privacy Blur Effect
+    useEffect(() => {
+        if (!preferences.privacyBlur) {
+            document.body.style.filter = 'none';
+            return;
+        }
+
+        const handleBlur = () => {
+            document.body.style.filter = 'blur(10px) grayscale(100%)';
+            document.body.style.transition = 'filter 0.3s ease';
+        };
+
+        const handleFocus = () => {
+            document.body.style.filter = 'none';
+        };
+
+        window.addEventListener('blur', handleBlur);
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            window.removeEventListener('blur', handleBlur);
+            window.removeEventListener('focus', handleFocus);
+            document.body.style.filter = 'none';
+        };
+    }, [preferences.privacyBlur]);
+
+
+    // 3. Load Preferences from DB on Auth
     useEffect(() => {
         if (!user) return;
 
@@ -92,7 +135,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         fetchProfile();
     }, [user]);
 
-    // 3. Actions
+    // 4. Actions
     const setTheme = async (newTheme: Theme) => {
         setPreferences(prev => ({ ...prev, theme: newTheme }));
 
@@ -104,11 +147,6 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     };
 
     const toggleTheme = () => {
-        // Toggle logic: System -> Dark -> Light -> System? Or just Dark <-> Light?
-        // Let's keep it simple: If System, check what it is and flip. 
-        // Actually, for a 3-way toggle UI, this function might be less useful, 
-        // but for the header button, we might want a cycle.
-        // Let's cycle: System -> Dark -> Light -> System
         const cycles: Theme[] = ['system', 'dark', 'light'];
         const next = cycles[(cycles.indexOf(preferences.theme) + 1) % cycles.length];
         setTheme(next);
@@ -116,11 +154,30 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 
     const setLanguage = (lang: Language) => {
         setPreferences(prev => ({ ...prev, language: lang }));
-        // Note: We'd persist this to DB prop if column existed
     };
 
     const toggleSpellCheck = () => {
         setPreferences(prev => ({ ...prev, spellCheck: !preferences.spellCheck }));
+    };
+
+    const setDateFormat = (format: DateFormat) => {
+        setPreferences(prev => ({ ...prev, dateFormat: format }));
+    };
+
+    const setTimeFormat = (format: TimeFormat) => {
+        setPreferences(prev => ({ ...prev, timeFormat: format }));
+    };
+
+    const setStartOfWeek = (start: StartOfWeek) => {
+        setPreferences(prev => ({ ...prev, startOfWeek: start }));
+    };
+
+    const togglePrivacyBlur = () => {
+        setPreferences(prev => ({ ...prev, privacyBlur: !preferences.privacyBlur }));
+    };
+
+    const toggleReducedMotion = () => {
+        setPreferences(prev => ({ ...prev, reducedMotion: !preferences.reducedMotion }));
     };
 
     const value = {
@@ -128,7 +185,12 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         setTheme,
         toggleTheme,
         setLanguage,
-        toggleSpellCheck
+        toggleSpellCheck,
+        setDateFormat,
+        setTimeFormat,
+        setStartOfWeek,
+        togglePrivacyBlur,
+        toggleReducedMotion
     };
 
     return (
