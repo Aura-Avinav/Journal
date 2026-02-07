@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useStore } from '../../../hooks/useStore';
 import { ImportModal } from '../../ui/ImportModal';
 import { Modal } from '../../ui/Modal';
-import { Upload, RotateCcw } from 'lucide-react';
+import { Upload } from 'lucide-react';
 
 export function DataSettings() {
     const { resetData } = useStore();

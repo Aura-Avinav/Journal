@@ -52,7 +52,7 @@ export function PreferencesSettings() {
                     </div>
                     <select
                         value={data.preferences?.language || 'en-US'}
-                        onChange={(e) => setLanguage(e.target.value as any)}
+                        onChange={(e) => setLanguage(e.target.value as 'en-US' | 'en-GB' | 'en-IN')}
                         className="bg-surfaceHighlight/30 text-sm text-foreground rounded-md p-2 border border-border/10 focus:outline-none cursor-pointer"
                     >
                         <option value="en-US">English (US)</option>
