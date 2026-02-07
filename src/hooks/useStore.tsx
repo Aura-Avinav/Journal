@@ -28,7 +28,9 @@ const DEFAULT_DATA: AppData = {
     metrics: [],
     preferences: {
         theme: getInitialTheme(),
-        reducedMotion: false
+        reducedMotion: false,
+        language: 'en-US',
+        spellCheck: true
     }
 };
 
@@ -51,6 +53,8 @@ interface StoreContextType {
     resetMonthlyData: (date: Date) => void;
     toggleTheme: () => void;
     setTheme: (theme: 'dark' | 'light') => void;
+    setLanguage: (lang: 'en-US' | 'en-GB' | 'en-IN') => void;
+    toggleSpellCheck: () => void;
     mergeData: (newData: Partial<AppData>) => Promise<void>;
 }
 
@@ -610,6 +614,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         resetMonthlyData,
         toggleTheme,
         setTheme,
+        setLanguage,
+        toggleSpellCheck,
         mergeData
     };
 

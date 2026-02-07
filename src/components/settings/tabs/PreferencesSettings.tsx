@@ -3,7 +3,7 @@ import { useStore } from '../../../hooks/useStore';
 import { cn } from '../../../lib/utils';
 
 export function PreferencesSettings() {
-    const { data, setTheme } = useStore();
+    const { data, setTheme, setLanguage, toggleSpellCheck } = useStore();
     const currentTheme = data.preferences?.theme || 'dark';
 
     return (

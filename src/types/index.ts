@@ -38,5 +38,7 @@ export interface AppData {
     preferences?: {
         theme: 'dark' | 'light';
         reducedMotion: boolean;
+        language?: 'en-US' | 'en-GB' | 'en-IN';
+        spellCheck?: boolean;
     };
 }
