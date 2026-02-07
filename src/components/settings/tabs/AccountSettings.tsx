@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { User, Loader2, Upload } from 'lucide-react';
+import { User, Loader2, Upload, Mail, type LucideIcon } from 'lucide-react';
 import { useStore } from '../../../hooks/useStore';
 import { supabase } from '../../../lib/supabase';
+import { cn } from '../../../lib/utils'; // Make sure cn is imported
 
 export function AccountSettings() {
     const { session } = useStore();
@@ -127,16 +128,16 @@ export function AccountSettings() {
     const hasChanges = username !== originalUsername;
 
     return (
-        <div className="space-y-6 max-w-2xl animate-in fade-in duration-300">
-            <div>
-                <h2 className="text-xl font-semibold text-foreground mb-1">My Account</h2>
-                <p className="text-sm text-secondary">Manage your profile and account details.</p>
+        <div className="space-y-8 animate-in fade-in duration-300 max-w-2xl px-1">
+            <div className="space-y-1">
+                <h2 className="text-xl font-semibold text-foreground tracking-tight">My Account</h2>
+                <p className="text-sm text-secondary leading-relaxed">Manage your personal details and public profile.</p>
             </div>
 
-            {/* Avatar Section */}
-            <div className="flex items-center gap-6 py-4 border-b border-border/10">
-                <div className="relative group">
-                    <div className="w-20 h-20 rounded-full bg-surfaceHighlight overflow-hidden flex items-center justify-center text-3xl font-bold text-secondary border border-border/10">
+            {/* Avatar Card */}
+            <div className="p-5 rounded-xl border border-border/40 bg-card/30 backdrop-blur-sm flex items-center gap-6">
+                <div className="relative group shrink-0">
+                    <div className="w-24 h-24 rounded-full bg-surfaceHighlight overflow-hidden flex items-center justify-center text-3xl font-bold text-secondary border border-border/10 shadow-sm transition-transform duration-300 group-hover:scale-[1.02]">
                         {avatarUrl ? (
                             <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                         ) : (
@@ -144,28 +145,31 @@ export function AccountSettings() {
                         )}
                         {uploading && (
                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                <Loader2 className="w-6 h-6 text-white animate-spin" />
+                                <Loader2 className="w-8 h-8 text-white animate-spin" />
                             </div>
                         )}
                     </div>
                 </div>
 
-                <div className="space-y-2">
-                    <div className="font-medium text-foreground text-lg">{username || 'Your Profile'}</div>
+                <div className="space-y-3 flex-1">
+                    <div>
+                        <div className="font-semibold text-foreground text-lg">{username || 'Your Profile'}</div>
+                        <p className="text-xs text-secondary">Accepted file types: .png, .jpg, .jpeg</p>
+                    </div>
+
                     <div className="flex gap-3">
                         <button
                             onClick={() => fileInputRef.current?.click()}
                             disabled={uploading}
-                            className="text-sm px-3 py-1.5 bg-surfaceHighlight hover:bg-surfaceHighlight/80 text-foreground rounded-md transition-colors border border-border/10 flex items-center gap-2"
+                            className="text-xs font-medium px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-all shadow-sm flex items-center gap-2 active:scale-95"
                         >
                             <Upload className="w-3.5 h-3.5" />
-                            {uploading ? 'Uploading...' : 'Upload photo'}
+                            {uploading ? 'Uploading...' : 'Upload New Photo'}
                         </button>
                         <button
-                            className="text-sm text-red-500 hover:text-red-400 hover:underline px-2"
+                            className="text-xs font-medium px-4 py-2 text-red-500 hover:bg-red-500/10 rounded-md transition-colors border border-transparent hover:border-red-500/20 active:scale-95"
                             onClick={async () => {
                                 if (!window.confirm("Remove profile photo?")) return;
-                                // Basic removal logic
                                 await supabase.from('profiles').upsert({ id: userId, avatar_url: null, updated_at: new Date().toISOString() });
                                 setAvatarUrl(null);
                             }}
@@ -184,49 +188,63 @@ export function AccountSettings() {
                 </div>
             </div>
 
-            {/* Form Section */}
-            <div className="space-y-6">
-                <div className="grid gap-2">
-                    <label className="text-sm font-medium text-secondary">Email</label>
-                    <div className="flex items-center gap-2 p-2.5 bg-surfaceHighlight/30 rounded-lg border border-border/10 text-sm text-foreground">
-                        <User className="w-4 h-4 text-secondary" />
-                        {email}
-                    </div>
-                    <p className="text-xs text-secondary">Contact support to change email.</p>
+            {/* Details Card */}
+            <div className="p-5 rounded-xl border border-border/40 bg-card/30 backdrop-blur-sm space-y-6">
+                <div className="space-y-1">
+                    <h3 className="text-base font-medium text-foreground flex items-center gap-2">
+                        Profile Information
+                    </h3>
+                    <p className="text-xs text-secondary">Update your account details here.</p>
                 </div>
 
-                <div className="grid gap-2">
-                    <label className="text-sm font-medium text-secondary">Display Name</label>
-                    <input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        placeholder="Enter your name"
-                        autoComplete="off"
-                        className="w-full p-2.5 bg-surfaceHighlight/20 rounded-lg border border-border/10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all placeholder:text-secondary/50"
-                    />
-                </div>
-
-                {/* Action Buttons - Only visible if changes */}
-                {hasChanges && (
-                    <div className="flex items-center gap-3 pt-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                        <button
-                            onClick={updateProfile}
-                            disabled={loading}
-                            className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2"
-                        >
-                            {loading && <Loader2 className="w-3 h-3 animate-spin" />}
-                            Save Changes
-                        </button>
-                        <button
-                            onClick={() => setUsername(originalUsername)}
-                            disabled={loading}
-                            className="px-4 py-2 bg-transparent text-secondary hover:text-foreground text-sm font-medium rounded-lg transition-colors"
-                        >
-                            Cancel
-                        </button>
+                <div className="space-y-4">
+                    <div className="grid gap-2">
+                        <label className="text-sm font-medium text-secondary">Email Address</label>
+                        <div className="flex items-center gap-3 p-3 bg-surfaceHighlight/30 rounded-lg border border-border/10 text-sm text-foreground/80 cursor-not-allowed select-none">
+                            <Mail className="w-4 h-4 text-secondary" />
+                            {email}
+                        </div>
+                        <p className="text-[10px] text-secondary/70">Email cannot be changed directly.</p>
                     </div>
-                )}
+
+                    <div className="grid gap-2">
+                        <label className="text-sm font-medium text-secondary">Display Name</label>
+                        <div className="relative">
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary">
+                                <User className="w-4 h-4" />
+                            </div>
+                            <input
+                                type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                placeholder="Enter your display name"
+                                autoComplete="off"
+                                className="w-full pl-10 p-3 bg-surfaceHighlight/30 hover:bg-surfaceHighlight/50 rounded-lg border border-border/10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/40 transition-all placeholder:text-secondary/40"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Action Buttons - Only visible if changes */}
+                    {hasChanges && (
+                        <div className="flex items-center gap-3 pt-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <button
+                                onClick={updateProfile}
+                                disabled={loading}
+                                className="px-5 py-2.5 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:opacity-90 transition-all shadow-sm active:scale-95 flex items-center gap-2"
+                            >
+                                {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                                Save Changes
+                            </button>
+                            <button
+                                onClick={() => setUsername(originalUsername)}
+                                disabled={loading}
+                                className="px-5 py-2.5 bg-transparent text-secondary hover:text-foreground text-sm font-medium rounded-lg transition-colors hover:bg-surfaceHighlight/50 active:scale-95"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
