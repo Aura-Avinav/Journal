@@ -74,7 +74,22 @@ export function useStore() {
 
         // Import/Export
         exportData: () => {
-            const json = exportDataJSON();
+            // Combine Data and Preferences for Export
+            const fullData: AppData = {
+                habits,
+                achievements,
+                todos,
+                journal,
+                metrics,
+                preferences: { // Use actual preferences from Context
+                    theme: preferences.theme,
+                    reducedMotion: preferences.reducedMotion,
+                    language: preferences.language,
+                    spellCheck: preferences.spellCheck
+                }
+            };
+
+            const json = JSON.stringify(fullData, null, 2);
             const blob = new Blob([json], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
