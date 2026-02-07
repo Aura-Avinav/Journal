@@ -590,6 +590,26 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const setLanguage = (lang: 'en-US' | 'en-GB' | 'en-IN') => {
+        setData(prev => ({
+            ...prev,
+            preferences: {
+                ...prev.preferences!,
+                language: lang
+            }
+        }));
+    };
+
+    const toggleSpellCheck = () => {
+        setData(prev => ({
+            ...prev,
+            preferences: {
+                ...prev.preferences!,
+                spellCheck: !prev.preferences?.spellCheck
+            }
+        }));
+    };
+
     const toggleTheme = () => {
         const currentTheme = data.preferences?.theme || 'dark';
         setTheme(currentTheme === 'light' ? 'dark' : 'light');

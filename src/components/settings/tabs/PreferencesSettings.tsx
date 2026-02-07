@@ -1,4 +1,4 @@
-import { Moon, Sun, Monitor } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 import { useStore } from '../../../hooks/useStore';
 import { cn } from '../../../lib/utils';
 
