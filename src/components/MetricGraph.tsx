@@ -4,8 +4,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { Activity } from 'lucide-react';
 import { format, subDays, eachDayOfInterval } from 'date-fns';
 
-export function MetricGraph({ date }: { date: Date }) {
-    void date; // Silence unused warning
+export function MetricGraph({ date: _date }: { date: Date }) {
     const { data } = useStore();
     // For now, metrics are generic, but accepting date allows future filtering
 

@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { PreferencesProvider, usePreferences } from '../contexts/PreferencesContext';
 import { DataProvider, useData } from '../contexts/DataContext';
-import { AppData } from '../types';
+import type { AppData } from '../types';
 
 export function StoreProvider({ children }: { children: ReactNode }) {
     return (
@@ -28,7 +27,7 @@ export function useStore() {
         toggleTodo, addTodo, removeTodo,
         updateJournal,
         mergeData, resetData, resetMonthlyData,
-        exportDataJSON, importDataJSON
+        importDataJSON
     } = useData();
 
     // Construct the legacy 'data' object on the fly
