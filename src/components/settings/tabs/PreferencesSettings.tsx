@@ -1,7 +1,8 @@
-import { Moon, Sun, Monitor, Type, Languages, Calendar, Clock, EyeOff, Zap, Download, Trash2, Globe, Save, X } from 'lucide-react';
+import { Moon, Sun, Monitor, Type, Languages, Calendar, Clock, EyeOff, Download, Trash2, Globe, Check } from 'lucide-react';
 import { useStore } from '../../../hooks/useStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { cn } from '../../../lib/utils';
 
 export function PreferencesSettings() {
     const {
@@ -14,31 +15,34 @@ export function PreferencesSettings() {
     // Safely access global preferences with defaults
     const globalPreferences = data.preferences || {} as NonNullable<typeof data.preferences>;
 
+    // Memoize global preferences to avoid unstable reference issues from useStore
+    const stableGlobalPreferences = useMemo(() => globalPreferences, [JSON.stringify(globalPreferences)]);
+
     // Local Draft State
-    // We initialize it lazily or via useEffect to ensure it catches up if data loads late
-    const [draft, setDraft] = useState(globalPreferences);
+    const [draft, setDraft] = useState(stableGlobalPreferences);
     const [isDirty, setIsDirty] = useState(false);
 
-    // Sync draft with global state on mount or when global changes (only if not dirty? or always?)
-    // Standard pattern: Reset draft when global source changes externally, BUT here global only changes if WE save.
-    // So we just init it. If we want to support external updates, we'd need more complex logic.
-    // For now, let's just sync on mount and when we explicitly save/cancel.
+    // Sync draft with global state only when global state *values* change significantly
     useEffect(() => {
-        setDraft(globalPreferences);
-        setIsDirty(false);
-    }, [globalPreferences]); // This might reset if we switch tabs and come back, which is good.
+        // Only reset if we aren't dirty, OR if the values are desynced in a way that matters?
+        // Actually, if we are editing, we probably don't want to get overwritten. 
+        // But for initial load, we need this.
+        if (!isDirty) {
+            setDraft(stableGlobalPreferences);
+        }
+    }, [stableGlobalPreferences, isDirty]);
 
     const handleChange = (key: keyof typeof draft, value: any) => {
         setDraft(prev => {
             const next = { ...prev, [key]: value };
-            // Check if actually different from global
-            // We compare specific fields to avoid issues with extra properties
+
+            // Compare with stable global preferences
             const keysToCheck = [
                 'theme', 'language', 'spellCheck', 'dateFormat',
                 'timeFormat', 'startOfWeek', 'privacyBlur', 'reducedMotion'
             ] as const;
 
-            const hasChanges = keysToCheck.some(k => next[k] !== globalPreferences[k]);
+            const hasChanges = keysToCheck.some(k => next[k] !== stableGlobalPreferences[k]);
 
             setIsDirty(hasChanges);
             return next;
@@ -47,11 +51,11 @@ export function PreferencesSettings() {
 
     const handleSave = () => {
         updatePreferences(draft);
-        // isDirty will be set to false by the useEffect when globalPreferences updates prop
+        setIsDirty(false); // Optimistically set dirty to false
     };
 
     const handleCancel = () => {
-        setDraft(globalPreferences);
+        setDraft(stableGlobalPreferences);
         setIsDirty(false);
     };
 
@@ -69,54 +73,32 @@ export function PreferencesSettings() {
     ] as const;
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-300 max-w-4xl px-1">
-            {/* Header with Actions */}
-            <div className="flex items-center justify-between sticky top-16 md:top-0 bg-background/95 backdrop-blur-md z-30 py-4 -my-4 px-1 border-b border-border/5">
-                <div className="space-y-1">
-                    <h2 className="text-xl font-semibold text-foreground tracking-tight">Preferences</h2>
-                    <p className="text-sm text-secondary leading-relaxed">Customize your experience.</p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                    {isDirty ? (
-                        <>
-                            <button
-                                onClick={handleCancel}
-                                className="px-4 py-2 text-sm font-medium text-secondary hover:text-foreground hover:bg-surfaceHighlight/50 rounded-lg transition-colors flex items-center gap-2"
-                            >
-                                <X className="w-4 h-4" /> Cancel
-                            </button>
-                            <button
-                                onClick={handleSave}
-                                className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2 shadow-sm"
-                            >
-                                <Save className="w-4 h-4" /> Save Changes
-                            </button>
-                        </>
-                    ) : (
-                        <div className="text-xs font-medium text-secondary/40 px-3 py-1.5 border border-border/5 rounded-full bg-surfaceHighlight/5">
-                            All changes saved
-                        </div>
-                    )}
-                </div>
+        <div className="space-y-8 animate-in fade-in duration-300 max-w-4xl px-1 pb-24 relative">
+            {/* Header */}
+            <div className="space-y-1">
+                <h2 className="text-xl font-semibold text-foreground tracking-tight">Preferences</h2>
+                <p className="text-sm text-secondary leading-relaxed">Customize your experience to fit your workflow.</p>
             </div>
 
             <div className="grid gap-6">
                 {/* Appearance Card */}
-                <div className="p-6 rounded-2xl bg-surfaceHighlight/5 space-y-6">
+                <div className="p-6 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm space-y-6 shadow-sm hover:shadow-md transition-shadow duration-300">
                     <div className="space-y-1">
-                        <h3 className="text-base font-medium text-foreground flex items-center gap-2">
-                            <Monitor className="w-4 h-4 text-accent" /> Appearance
+                        <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+                            <div className="p-1.5 rounded-md bg-purple-500/10 text-purple-500">
+                                <Monitor className="w-4 h-4" />
+                            </div>
+                            Appearance
                         </h3>
-                        <p className="text-xs text-secondary">Choose how the app looks.</p>
+                        <p className="text-xs text-secondary pl-9">Choose how the app looks.</p>
                     </div>
 
-                    <div className="p-1.5 bg-surfaceHighlight/20 rounded-xl inline-flex relative w-full sm:w-auto">
+                    <div className="p-1.5 bg-surfaceHighlight/30 rounded-xl inline-flex relative w-full sm:w-auto border border-border/10">
                         <AnimatePresence>
                             {/* Active Background Pill */}
                             <motion.div
                                 layoutId="theme-active"
-                                className="absolute inset-y-1.5 rounded-lg bg-background shadow-sm"
+                                className="absolute inset-y-1.5 rounded-lg bg-background shadow-md border border-border/5"
                                 style={{
                                     left: `calc(${themes.findIndex(t => t.id === draft.theme) * 33.333}% + 0.375rem)`,
                                     width: `calc(33.333% - 0.75rem)`
@@ -132,10 +114,12 @@ export function PreferencesSettings() {
                                 <button
                                     key={t.id}
                                     onClick={() => handleChange('theme', t.id)}
-                                    className={`relative z-10 flex-1 flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-medium transition-colors duration-200 rounded-lg select-none
-                                        ${isActive ? 'text-foreground' : 'text-secondary hover:text-foreground/80'}`}
+                                    className={cn(
+                                        "relative z-10 flex-1 flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-medium transition-colors duration-200 rounded-lg select-none",
+                                        isActive ? "text-foreground" : "text-secondary hover:text-foreground/80"
+                                    )}
                                 >
-                                    <Icon className={`w-4 h-4 ${isActive ? 'fill-current' : ''}`} />
+                                    <Icon className={cn("w-4 h-4", isActive && "fill-current text-purple-500")} />
                                     {t.label}
                                 </button>
                             );
@@ -144,12 +128,15 @@ export function PreferencesSettings() {
                 </div>
 
                 {/* General Settings */}
-                <div className="p-6 rounded-2xl bg-surfaceHighlight/5 space-y-6">
+                <div className="p-6 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm space-y-6 shadow-sm hover:shadow-md transition-shadow duration-300">
                     <div className="space-y-1">
-                        <h3 className="text-base font-medium text-foreground flex items-center gap-2">
-                            <Globe className="w-4 h-4 text-accent" /> General
+                        <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+                            <div className="p-1.5 rounded-md bg-blue-500/10 text-blue-500">
+                                <Globe className="w-4 h-4" />
+                            </div>
+                            General
                         </h3>
-                        <p className="text-xs text-secondary">Language, date, and time settings.</p>
+                        <p className="text-xs text-secondary pl-9">Language, date, and time settings.</p>
                     </div>
 
                     <div className="grid gap-6 sm:grid-cols-2">
@@ -158,15 +145,20 @@ export function PreferencesSettings() {
                             <label className="text-sm font-medium text-secondary flex items-center gap-2">
                                 <Languages className="w-3.5 h-3.5" /> Language
                             </label>
-                            <select
-                                value={draft.language || 'en-US'}
-                                onChange={(e) => handleChange('language', e.target.value)}
-                                className="w-full p-2.5 bg-transparent hover:bg-surfaceHighlight/30 rounded-lg border border-border/20 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer appearance-none"
-                            >
-                                <option value="en-US">English (US)</option>
-                                <option value="en-GB">English (UK)</option>
-                                <option value="en-IN">English (India)</option>
-                            </select>
+                            <div className="relative">
+                                <select
+                                    value={draft.language || 'en-US'}
+                                    onChange={(e) => handleChange('language', e.target.value)}
+                                    className="w-full p-2.5 bg-background/50 hover:bg-surfaceHighlight/50 rounded-lg border border-border/20 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all cursor-pointer appearance-none pl-3"
+                                >
+                                    <option value="en-US">English (US)</option>
+                                    <option value="en-GB">English (UK)</option>
+                                    <option value="en-IN">English (India)</option>
+                                </select>
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-secondary">
+                                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Spell Check */}
@@ -176,14 +168,17 @@ export function PreferencesSettings() {
                             </label>
                             <button
                                 onClick={() => handleChange('spellCheck', !draft.spellCheck)}
-                                className={`w-full p-2.5 rounded-lg border text-sm text-left flex items-center justify-between transition-all
-                                    ${draft.spellCheck
-                                        ? 'bg-primary/5 border-primary/20 text-primary'
-                                        : 'bg-transparent border-border/20 text-secondary hover:bg-surfaceHighlight/30'
-                                    }`}
+                                className={cn(
+                                    "w-full p-2.5 rounded-lg border text-sm text-left flex items-center justify-between transition-all",
+                                    draft.spellCheck
+                                        ? "bg-blue-500/5 border-blue-500/20 text-blue-600 dark:text-blue-400"
+                                        : "bg-background/50 border-border/20 text-secondary hover:bg-surfaceHighlight/30"
+                                )}
                             >
                                 {draft.spellCheck ? 'Enabled' : 'Disabled'}
-                                <div className={`w-2 h-2 rounded-full ${draft.spellCheck ? 'bg-primary' : 'bg-secondary/30'}`} />
+                                <div className={cn("w-4 h-4 rounded-full flex items-center justify-center transition-colors", draft.spellCheck ? "bg-blue-500 text-white" : "bg-border/20")}>
+                                    {draft.spellCheck && <Check className="w-2.5 h-2.5" />}
+                                </div>
                             </button>
                         </div>
 
@@ -192,15 +187,20 @@ export function PreferencesSettings() {
                             <label className="text-sm font-medium text-secondary flex items-center gap-2">
                                 <Calendar className="w-3.5 h-3.5" /> Date Format
                             </label>
-                            <select
-                                value={draft.dateFormat || 'MM/DD/YYYY'}
-                                onChange={(e) => handleChange('dateFormat', e.target.value)}
-                                className="w-full p-2.5 bg-transparent hover:bg-surfaceHighlight/30 rounded-lg border border-border/20 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer appearance-none"
-                            >
-                                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                            </select>
+                            <div className="relative">
+                                <select
+                                    value={draft.dateFormat || 'MM/DD/YYYY'}
+                                    onChange={(e) => handleChange('dateFormat', e.target.value)}
+                                    className="w-full p-2.5 bg-background/50 hover:bg-surfaceHighlight/50 rounded-lg border border-border/20 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all cursor-pointer appearance-none pl-3"
+                                >
+                                    <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                    <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                </select>
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-secondary">
+                                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Time Format */}
@@ -216,11 +216,12 @@ export function PreferencesSettings() {
                                     <button
                                         key={opt.value}
                                         onClick={() => handleChange('timeFormat', opt.value)}
-                                        className={`flex-1 p-2.5 text-sm font-medium rounded-lg transition-all border
-                                            ${draft.timeFormat === opt.value
-                                                ? 'bg-primary/5 border-primary/20 text-primary'
-                                                : 'bg-transparent border-border/20 text-secondary hover:bg-surfaceHighlight/30'
-                                            }`}
+                                        className={cn(
+                                            "flex-1 p-2.5 text-sm font-medium rounded-lg transition-all border",
+                                            draft.timeFormat === opt.value
+                                                ? "bg-blue-500/5 border-blue-500/20 text-blue-600 dark:text-blue-400"
+                                                : "bg-background/50 border-border/20 text-secondary hover:bg-surfaceHighlight/30"
+                                        )}
                                     >
                                         {opt.label}
                                     </button>
@@ -241,11 +242,12 @@ export function PreferencesSettings() {
                                     <button
                                         key={opt.value}
                                         onClick={() => handleChange('startOfWeek', opt.value)}
-                                        className={`flex-1 p-2.5 text-sm font-medium rounded-lg transition-all border capitalize
-                                            ${draft.startOfWeek === opt.value
-                                                ? 'bg-primary/5 border-primary/20 text-primary'
-                                                : 'bg-transparent border-border/20 text-secondary hover:bg-surfaceHighlight/30'
-                                            }`}
+                                        className={cn(
+                                            "flex-1 p-2.5 text-sm font-medium rounded-lg transition-all border capitalize",
+                                            draft.startOfWeek === opt.value
+                                                ? "bg-blue-500/5 border-blue-500/20 text-blue-600 dark:text-blue-400"
+                                                : "bg-background/50 border-border/20 text-secondary hover:bg-surfaceHighlight/30"
+                                        )}
                                     >
                                         {opt.label}
                                     </button>
@@ -257,71 +259,83 @@ export function PreferencesSettings() {
 
 
                 {/* Privacy & Data */}
-                <div className="p-6 rounded-2xl bg-surfaceHighlight/5 space-y-6">
+                <div className="p-6 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm space-y-6 shadow-sm hover:shadow-md transition-shadow duration-300">
                     <div className="space-y-1">
-                        <h3 className="text-base font-medium text-foreground flex items-center gap-2">
-                            <EyeOff className="w-4 h-4 text-accent" /> Privacy & System
+                        <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+                            <div className="p-1.5 rounded-md bg-green-500/10 text-green-500">
+                                <EyeOff className="w-4 h-4" />
+                            </div>
+                            Privacy & System
                         </h3>
-                        <p className="text-xs text-secondary">Manage privacy and performance.</p>
+                        <p className="text-xs text-secondary pl-9">Manage privacy and performance.</p>
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
                         {/* Privacy Blur */}
                         <button
                             onClick={() => handleChange('privacyBlur', !draft.privacyBlur)}
-                            className={`p-4 rounded-xl border transition-all text-left space-y-2 group
-                                ${draft.privacyBlur
-                                    ? 'bg-primary/5 border-primary/20'
-                                    : 'bg-transparent border-border/20 hover:bg-surfaceHighlight/30'
-                                }`}
+                            className={cn(
+                                "p-4 rounded-xl border transition-all text-left space-y-2 group",
+                                draft.privacyBlur
+                                    ? "bg-green-500/5 border-green-500/20"
+                                    : "bg-background/50 border-border/20 hover:bg-surfaceHighlight/30"
+                            )}
                         >
                             <div className="flex items-center justify-between">
-                                <span className={`text-sm font-medium ${draft.privacyBlur ? 'text-primary' : 'text-foreground'}`}>Privacy Blur</span>
-                                <EyeOff className={`w-4 h-4 ${draft.privacyBlur ? 'text-primary' : 'text-secondary'}`} />
+                                <span className={cn("text-sm font-medium", draft.privacyBlur ? "text-green-600 dark:text-green-400" : "text-foreground")}>Privacy Blur</span>
+                                <div className={cn("w-8 h-5 rounded-full relative transition-colors", draft.privacyBlur ? "bg-green-500" : "bg-border/40")}>
+                                    <div className={cn("absolute top-1 bottom-1 w-3 h-3 bg-white rounded-full transition-all", draft.privacyBlur ? "left-4" : "left-1")} />
+                                </div>
                             </div>
                             <p className="text-xs text-secondary leading-relaxed">
-                                Blur content when you switch windows to prevent prying eyes.
+                                Blur content when swiching apps.
                             </p>
                         </button>
 
                         {/* Reduce Motion */}
                         <button
                             onClick={() => handleChange('reducedMotion', !draft.reducedMotion)}
-                            className={`p-4 rounded-xl border transition-all text-left space-y-2 group
-                                ${draft.reducedMotion
-                                    ? 'bg-primary/5 border-primary/20'
-                                    : 'bg-transparent border-border/20 hover:bg-surfaceHighlight/30'
-                                }`}
+                            className={cn(
+                                "p-4 rounded-xl border transition-all text-left space-y-2 group",
+                                draft.reducedMotion
+                                    ? "bg-green-500/5 border-green-500/20"
+                                    : "bg-background/50 border-border/20 hover:bg-surfaceHighlight/30"
+                            )}
                         >
                             <div className="flex items-center justify-between">
-                                <span className={`text-sm font-medium ${draft.reducedMotion ? 'text-primary' : 'text-foreground'}`}>Reduce Motion</span>
-                                <Zap className={`w-4 h-4 ${draft.reducedMotion ? 'text-primary' : 'text-secondary'}`} />
+                                <span className={cn("text-sm font-medium", draft.reducedMotion ? "text-green-600 dark:text-green-400" : "text-foreground")}>Reduce Motion</span>
+                                <div className={cn("w-8 h-5 rounded-full relative transition-colors", draft.reducedMotion ? "bg-green-500" : "bg-border/40")}>
+                                    <div className={cn("absolute top-1 bottom-1 w-3 h-3 bg-white rounded-full transition-all", draft.reducedMotion ? "left-4" : "left-1")} />
+                                </div>
                             </div>
                             <p className="text-xs text-secondary leading-relaxed">
-                                minimize animations for a simpler, faster experience.
+                                Minimize UI animations.
                             </p>
                         </button>
                     </div>
                 </div>
 
                 {/* Data Management */}
-                <div className="p-6 rounded-2xl bg-surfaceHighlight/5 space-y-6">
+                <div className="p-6 rounded-2xl border border-destructive/10 bg-destructive/5 backdrop-blur-sm space-y-6">
                     <div className="space-y-1">
-                        <h3 className="text-base font-medium text-foreground flex items-center gap-2">
-                            <Download className="w-4 h-4 text-accent" /> Data Management
+                        <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+                            <div className="p-1.5 rounded-md bg-red-500/10 text-red-500">
+                                <Download className="w-4 h-4" />
+                            </div>
+                            Data Management
                         </h3>
-                        <p className="text-xs text-secondary">Export your data or reset everything.</p>
+                        <p className="text-xs text-secondary pl-9">Export your data or reset everything.</p>
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-4">
                         <button
                             onClick={() => exportData()}
-                            className="flex-1 p-4 rounded-xl border border-border/20 hover:bg-surfaceHighlight/30 transition-all text-left space-y-2 group"
+                            className="flex-1 p-4 rounded-xl border border-border/20 bg-background/50 hover:bg-surfaceHighlight/30 transition-all text-left space-y-2 group"
                         >
                             <div className="flex items-center gap-2 font-medium text-sm text-foreground">
                                 <Download className="w-4 h-4 text-secondary group-hover:text-primary transition-colors" /> Export Data
                             </div>
-                            <p className="text-xs text-secondary">Download a JSON backup of all your journal entries and habits.</p>
+                            <p className="text-xs text-secondary">Download a JSON backup.</p>
                         </button>
 
                         <button
@@ -330,16 +344,46 @@ export function PreferencesSettings() {
                                     resetData();
                                 }
                             }}
-                            className="flex-1 p-4 rounded-xl border border-red-500/10 hover:bg-red-500/5 transition-all text-left space-y-2 group"
+                            className="flex-1 p-4 rounded-xl border border-red-500/10 bg-red-500/5 hover:bg-red-500/10 transition-all text-left space-y-2 group"
                         >
                             <div className="flex items-center gap-2 font-medium text-sm text-red-500">
                                 <Trash2 className="w-4 h-4" /> Reset Everything
                             </div>
-                            <p className="text-xs text-secondary">Permanently delete all local data and reset the application.</p>
+                            <p className="text-xs text-secondary">Permanently delete local data.</p>
                         </button>
                     </div>
                 </div>
             </div>
+
+            {/* Floating Save Action Bar */}
+            <AnimatePresence>
+                {isDirty && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 50, scale: 0.9 }}
+                        transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 p-2 pr-4 bg-foreground/95 backdrop-blur-xl text-background rounded-full shadow-2xl border border-white/10"
+                    >
+                        <div className="pl-4 text-sm font-medium whitespace-nowrap">
+                            Unsaved Changes
+                        </div>
+                        <div className="h-4 w-px bg-background/20" />
+                        <button
+                            onClick={handleCancel}
+                            className="px-4 py-2 text-sm font-medium bg-white/10 hover:bg-white/20 text-background rounded-full transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleSave}
+                            className="px-6 py-2 text-sm font-bold bg-primary text-primary-foreground rounded-full hover:opacity-90 transition-transform active:scale-95 shadow-lg"
+                        >
+                            Save Changes
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
