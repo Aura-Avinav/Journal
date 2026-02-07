@@ -82,7 +82,7 @@ export function PreferencesSettings() {
 
             <div className="grid gap-6">
                 {/* Appearance Card */}
-                <div className="p-6 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm space-y-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+                <div className="p-6 rounded-2xl border border-border/5 bg-card/50 backdrop-blur-sm space-y-6 shadow-sm hover:shadow-md transition-shadow duration-300">
                     <div className="space-y-1">
                         <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                             <div className="p-1.5 rounded-md bg-purple-500/10 text-purple-500">
@@ -93,7 +93,7 @@ export function PreferencesSettings() {
                         <p className="text-xs text-secondary pl-9">Choose how the app looks.</p>
                     </div>
 
-                    <div className="p-1.5 bg-surfaceHighlight/30 rounded-xl inline-flex relative w-full sm:w-auto border border-border/10">
+                    <div className="p-1.5 bg-surfaceHighlight/30 rounded-xl inline-flex relative w-full sm:w-auto border border-border/5">
                         <AnimatePresence>
                             {/* Active Background Pill */}
                             <motion.div
@@ -128,7 +128,7 @@ export function PreferencesSettings() {
                 </div>
 
                 {/* General Settings */}
-                <div className="p-6 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm space-y-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+                <div className="p-6 rounded-2xl border border-border/5 bg-card/50 backdrop-blur-sm space-y-6 shadow-sm hover:shadow-md transition-shadow duration-300">
                     <div className="space-y-1">
                         <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                             <div className="p-1.5 rounded-md bg-blue-500/10 text-blue-500">
@@ -149,7 +149,7 @@ export function PreferencesSettings() {
                                 <select
                                     value={draft.language || 'en-US'}
                                     onChange={(e) => handleChange('language', e.target.value)}
-                                    className="w-full p-2.5 bg-background/50 hover:bg-surfaceHighlight/50 rounded-lg border border-border/20 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all cursor-pointer appearance-none pl-3"
+                                    className="w-full p-2.5 bg-background/50 hover:bg-surfaceHighlight/50 rounded-lg border border-border/5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all cursor-pointer appearance-none pl-3"
                                 >
                                     <option value="en-US">English (US)</option>
                                     <option value="en-GB">English (UK)</option>
@@ -172,7 +172,7 @@ export function PreferencesSettings() {
                                     "w-full p-2.5 rounded-lg border text-sm text-left flex items-center justify-between transition-all",
                                     draft.spellCheck
                                         ? "bg-blue-500/5 border-blue-500/20 text-blue-600 dark:text-blue-400"
-                                        : "bg-background/50 border-border/20 text-secondary hover:bg-surfaceHighlight/30"
+                                        : "bg-background/50 border-border/5 text-secondary hover:bg-surfaceHighlight/30"
                                 )}
                             >
                                 {draft.spellCheck ? 'Enabled' : 'Disabled'}
@@ -191,7 +191,7 @@ export function PreferencesSettings() {
                                 <select
                                     value={draft.dateFormat || 'MM/DD/YYYY'}
                                     onChange={(e) => handleChange('dateFormat', e.target.value)}
-                                    className="w-full p-2.5 bg-background/50 hover:bg-surfaceHighlight/50 rounded-lg border border-border/20 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all cursor-pointer appearance-none pl-3"
+                                    className="w-full p-2.5 bg-background/50 hover:bg-surfaceHighlight/50 rounded-lg border border-border/5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all cursor-pointer appearance-none pl-3"
                                 >
                                     <option value="MM/DD/YYYY">MM/DD/YYYY</option>
                                     <option value="DD/MM/YYYY">DD/MM/YYYY</option>
@@ -220,7 +220,7 @@ export function PreferencesSettings() {
                                             "flex-1 p-2.5 text-sm font-medium rounded-lg transition-all border",
                                             draft.timeFormat === opt.value
                                                 ? "bg-blue-500/5 border-blue-500/20 text-blue-600 dark:text-blue-400"
-                                                : "bg-background/50 border-border/20 text-secondary hover:bg-surfaceHighlight/30"
+                                                : "bg-background/50 border-border/5 text-secondary hover:bg-surfaceHighlight/30"
                                         )}
                                     >
                                         {opt.label}
@@ -246,7 +246,7 @@ export function PreferencesSettings() {
                                             "flex-1 p-2.5 text-sm font-medium rounded-lg transition-all border capitalize",
                                             draft.startOfWeek === opt.value
                                                 ? "bg-blue-500/5 border-blue-500/20 text-blue-600 dark:text-blue-400"
-                                                : "bg-background/50 border-border/20 text-secondary hover:bg-surfaceHighlight/30"
+                                                : "bg-background/50 border-border/5 text-secondary hover:bg-surfaceHighlight/30"
                                         )}
                                     >
                                         {opt.label}
@@ -259,7 +259,7 @@ export function PreferencesSettings() {
 
 
                 {/* Privacy & Data */}
-                <div className="p-6 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm space-y-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+                <div className="p-6 rounded-2xl border border-border/5 bg-card/50 backdrop-blur-sm space-y-6 shadow-sm hover:shadow-md transition-shadow duration-300">
                     <div className="space-y-1">
                         <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                             <div className="p-1.5 rounded-md bg-green-500/10 text-green-500">
