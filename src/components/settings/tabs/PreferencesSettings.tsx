@@ -17,7 +17,7 @@ export function PreferencesSettings() {
     } = useStore();
 
     // Safely access preferences with defaults
-    const preferences = data.preferences || {};
+    const preferences = data.preferences || {} as NonNullable<typeof data.preferences>;
     const {
         theme = 'system',
         language = 'en-US',
@@ -31,7 +31,7 @@ export function PreferencesSettings() {
 
     // Helper for animation
     const spring = {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 700,
         damping: 30
     };
@@ -103,7 +103,7 @@ export function PreferencesSettings() {
                             </label>
                             <select
                                 value={language}
-                                onChange={(e) => setLanguage(e.target.value as any)}
+                                onChange={(e) => setLanguage(e.target.value as 'en-US' | 'en-GB' | 'en-IN')}
                                 className="w-full p-2.5 bg-surfaceHighlight/30 hover:bg-surfaceHighlight/50 rounded-lg border border-border/10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer appearance-none"
                             >
                                 <option value="en-US">English (US)</option>
@@ -146,7 +146,7 @@ export function PreferencesSettings() {
                             </label>
                             <select
                                 value={dateFormat}
-                                onChange={(e) => setDateFormat(e.target.value as any)}
+                                onChange={(e) => setDateFormat(e.target.value as 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD')}
                                 className="w-full p-2.5 bg-surfaceHighlight/30 hover:bg-surfaceHighlight/50 rounded-lg border border-border/10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer appearance-none"
                             >
                                 <option value="MM/DD/YYYY">MM/DD/YYYY</option>
