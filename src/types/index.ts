@@ -36,7 +36,7 @@ export interface AppData {
     journal: Record<string, string>; // date -> content mapping for O(1) access
     metrics: MetricData[];
     preferences?: {
-        theme: 'dark' | 'light';
+        theme: 'dark' | 'light' | 'system';
         reducedMotion: boolean;
         language?: 'en-US' | 'en-GB' | 'en-IN';
         spellCheck?: boolean;

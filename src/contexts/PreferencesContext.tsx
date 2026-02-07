@@ -1,9 +1,10 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
 
-type Theme = 'dark' | 'light';
+type Theme = 'dark' | 'light' | 'system';
 type Language = 'en-US' | 'en-GB' | 'en-IN';
 
 interface PreferencesState {
@@ -26,12 +27,9 @@ const THEME_STORAGE_KEY = 'journal_theme_preference';
 const getInitialTheme = (): Theme => {
     if (typeof window !== 'undefined') {
         const stored = localStorage.getItem(THEME_STORAGE_KEY);
-        if (stored === 'dark' || stored === 'light') return stored;
-        if (window.matchMedia) {
-            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
+        if (stored === 'dark' || stored === 'light' || stored === 'system') return stored as Theme;
     }
-    return 'dark';
+    return 'system'; // Default to system
 };
 
 const PreferencesContext = createContext<PreferencesContextType | undefined>(undefined);
@@ -45,14 +43,38 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         spellCheck: true
     });
 
-    // 1. Sync Theme to DOM
+    // 1. Sync Theme to DOM (Handle System Theme)
     useEffect(() => {
         const root = document.documentElement;
-        if (preferences.theme === 'light') {
-            root.classList.add('light');
-        } else {
-            root.classList.remove('light');
+
+        const applyTheme = (targetTheme: Theme) => {
+            let effectiveTheme = targetTheme;
+
+            if (targetTheme === 'system') {
+                const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                effectiveTheme = systemDark ? 'dark' : 'light';
+            }
+
+            if (effectiveTheme === 'light') {
+                root.classList.add('light');
+                root.classList.remove('dark');
+            } else {
+                root.classList.add('dark');
+                root.classList.remove('light');
+            }
+        };
+
+        applyTheme(preferences.theme);
+
+        // Listener for System changes
+        if (preferences.theme === 'system') {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            const handleChange = () => applyTheme('system');
+
+            mediaQuery.addEventListener('change', handleChange);
+            return () => mediaQuery.removeEventListener('change', handleChange);
         }
+
     }, [preferences.theme]);
 
     // 2. Load Preferences from DB on Auth
@@ -82,7 +104,14 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     };
 
     const toggleTheme = () => {
-        setTheme(preferences.theme === 'dark' ? 'light' : 'dark');
+        // Toggle logic: System -> Dark -> Light -> System? Or just Dark <-> Light?
+        // Let's keep it simple: If System, check what it is and flip. 
+        // Actually, for a 3-way toggle UI, this function might be less useful, 
+        // but for the header button, we might want a cycle.
+        // Let's cycle: System -> Dark -> Light -> System
+        const cycles: Theme[] = ['system', 'dark', 'light'];
+        const next = cycles[(cycles.indexOf(preferences.theme) + 1) % cycles.length];
+        setTheme(next);
     };
 
     const setLanguage = (lang: Language) => {
