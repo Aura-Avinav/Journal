@@ -48,11 +48,38 @@ export function PreferencesSettings() {
                 <div className="flex items-center justify-between py-4 border-b border-border/10">
                     <div>
                         <div className="font-medium text-foreground">Language</div>
-                        <p className="text-sm text-secondary">The language used in the interface.</p>
+                        <p className="text-sm text-secondary">The language used for spellcheck and formatting.</p>
                     </div>
-                    <select className="bg-surfaceHighlight/30 text-sm text-foreground rounded-md p-2 border border-border/10 focus:outline-none cursor-not-allowed opacity-50" disabled>
-                        <option>English</option>
+                    <select
+                        value={data.preferences?.language || 'en-US'}
+                        onChange={(e) => setLanguage(e.target.value as any)}
+                        className="bg-surfaceHighlight/30 text-sm text-foreground rounded-md p-2 border border-border/10 focus:outline-none cursor-pointer"
+                    >
+                        <option value="en-US">English (US)</option>
+                        <option value="en-GB">English (UK)</option>
+                        <option value="en-IN">English (India)</option>
                     </select>
+                </div>
+
+                <div className="flex items-center justify-between py-4">
+                    <div className="pr-8">
+                        <div className="font-medium text-foreground">Spellchecker</div>
+                        <p className="text-sm text-secondary">
+                            Highlight potential spelling errors in your journal and tasks.
+                        </p>
+                    </div>
+                    <button
+                        onClick={toggleSpellCheck}
+                        className={cn(
+                            "w-10 h-6 rounded-full relative transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent",
+                            data.preferences?.spellCheck ? "bg-accent" : "bg-surfaceHighlight"
+                        )}
+                    >
+                        <div className={cn(
+                            "absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform",
+                            data.preferences?.spellCheck ? "translate-x-4" : "translate-x-0"
+                        )} />
+                    </button>
                 </div>
             </section>
         </div>
