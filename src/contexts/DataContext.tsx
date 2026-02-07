@@ -48,6 +48,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     // Load Data
     useEffect(() => {
         if (!user) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setHabits([]);
             setAchievements([]);
             setTodos([]);
