@@ -23,6 +23,7 @@ interface PreferencesState {
 
 interface PreferencesContextType {
     preferences: PreferencesState;
+    updatePreferences: (updates: Partial<PreferencesState>) => void;
     setTheme: (theme: Theme) => void;
     toggleTheme: () => void;
     setLanguage: (lang: Language) => void;
@@ -48,29 +49,39 @@ const PreferencesContext = createContext<PreferencesContextType | undefined>(und
 
 export function PreferencesProvider({ children }: { children: ReactNode }) {
     const { user } = useAuth();
-    const [preferences, setPreferences] = useState<PreferencesState>({
-        theme: getInitialTheme(),
-        reducedMotion: false,
-        language: 'en-US',
-        spellCheck: true,
-        dateFormat: 'MM/DD/YYYY',
-        timeFormat: '12',
-        startOfWeek: 'sunday',
-        privacyBlur: false
+    const [preferences, setPreferences] = useState<PreferencesState>(() => {
+        // Load from local storage on mount
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem('ituts_preferences_v1');
+            if (stored) {
+                try {
+                    return JSON.parse(stored);
+                } catch (e) {
+                    console.error("Failed to parse preferences", e);
+                }
+            }
+        }
+        return {
+            theme: getInitialTheme(),
+            reducedMotion: false,
+            language: 'en-US',
+            spellCheck: true,
+            dateFormat: 'MM/DD/YYYY',
+            timeFormat: '12',
+            startOfWeek: 'sunday',
+            privacyBlur: false
+        };
     });
 
-    // 1. Sync Theme to DOM (Handle System Theme)
+    // 1. Sync Theme to DOM
     useEffect(() => {
         const root = document.documentElement;
-
         const applyTheme = (targetTheme: Theme) => {
             let effectiveTheme = targetTheme;
-
             if (targetTheme === 'system') {
                 const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                 effectiveTheme = systemDark ? 'dark' : 'light';
             }
-
             if (effectiveTheme === 'light') {
                 root.classList.add('light');
                 root.classList.remove('dark');
@@ -79,18 +90,14 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
                 root.classList.remove('light');
             }
         };
-
         applyTheme(preferences.theme);
 
-        // Listener for System changes
         if (preferences.theme === 'system') {
             const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
             const handleChange = () => applyTheme('system');
-
             mediaQuery.addEventListener('change', handleChange);
             return () => mediaQuery.removeEventListener('change', handleChange);
         }
-
     }, [preferences.theme]);
 
     // 2. Privacy Blur Effect
@@ -99,19 +106,15 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
             document.body.style.filter = 'none';
             return;
         }
-
         const handleBlur = () => {
             document.body.style.filter = 'blur(10px) grayscale(100%)';
             document.body.style.transition = 'filter 0.3s ease';
         };
-
         const handleFocus = () => {
             document.body.style.filter = 'none';
         };
-
         window.addEventListener('blur', handleBlur);
         window.addEventListener('focus', handleFocus);
-
         return () => {
             window.removeEventListener('blur', handleBlur);
             window.removeEventListener('focus', handleFocus);
@@ -119,69 +122,53 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         };
     }, [preferences.privacyBlur]);
 
+    // 3. Persist to Local Storage whenever preferences change
+    useEffect(() => {
+        localStorage.setItem('ituts_preferences_v1', JSON.stringify(preferences));
+    }, [preferences]);
 
-    // 3. Load Preferences from DB on Auth
+    // 4. Load Preferences from DB on Auth (Merge logic could be improved, currently DB wins for theme)
     useEffect(() => {
         if (!user) return;
-
         const fetchProfile = async () => {
             const { data } = await supabase.from('profiles').select('theme').eq('id', user.id).single();
             if (data?.theme) {
-                // DB has priority over local defaults if set
                 setPreferences(prev => ({ ...prev, theme: data.theme as Theme }));
             }
         };
-
         fetchProfile();
     }, [user]);
 
-    // 4. Actions
-    const setTheme = async (newTheme: Theme) => {
-        setPreferences(prev => ({ ...prev, theme: newTheme }));
-
-        // Persist
-        localStorage.setItem(THEME_STORAGE_KEY, newTheme);
-        if (user) {
-            await supabase.from('profiles').upsert({ id: user.id, theme: newTheme, updated_at: new Date().toISOString() });
-        }
+    // Actions
+    const updatePreferences = (updates: Partial<PreferencesState>) => {
+        setPreferences(prev => {
+            const next = { ...prev, ...updates };
+            // Optional: Persist specific priority fields to DB here if needed
+            if (updates.theme && user) {
+                supabase.from('profiles').upsert({ id: user.id, theme: updates.theme, updated_at: new Date().toISOString() });
+            }
+            return next;
+        });
     };
 
+    // Legacy individual setters can wrap updatePreferences or use it directly
+    const setTheme = (theme: Theme) => updatePreferences({ theme });
     const toggleTheme = () => {
         const cycles: Theme[] = ['system', 'dark', 'light'];
         const next = cycles[(cycles.indexOf(preferences.theme) + 1) % cycles.length];
         setTheme(next);
     };
-
-    const setLanguage = (lang: Language) => {
-        setPreferences(prev => ({ ...prev, language: lang }));
-    };
-
-    const toggleSpellCheck = () => {
-        setPreferences(prev => ({ ...prev, spellCheck: !preferences.spellCheck }));
-    };
-
-    const setDateFormat = (format: DateFormat) => {
-        setPreferences(prev => ({ ...prev, dateFormat: format }));
-    };
-
-    const setTimeFormat = (format: TimeFormat) => {
-        setPreferences(prev => ({ ...prev, timeFormat: format }));
-    };
-
-    const setStartOfWeek = (start: StartOfWeek) => {
-        setPreferences(prev => ({ ...prev, startOfWeek: start }));
-    };
-
-    const togglePrivacyBlur = () => {
-        setPreferences(prev => ({ ...prev, privacyBlur: !preferences.privacyBlur }));
-    };
-
-    const toggleReducedMotion = () => {
-        setPreferences(prev => ({ ...prev, reducedMotion: !preferences.reducedMotion }));
-    };
+    const setLanguage = (language: Language) => updatePreferences({ language });
+    const toggleSpellCheck = () => updatePreferences({ spellCheck: !preferences.spellCheck });
+    const setDateFormat = (dateFormat: DateFormat) => updatePreferences({ dateFormat });
+    const setTimeFormat = (timeFormat: TimeFormat) => updatePreferences({ timeFormat });
+    const setStartOfWeek = (startOfWeek: StartOfWeek) => updatePreferences({ startOfWeek });
+    const togglePrivacyBlur = () => updatePreferences({ privacyBlur: !preferences.privacyBlur });
+    const toggleReducedMotion = () => updatePreferences({ reducedMotion: !preferences.reducedMotion });
 
     const value = {
         preferences,
+        updatePreferences,
         setTheme,
         toggleTheme,
         setLanguage,

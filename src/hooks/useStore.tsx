@@ -21,7 +21,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 export function useStore() {
     const { session, user, signOut } = useAuth();
     const {
-        preferences, setTheme, toggleTheme, setLanguage, toggleSpellCheck,
+        preferences, updatePreferences, setTheme, toggleTheme, setLanguage, toggleSpellCheck,
         setDateFormat, setTimeFormat, setStartOfWeek, togglePrivacyBlur, toggleReducedMotion
     } = usePreferences();
 
@@ -61,6 +61,7 @@ export function useStore() {
         data,
 
         // Preferences
+        updatePreferences,
         setTheme,
         toggleTheme,
         setLanguage,
