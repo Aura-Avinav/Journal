@@ -8,9 +8,9 @@ export function AccountSettings() {
     const { session } = useStore();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [username, setUsername] = useState('');
+    const [displayName, setDisplayName] = useState('');
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-    const [originalUsername, setOriginalUsername] = useState('');
+    const [originalDisplayName, setOriginalDisplayName] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const email = session?.user?.email || 'guest@example.com';
@@ -23,6 +23,11 @@ export function AccountSettings() {
         const getProfile = async () => {
             try {
                 setLoading(true);
+
+                // 1. Try to get display name from Auth Metadata first (Source of Truth for Display Name)
+                const metaName = session?.user?.user_metadata?.full_name;
+
+                // 2. Fetch Profile for Avatar (and fallback username)
                 const { data, error } = await supabase
                     .from('profiles')
                     .select('username, avatar_url')
@@ -33,22 +38,22 @@ export function AccountSettings() {
                     throw error;
                 }
 
-                if (data) {
-                    setUsername(data.username || '');
-                    setOriginalUsername(data.username || '');
+                // Prioritize metadata name -> profile username -> empty
+                const finalName = metaName || data?.username || '';
+                setDisplayName(finalName);
+                setOriginalDisplayName(finalName);
 
-                    if (data.avatar_url) {
-                        // Check if it's a full URL (e.g. google auth) or a path
-                        if (data.avatar_url.startsWith('http')) {
-                            setAvatarUrl(data.avatar_url);
-                        } else {
-                            // Generate signed URL or public URL for storage path
-                            const { data: publicUrlData } = supabase
-                                .storage
-                                .from('avatars')
-                                .getPublicUrl(data.avatar_url);
-                            setAvatarUrl(publicUrlData.publicUrl);
-                        }
+                if (data?.avatar_url) {
+                    // Check if it's a full URL (e.g. google auth) or a path
+                    if (data.avatar_url.startsWith('http')) {
+                        setAvatarUrl(data.avatar_url);
+                    } else {
+                        // Generate signed URL or public URL for storage path
+                        const { data: publicUrlData } = supabase
+                            .storage
+                            .from('avatars')
+                            .getPublicUrl(data.avatar_url);
+                        setAvatarUrl(publicUrlData.publicUrl);
                     }
                 }
             } catch (error) {
@@ -59,7 +64,7 @@ export function AccountSettings() {
         };
 
         getProfile();
-    }, [userId]);
+    }, [userId, session]); // Added session dep to react to metadata updates
 
     const handleUploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
         try {
@@ -107,29 +112,24 @@ export function AccountSettings() {
         try {
             setLoading(true);
 
-            const { error } = await supabase.from('profiles').upsert({
-                id: userId,
-                username,
-                updated_at: new Date().toISOString(),
+            // Update Auth Metadata (No unique constraint on this)
+            const { error } = await supabase.auth.updateUser({
+                data: { full_name: displayName }
             });
 
             if (error) throw error;
 
-            setOriginalUsername(username);
+            setOriginalDisplayName(displayName);
             alert('Profile updated!');
         } catch (error: any) {
-            if (error.message?.includes('profiles_username_key')) {
-                alert('This display name is already taken. Please choose another.');
-            } else {
-                alert(`Error updating profile: ${error.message || 'Unknown error'}`);
-            }
+            alert(`Error updating profile: ${error.message || 'Unknown error'}`);
             console.error(error);
         } finally {
             setLoading(false);
         }
     };
 
-    const hasChanges = username !== originalUsername;
+    const hasChanges = displayName !== originalDisplayName;
 
     return (
         <div className="space-y-8 animate-in fade-in duration-300 max-w-2xl px-1">
@@ -157,7 +157,7 @@ export function AccountSettings() {
 
                 <div className="space-y-3 flex-1">
                     <div>
-                        <div className="font-semibold text-foreground text-lg">{username || 'Your Profile'}</div>
+                        <div className="font-semibold text-foreground text-lg">{displayName || 'Your Profile'}</div>
                         <p className="text-xs text-secondary">Accepted file types: .png, .jpg, .jpeg</p>
                     </div>
 
@@ -219,8 +219,8 @@ export function AccountSettings() {
                             </div>
                             <input
                                 type="text"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
+                                value={displayName}
+                                onChange={(e) => setDisplayName(e.target.value)}
                                 placeholder="Enter your display name"
                                 autoComplete="off"
                                 className="w-full pl-10 p-3 bg-surfaceHighlight/30 hover:bg-surfaceHighlight/50 rounded-lg border border-border/5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/40 transition-all placeholder:text-secondary/40"
@@ -240,7 +240,7 @@ export function AccountSettings() {
                         </button>
                         {hasChanges && (
                             <button
-                                onClick={() => setUsername(originalUsername)}
+                                onClick={() => setDisplayName(originalDisplayName)}
                                 disabled={loading}
                                 className="px-5 py-2.5 bg-transparent text-secondary hover:text-foreground text-sm font-medium rounded-lg transition-colors hover:bg-surfaceHighlight/50 active:scale-95 fade-in animate-in slide-in-from-left-2 duration-200"
                             >
