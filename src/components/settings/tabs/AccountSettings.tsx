@@ -117,8 +117,8 @@ export function AccountSettings() {
 
             setOriginalUsername(username);
             alert('Profile updated!');
-        } catch (error) {
-            alert('Error updating profile!');
+        } catch (error: any) {
+            alert(`Error updating profile: ${error.message || 'Unknown error'}`);
             console.error(error);
         } finally {
             setLoading(false);
