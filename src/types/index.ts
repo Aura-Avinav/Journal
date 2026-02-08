@@ -44,5 +44,6 @@ export interface AppData {
         timeFormat?: '12' | '24';
         startOfWeek?: 'monday' | 'sunday';
         privacyBlur?: boolean;
+        workspaceName?: string;
     };
 }

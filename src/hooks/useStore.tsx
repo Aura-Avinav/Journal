@@ -50,7 +50,8 @@ export function useStore() {
             dateFormat: preferences.dateFormat,
             timeFormat: preferences.timeFormat,
             startOfWeek: preferences.startOfWeek,
-            privacyBlur: preferences.privacyBlur
+            privacyBlur: preferences.privacyBlur,
+            workspaceName: preferences.workspaceName
         }
     };
 

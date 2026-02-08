@@ -19,6 +19,7 @@ interface PreferencesState {
     timeFormat: TimeFormat;
     startOfWeek: StartOfWeek;
     privacyBlur: boolean;
+    workspaceName: string;
 }
 
 interface PreferencesContextType {
@@ -33,6 +34,7 @@ interface PreferencesContextType {
     setStartOfWeek: (start: StartOfWeek) => void;
     togglePrivacyBlur: () => void;
     toggleReducedMotion: () => void;
+    setWorkspaceName: (name: string) => void;
 }
 
 const THEME_STORAGE_KEY = 'journal_theme_preference';
@@ -69,7 +71,8 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
             dateFormat: 'MM/DD/YYYY',
             timeFormat: '12',
             startOfWeek: 'sunday',
-            privacyBlur: false
+            privacyBlur: false,
+            workspaceName: 'My Workspace'
         };
     });
 
@@ -165,6 +168,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     const setStartOfWeek = (startOfWeek: StartOfWeek) => updatePreferences({ startOfWeek });
     const togglePrivacyBlur = () => updatePreferences({ privacyBlur: !preferences.privacyBlur });
     const toggleReducedMotion = () => updatePreferences({ reducedMotion: !preferences.reducedMotion });
+    const setWorkspaceName = (workspaceName: string) => updatePreferences({ workspaceName });
 
     const value = {
         preferences,
@@ -177,7 +181,8 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         setTimeFormat,
         setStartOfWeek,
         togglePrivacyBlur,
-        toggleReducedMotion
+        toggleReducedMotion,
+        setWorkspaceName
     };
 
     return (
