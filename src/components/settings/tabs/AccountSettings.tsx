@@ -139,7 +139,7 @@ export function AccountSettings() {
             </div>
 
             {/* Avatar Card */}
-            <div className="p-5 rounded-xl border border-border/5 bg-card/30 backdrop-blur-sm flex items-center gap-6">
+            <div className="flex items-center gap-6">
                 <div className="relative group shrink-0">
                     <div className="w-24 h-24 rounded-full bg-surfaceHighlight overflow-hidden flex items-center justify-center text-3xl font-bold text-secondary border border-border/5 shadow-sm transition-transform duration-300 group-hover:scale-[1.02]">
                         {avatarUrl ? (
@@ -193,7 +193,7 @@ export function AccountSettings() {
             </div>
 
             {/* Details Card */}
-            <div className="p-5 rounded-xl border border-border/5 bg-card/30 backdrop-blur-sm space-y-6">
+            <div className="space-y-6">
                 <div className="space-y-1">
                     <h3 className="text-base font-medium text-foreground flex items-center gap-2">
                         Profile Information
@@ -252,7 +252,7 @@ export function AccountSettings() {
             </div>
 
             {/* Account Actions (Log Out / Delete) */}
-            <div className="p-5 rounded-xl border border-destructive/10 bg-destructive/5 backdrop-blur-sm space-y-4">
+            <div className="space-y-4">
                 <div className="space-y-1">
                     <h3 className="text-base font-medium text-destructive flex items-center gap-2">
                         Danger Zone

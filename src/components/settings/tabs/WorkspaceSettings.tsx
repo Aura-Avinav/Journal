@@ -34,7 +34,7 @@ export function WorkspaceSettings() {
                 <p className="text-sm text-secondary leading-relaxed">Manage your workspace settings and exports.</p>
             </div>
 
-            <section className="space-y-6 p-5 rounded-xl border border-border/5 bg-card/30 backdrop-blur-sm">
+            <section className="space-y-6 py-2">
                 {/* Workspace Name */}
                 <div className="grid gap-2">
                     <label className="text-sm font-medium text-secondary">Workspace Name</label>

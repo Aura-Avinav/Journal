@@ -81,8 +81,9 @@ export function PreferencesSettings() {
             </div>
 
             <div className="grid gap-6">
+
                 {/* Appearance Card */}
-                <div className="p-6 rounded-2xl border border-border/5 bg-card/50 backdrop-blur-sm space-y-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+                <div className="space-y-6">
                     <div className="space-y-1">
                         <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                             <div className="p-1.5 rounded-md bg-purple-500/10 text-purple-500">
@@ -128,7 +129,7 @@ export function PreferencesSettings() {
                 </div>
 
                 {/* General Settings */}
-                <div className="p-6 rounded-2xl border border-border/5 bg-card/50 backdrop-blur-sm space-y-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+                <div className="space-y-6">
                     <div className="space-y-1">
                         <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                             <div className="p-1.5 rounded-md bg-blue-500/10 text-blue-500">
@@ -259,7 +260,7 @@ export function PreferencesSettings() {
 
 
                 {/* Privacy & Data */}
-                <div className="p-6 rounded-2xl border border-border/5 bg-card/50 backdrop-blur-sm space-y-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+                <div className="space-y-6">
                     <div className="space-y-1">
                         <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                             <div className="p-1.5 rounded-md bg-green-500/10 text-green-500">
@@ -316,7 +317,7 @@ export function PreferencesSettings() {
                 </div>
 
                 {/* Data Management */}
-                <div className="p-6 rounded-2xl border border-destructive/10 bg-destructive/5 backdrop-blur-sm space-y-6">
+                <div className="space-y-6">
                     <div className="space-y-1">
                         <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                             <div className="p-1.5 rounded-md bg-red-500/10 text-red-500">
