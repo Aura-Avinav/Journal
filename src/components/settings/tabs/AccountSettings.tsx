@@ -119,7 +119,7 @@ export function AccountSettings() {
             alert('Profile updated!');
         } catch (error: any) {
             if (error.message?.includes('profiles_username_key')) {
-                alert('That username is already taken. Please choose another.');
+                alert('This display name is already taken. Please choose another.');
             } else {
                 alert(`Error updating profile: ${error.message || 'Unknown error'}`);
             }
