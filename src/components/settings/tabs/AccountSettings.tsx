@@ -118,7 +118,11 @@ export function AccountSettings() {
             setOriginalUsername(username);
             alert('Profile updated!');
         } catch (error: any) {
-            alert(`Error updating profile: ${error.message || 'Unknown error'}`);
+            if (error.message?.includes('profiles_username_key')) {
+                alert('That username is already taken. Please choose another.');
+            } else {
+                alert(`Error updating profile: ${error.message || 'Unknown error'}`);
+            }
             console.error(error);
         } finally {
             setLoading(false);
