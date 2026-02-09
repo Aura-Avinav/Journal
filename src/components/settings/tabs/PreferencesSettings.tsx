@@ -39,7 +39,8 @@ export function PreferencesSettings() {
             // Compare with stable global preferences
             const keysToCheck = [
                 'theme', 'language', 'spellCheck', 'dateFormat',
-                'timeFormat', 'startOfWeek', 'privacyBlur', 'reducedMotion'
+                'timeFormat', 'startOfWeek', 'privacyBlur', 'reducedMotion',
+                'fontSize', 'fontFamily'
             ] as const;
 
             const hasChanges = keysToCheck.some(k => next[k] !== stableGlobalPreferences[k]);
