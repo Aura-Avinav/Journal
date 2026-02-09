@@ -261,27 +261,98 @@ export function PreferencesSettings() {
 
                 {/* Privacy & Data */}
                 {/* Typography */}
-                <div className="space-y-6">
-                    <div className="space-y-1">
-                        <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                            <div className="p-1.5 rounded-md bg-green-500/10 text-green-500">
-                                className={cn(
-                                    "p-4 rounded-xl transition-all text-left space-y-2 group hover:bg-surfaceHighlight/10",
-                                    draft.reducedMotion
-                                        ? "bg-green-500/5"
-                                        : "bg-transparent"
-                                )}
-                        >
-                                <div className="flex items-center justify-between">
-                                    <span className={cn("text-sm font-medium", draft.reducedMotion ? "text-green-600 dark:text-green-400" : "text-foreground")}>Reduce Motion</span>
-                                    <div className={cn("w-8 h-5 rounded-full relative transition-colors", draft.reducedMotion ? "bg-green-500" : "bg-border/40")}>
-                                        <div className={cn("absolute top-1 bottom-1 w-3 h-3 bg-white rounded-full transition-all", draft.reducedMotion ? "left-4" : "left-1")} />
-                                    </div>
+                {/* Typography & System */}
+                <div className="space-y-8">
+                    {/* Typography Section */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                            <Type className="w-5 h-5 text-secondary" />
+                            <h3 className="text-base font-medium text-foreground">Typography</h3>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {/* Font Size */}
+                            <div className="space-y-3">
+                                <label className="text-xs font-medium text-secondary uppercase tracking-wider">Font Size</label>
+                                <div className="flex bg-surfaceHighlight/30 rounded-lg p-1">
+                                    {[
+                                        { value: 'sm', label: 'Small', icon: 'A', size: 'text-xs' },
+                                        { value: 'base', label: 'Medium', icon: 'A', size: 'text-base' },
+                                        { value: 'lg', label: 'Large', icon: 'A', size: 'text-xl' },
+                                    ].map((opt) => (
+                                        <button
+                                            key={opt.value}
+                                            onClick={() => handleChange('fontSize', opt.value)}
+                                            className={cn(
+                                                "flex-1 py-1.5 rounded-md transition-all flex items-center justify-center",
+                                                draft.fontSize === opt.value
+                                                    ? "bg-background shadow-sm text-foreground"
+                                                    : "text-secondary hover:text-foreground/80"
+                                            )}
+                                            title={opt.label}
+                                        >
+                                            <span className={opt.size} style={{ fontWeight: 600 }}>{opt.icon}</span>
+                                        </button>
+                                    ))}
                                 </div>
-                                <p className="text-xs text-secondary leading-relaxed">
-                                    Minimize UI animations.
-                                </p>
-                            </button>
+                            </div>
+
+                            {/* Font Family */}
+                            <div className="space-y-3">
+                                <label className="text-xs font-medium text-secondary uppercase tracking-wider">Font Family</label>
+                                <div className="flex bg-surfaceHighlight/30 rounded-lg p-1">
+                                    {[
+                                        { value: 'sans', label: 'Sans', family: 'font-sans' },
+                                        { value: 'serif', label: 'Serif', family: 'font-serif' },
+                                        { value: 'mono', label: 'Mono', family: 'font-mono' },
+                                    ].map((opt) => (
+                                        <button
+                                            key={opt.value}
+                                            onClick={() => handleChange('fontFamily', opt.value)}
+                                            className={cn(
+                                                "flex-1 py-1.5 rounded-md transition-all text-xs font-medium",
+                                                draft.fontFamily === opt.value
+                                                    ? "bg-background shadow-sm text-foreground"
+                                                    : "text-secondary hover:text-foreground/80",
+                                                opt.family
+                                            )}
+                                        >
+                                            {opt.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="h-px bg-border/5 w-full" />
+
+                    {/* System Section */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                            <Monitor className="w-5 h-5 text-secondary" />
+                            <h3 className="text-base font-medium text-foreground">System</h3>
+                        </div>
+
+                        <button
+                            onClick={() => handleChange('reducedMotion', !draft.reducedMotion)}
+                            className={cn(
+                                "p-4 rounded-xl transition-all text-left space-y-2 group hover:bg-surfaceHighlight/10",
+                                draft.reducedMotion
+                                    ? "bg-green-500/5"
+                                    : "bg-transparent"
+                            )}
+                        >
+                            <div className="flex items-center justify-between">
+                                <span className={cn("text-sm font-medium", draft.reducedMotion ? "text-green-600 dark:text-green-400" : "text-foreground")}>Reduce Motion</span>
+                                <div className={cn("w-8 h-5 rounded-full relative transition-colors", draft.reducedMotion ? "bg-green-500" : "bg-border/40")}>
+                                    <div className={cn("absolute top-1 bottom-1 w-3 h-3 bg-white rounded-full transition-all", draft.reducedMotion ? "left-4" : "left-1")} />
+                                </div>
+                            </div>
+                            <p className="text-xs text-secondary leading-relaxed">
+                                Minimize UI animations.
+                            </p>
+                        </button>
                     </div>
                 </div>
 
