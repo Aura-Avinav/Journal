@@ -60,9 +60,12 @@ export function HabitGrid({ date }: { date: Date }) {
     // However, hiding all legacy data is bad UX.
     // Compromise: We show no-month habits everywhere.
     // BUT we encourage creating new monthly habits.
+    // Filter habits for the current month view
+    // Strict Mode: Only show habits explicitly assigned to this month.
+    // "No global habits": Habits without a month (legacy) will NOT be shown.
+    // This strictly isolates data per month as requested.
     const visibleHabits = data.habits.filter(h => {
-        if (h.month) return h.month === currentMonthStr;
-        return true; // Show legacy habits everywhere
+        return h.month === currentMonthStr;
     });
 
     return (
