@@ -252,9 +252,9 @@ export function AccountSettings() {
             </div>
 
             {/* Account Actions (Log Out / Delete) */}
-            <div className="space-y-4">
+            <div className="space-y-4 p-5 rounded-xl border border-red-500/20 bg-red-500/5">
                 <div className="space-y-1">
-                    <h3 className="text-base font-medium text-destructive flex items-center gap-2">
+                    <h3 className="text-base font-medium text-red-600 dark:text-red-400 flex items-center gap-2">
                         Danger Zone
                     </h3>
                 </div>
@@ -264,16 +264,13 @@ export function AccountSettings() {
                         onClick={() => {
                             if (window.confirm('Are you sure you want to log out?')) {
                                 session?.user && useStore().signOut();
-                                // Note: useStore hook usage inside callback is technically wrong if we didn't destructure it above. 
-                                // But we already destructured 'session' from useStore() at the top.
-                                // Let's correct this by destructuring signOut at the top.
                             }
                         }}
-                        className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-surfaceHighlight/30 transition-all group"
+                        className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-red-500/10 transition-all group border border-transparent hover:border-red-200/20"
                     >
                         <div className="text-left">
                             <div className="text-sm font-medium text-foreground flex items-center gap-2">
-                                <LogOut className="w-4 h-4 text-secondary group-hover:text-foreground transition-colors" />
+                                <LogOut className="w-4 h-4 text-secondary group-hover:text-red-500 transition-colors" />
                                 Log Out
                             </div>
                             <p className="text-[10px] text-secondary">Sign out of your account on this device.</p>
@@ -283,21 +280,18 @@ export function AccountSettings() {
                     <button
                         onClick={() => {
                             if (window.confirm('PERMANENT ACTION: Are you sure you want to delete your account? This action cannot be undone.')) {
-                                // Logic to delete account
-                                // For now we'll just sign out and reset data as a placeholder or call a delete function if it existed.
-                                // Let's assume just a deeper alert for now or just signOut with a message.
                                 alert("Account deletion request submitted.");
                                 useStore().signOut();
                             }
                         }}
-                        className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-destructive/10 transition-all group"
+                        className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-red-500/20 transition-all group border border-transparent hover:border-red-500/20"
                     >
                         <div className="text-left">
-                            <div className="text-sm font-medium text-destructive flex items-center gap-2">
-                                <Trash2 className="w-4 h-4 text-destructive group-hover:scale-110 transition-transform" />
+                            <div className="text-sm font-medium text-red-600 dark:text-red-400 flex items-center gap-2">
+                                <Trash2 className="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform" />
                                 Delete Account
                             </div>
-                            <p className="text-[10px] text-secondary">Permanently remove your account and all data.</p>
+                            <p className="text-[10px] text-red-500/70">Permanently remove your account and all data.</p>
                         </div>
                     </button>
                 </div>

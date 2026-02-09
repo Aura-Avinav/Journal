@@ -317,9 +317,9 @@ export function PreferencesSettings() {
                 </div>
 
                 {/* Data Management */}
-                <div className="space-y-6">
+                <div className="space-y-6 p-5 rounded-xl border border-red-500/20 bg-red-500/5">
                     <div className="space-y-1">
-                        <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+                        <h3 className="text-base font-semibold text-red-600 dark:text-red-400 flex items-center gap-2">
                             <div className="p-1.5 rounded-md bg-red-500/10 text-red-500">
                                 <Download className="w-4 h-4" />
                             </div>
@@ -331,10 +331,10 @@ export function PreferencesSettings() {
                     <div className="flex flex-col sm:flex-row gap-4">
                         <button
                             onClick={() => exportData()}
-                            className="flex-1 p-4 rounded-xl border border-border/20 bg-background/50 hover:bg-surfaceHighlight/30 transition-all text-left space-y-2 group"
+                            className="flex-1 p-4 rounded-xl border border-transparent hover:border-red-200/20 hover:bg-red-500/10 transition-all text-left space-y-2 group"
                         >
                             <div className="flex items-center gap-2 font-medium text-sm text-foreground">
-                                <Download className="w-4 h-4 text-secondary group-hover:text-primary transition-colors" /> Export Data
+                                <Download className="w-4 h-4 text-secondary group-hover:text-red-500 transition-colors" /> Export Data
                             </div>
                             <p className="text-xs text-secondary">Download a JSON backup.</p>
                         </button>
@@ -345,12 +345,12 @@ export function PreferencesSettings() {
                                     resetData();
                                 }
                             }}
-                            className="flex-1 p-4 rounded-xl hover:bg-red-500/10 transition-all text-left space-y-2 group"
+                            className="flex-1 p-4 rounded-xl border border-transparent hover:border-red-500/20 hover:bg-red-500/20 transition-all text-left space-y-2 group"
                         >
-                            <div className="flex items-center gap-2 font-medium text-sm text-red-500">
+                            <div className="flex items-center gap-2 font-medium text-sm text-red-600 dark:text-red-400">
                                 <Trash2 className="w-4 h-4" /> Reset Everything
                             </div>
-                            <p className="text-xs text-secondary">Permanently delete local data.</p>
+                            <p className="text-xs text-red-500/70">Permanently delete local data.</p>
                         </button>
                     </div>
                 </div>
