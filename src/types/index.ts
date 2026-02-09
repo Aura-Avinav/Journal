@@ -47,5 +47,6 @@ export interface AppData {
         workspaceName?: string;
         fontSize?: 'sm' | 'base' | 'lg';
         fontFamily?: 'sans' | 'serif' | 'mono';
+        contentWidth?: 'standard' | 'full';
     };
 }

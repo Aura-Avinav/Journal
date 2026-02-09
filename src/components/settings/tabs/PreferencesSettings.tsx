@@ -40,7 +40,7 @@ export function PreferencesSettings() {
             const keysToCheck = [
                 'theme', 'language', 'spellCheck', 'dateFormat',
                 'timeFormat', 'startOfWeek', 'privacyBlur', 'reducedMotion',
-                'fontSize', 'fontFamily'
+                'fontSize', 'fontFamily', 'contentWidth'
             ] as const;
 
             const hasChanges = keysToCheck.some(k => next[k] !== stableGlobalPreferences[k]);
@@ -334,10 +334,37 @@ export function PreferencesSettings() {
                             <h3 className="text-base font-medium text-foreground">System</h3>
                         </div>
 
+                        {/* Content Width */}
+                        <div className="space-y-3">
+                            <label className="text-xs font-medium text-secondary uppercase tracking-wider">Content Width</label>
+                            <div className="flex bg-surfaceHighlight/30 rounded-lg p-1">
+                                {[
+                                    { value: 'standard', label: 'Focus', desc: 'Centered (Max 7xl)' },
+                                    { value: 'full', label: 'Full Width', desc: 'Edge to Edge' },
+                                ].map((opt) => (
+                                    <button
+                                        key={opt.value}
+                                        onClick={() => handleChange('contentWidth', opt.value)}
+                                        className={cn(
+                                            "flex-1 py-2 px-3 rounded-md transition-all flex flex-col items-center justify-center gap-0.5",
+                                            (draft.contentWidth || 'standard') === opt.value
+                                                ? "bg-background shadow-sm text-foreground"
+                                                : "text-secondary hover:text-foreground/80"
+                                        )}
+                                    >
+                                        <span className="text-xs font-semibold">{opt.label}</span>
+                                        <span className="text-[10px] opacity-70 hidden sm:block">{opt.desc}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="h-px bg-border/5 w-full my-2" />
+
                         <button
                             onClick={() => handleChange('reducedMotion', !draft.reducedMotion)}
                             className={cn(
-                                "p-4 rounded-xl transition-all text-left space-y-2 group hover:bg-surfaceHighlight/10",
+                                "p-4 rounded-xl transition-all text-left space-y-2 group hover:bg-surfaceHighlight/10 w-full",
                                 draft.reducedMotion
                                     ? "bg-green-500/5"
                                     : "bg-transparent"

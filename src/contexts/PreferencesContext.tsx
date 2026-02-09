@@ -22,6 +22,7 @@ interface PreferencesState {
     workspaceName: string;
     fontSize: 'sm' | 'base' | 'lg';
     fontFamily: 'sans' | 'serif' | 'mono';
+    contentWidth: 'standard' | 'full';
 }
 
 interface PreferencesContextType {
@@ -39,6 +40,7 @@ interface PreferencesContextType {
     setWorkspaceName: (name: string) => void;
     setFontSize: (size: 'sm' | 'base' | 'lg') => void;
     setFontFamily: (family: 'sans' | 'serif' | 'mono') => void;
+    setContentWidth: (width: 'standard' | 'full') => void;
 }
 
 const THEME_STORAGE_KEY = 'journal_theme_preference';
@@ -78,7 +80,8 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
             privacyBlur: false,
             workspaceName: 'My Workspace',
             fontSize: 'base',
-            fontFamily: 'sans'
+            fontFamily: 'sans',
+            contentWidth: 'standard'
         };
     });
 
@@ -201,6 +204,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 
     const setFontSize = (fontSize: 'sm' | 'base' | 'lg') => updatePreferences({ fontSize });
     const setFontFamily = (fontFamily: 'sans' | 'serif' | 'mono') => updatePreferences({ fontFamily });
+    const setContentWidth = (contentWidth: 'standard' | 'full') => updatePreferences({ contentWidth });
 
     const value = {
         preferences,
@@ -216,7 +220,8 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         toggleReducedMotion,
         setWorkspaceName,
         setFontSize,
-        setFontFamily
+        setFontFamily,
+        setContentWidth
     };
 
     return (

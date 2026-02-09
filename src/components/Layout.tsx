@@ -130,7 +130,10 @@ export function Layout({ children, currentView, onNavigate, currentDate = new Da
 
             {/* Main Content */}
             <main className="flex-1 md:ml-64 p-4 md:p-8 overflow-x-hidden w-full max-w-[1920px] mx-auto animate-in fade-in duration-500 pt-6 md:pt-8">
-                <div className="max-w-7xl mx-auto">
+                <div className={cn(
+                    "mx-auto transition-all duration-300",
+                    useStore().data.preferences?.contentWidth === 'full' ? "max-w-full" : "max-w-7xl"
+                )}>
                     {children}
                 </div>
             </main>
