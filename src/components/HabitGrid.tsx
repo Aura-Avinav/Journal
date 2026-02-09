@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useStore } from '../hooks/useStore';
 import { cn } from '../lib/utils';
-import { Check, Plus, Trash2, Sparkles, Flame } from 'lucide-react';
+import { Check, Plus, Trash2, Sparkles, Flame, Trophy } from 'lucide-react';
 import { format, getDaysInMonth } from 'date-fns';
 import { Modal, Button } from './ui/Modal';
 import { calculateHabitStats } from '../lib/analytics';
 import { HabitDetailsModal } from './HabitDetailsModal';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export function HabitGrid({ date }: { date: Date }) {
     const { data, toggleHabit, addHabit, removeHabit } = useStore();
@@ -68,10 +69,31 @@ export function HabitGrid({ date }: { date: Date }) {
         return h.month === currentMonthStr;
     });
 
+    // Calculate Daily Progress for "Celebration"
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
+    const isCurrentMonthView = format(date, 'yyyy-MM') === format(new Date(), 'yyyy-MM');
+
+    // Only celebrate if looking at current month AND there are habits
+    const totalHabitsToday = visibleHabits.length;
+    const completedHabitsToday = visibleHabits.filter(h => h.completedDates.includes(todayStr)).length;
+    const isDayComplete = totalHabitsToday > 0 && totalHabitsToday === completedHabitsToday;
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold tracking-tight text-primary">Habit Tracker</h2>
+                <div className="flex items-center gap-4">
+                    <h2 className="text-2xl font-bold tracking-tight text-primary">Habit Tracker</h2>
+                    {isCurrentMonthView && isDayComplete && (
+                        <motion.div
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="hidden sm:flex items-center gap-2 px-3 py-1 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 rounded-full text-xs font-semibold border border-yellow-500/20"
+                        >
+                            <Trophy className="w-3.5 h-3.5" />
+                            <span>Day Complete!</span>
+                        </motion.div>
+                    )}
+                </div>
                 <button
                     onClick={handleAddClick}
                     className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium bg-surfaceHighlight hover:bg-accent/20 text-secondary hover:text-accent rounded-md transition-colors border border-surfaceHighlight"
@@ -96,88 +118,107 @@ export function HabitGrid({ date }: { date: Date }) {
                         </tr>
                     </thead>
                     <tbody>
-                        {visibleHabits.map((habit) => {
-                            const stats = calculateHabitStats(habit);
-                            const showStreak = stats.currentStreak > 2;
+                        <AnimatePresence mode="popLayout">
+                            {visibleHabits.map((habit) => {
+                                const stats = calculateHabitStats(habit);
+                                const showStreak = stats.currentStreak > 2;
 
-                            return (
-                                <tr key={habit.id} className="group hover:bg-surfaceHighlight/5 transition-colors">
-                                    <th scope="row" className="sticky left-0 z-20 px-4 py-3 font-medium text-primary bg-background/95 backdrop-blur-md whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px] border-b border-surfaceHighlight/10">
-                                        <div className="flex items-center justify-between gap-2">
-                                            <button
-                                                onClick={() => setSelectedHabitId(habit.id)}
-                                                className="truncate hover:text-accent hover:underline decoration-dashed underline-offset-4 transition-all text-left flex items-center gap-2"
-                                            >
-                                                {habit.name}
-                                                {showStreak && (
-                                                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-500 text-[10px] font-bold">
-                                                        <Flame className="w-3 h-3 fill-current" /> {stats.currentStreak}
-                                                    </span>
-                                                )}
-                                                {!habit.month && (
-                                                    <span className="text-[10px] bg-secondary/10 text-secondary px-1 py-0.5 rounded ml-1" title="This protocol appears in all months">
-                                                        Global
-                                                    </span>
-                                                )}
-                                            </button>
-
-                                            <button
-                                                onClick={() => handleDeleteClick(habit.id, habit.name)}
-                                                className="opacity-0 group-hover:opacity-100 text-secondary hover:text-red-500 transition-all"
-                                                title="Remove habit"
-                                            >
-                                                <Trash2 className="w-3.5 h-3.5" />
-                                            </button>
-                                        </div>
-                                    </th>
-                                    {days.map(day => {
-                                        // Construct date string YYYY-MM-DD reliably
-                                        const dateObj = new Date(currentYear, currentMonth, day);
-                                        const dateStr = format(dateObj, 'yyyy-MM-dd');
-
-                                        const isCompleted = habit.completedDates.includes(dateStr);
-
-                                        // Highlight today if looking at current month/year
-                                        const today = new Date();
-                                        const isToday = day === today.getDate() &&
-                                            currentMonth === today.getMonth() &&
-                                            currentYear === today.getFullYear();
-
-                                        // Check if date is in the future
-                                        const isFuture = dateObj > new Date(new Date().setHours(23, 59, 59, 999));
-
-                                        return (
-                                            <td key={day} className={cn(
-                                                "p-0 text-center border-b border-surfaceHighlight/10 relative",
-                                                isToday && "bg-accent/5",
-                                                isFuture && "bg-surface/5"
-                                            )}>
+                                return (
+                                    <motion.tr
+                                        key={habit.id}
+                                        layout
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: 20 }}
+                                        className="group hover:bg-surfaceHighlight/5 transition-colors"
+                                    >
+                                        <th scope="row" className="sticky left-0 z-20 px-4 py-3 font-medium text-primary bg-background/95 backdrop-blur-md whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px] border-b border-surfaceHighlight/10">
+                                            <div className="flex items-center justify-between gap-2">
                                                 <button
-                                                    onClick={() => !isFuture && toggleHabit(habit.id, dateStr)}
-                                                    disabled={isFuture}
-                                                    className={cn(
-                                                        "w-full h-10 flex items-center justify-center transition-all duration-200",
-                                                        isFuture ? "cursor-not-allowed opacity-20" :
-                                                            isCompleted ? "text-accent scale-110" : "text-surfaceHighlight/20 hover:text-secondary/50 hover:scale-105"
-                                                    )}
+                                                    onClick={() => setSelectedHabitId(habit.id)}
+                                                    className="truncate hover:text-accent hover:underline decoration-dashed underline-offset-4 transition-all text-left flex items-center gap-2"
                                                 >
-                                                    {isCompleted ? (
-                                                        <Check className="w-5 h-5 shadow-sm" strokeWidth={3} />
-                                                    ) : (
-                                                        <div className="w-1.5 h-1.5 rounded-full bg-current opacity-20" />
+                                                    {habit.name}
+                                                    {showStreak && (
+                                                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-500 text-[10px] font-bold">
+                                                            <Flame className="w-3 h-3 fill-current" /> {stats.currentStreak}
+                                                        </span>
+                                                    )}
+                                                    {!habit.month && (
+                                                        <span className="text-[10px] bg-secondary/10 text-secondary px-1 py-0.5 rounded ml-1" title="This protocol appears in all months">
+                                                            Global
+                                                        </span>
                                                     )}
                                                 </button>
-                                            </td>
-                                        )
-                                    })}
-                                </tr>
-                            );
-                        })}
+
+                                                <button
+                                                    onClick={() => handleDeleteClick(habit.id, habit.name)}
+                                                    className="opacity-0 group-hover:opacity-100 text-secondary hover:text-red-500 transition-all"
+                                                    title="Remove habit"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                </button>
+                                            </div>
+                                        </th>
+                                        {days.map(day => {
+                                            // Construct date string YYYY-MM-DD reliably
+                                            const dateObj = new Date(currentYear, currentMonth, day);
+                                            const dateStr = format(dateObj, 'yyyy-MM-dd');
+
+                                            const isCompleted = habit.completedDates.includes(dateStr);
+
+                                            // Highlight today if looking at current month/year
+                                            const today = new Date();
+                                            const isToday = day === today.getDate() &&
+                                                currentMonth === today.getMonth() &&
+                                                currentYear === today.getFullYear();
+
+                                            // Check if date is in the future
+                                            const isFuture = dateObj > new Date(new Date().setHours(23, 59, 59, 999));
+
+                                            return (
+                                                <td key={day} className={cn(
+                                                    "p-0 text-center border-b border-surfaceHighlight/10 relative",
+                                                    isToday && "bg-accent/5",
+                                                    isFuture && "bg-surface/5"
+                                                )}>
+                                                    <button
+                                                        onClick={() => !isFuture && toggleHabit(habit.id, dateStr)}
+                                                        disabled={isFuture}
+                                                        className={cn(
+                                                            "w-full h-10 flex items-center justify-center transition-all duration-200",
+                                                            isFuture ? "cursor-not-allowed opacity-20" :
+                                                                isCompleted ? "text-accent scale-110" : "text-surfaceHighlight/20 hover:text-secondary/50 hover:scale-105"
+                                                        )}
+                                                    >
+                                                        {isCompleted ? (
+                                                            <motion.div
+                                                                initial={{ scale: 0 }}
+                                                                animate={{ scale: 1 }}
+                                                                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                                            >
+                                                                <Check className="w-5 h-5 shadow-sm" strokeWidth={3} />
+                                                            </motion.div>
+                                                        ) : (
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-current opacity-20" />
+                                                        )}
+                                                    </button>
+                                                </td>
+                                            )
+                                        })}
+                                    </motion.tr>
+                                );
+                            })}
+                        </AnimatePresence>
                     </tbody>
                 </table>
 
-                {data.habits.length === 0 && (
-                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                {visibleHabits.length === 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex flex-col items-center justify-center py-16 text-center"
+                    >
                         <div className="w-16 h-16 bg-surfaceHighlight/30 rounded-full flex items-center justify-center mb-4 text-accent animate-pulse">
                             <Sparkles className="w-8 h-8" />
                         </div>
@@ -191,7 +232,7 @@ export function HabitGrid({ date }: { date: Date }) {
                         >
                             Create First Protocol
                         </button>
-                    </div>
+                    </motion.div>
                 )}
             </div>
 
