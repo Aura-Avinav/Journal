@@ -43,15 +43,7 @@ export function useStore() {
         journal,
         metrics,
         preferences: {
-            theme: preferences.theme,
-            reducedMotion: preferences.reducedMotion,
-            language: preferences.language,
-            spellCheck: preferences.spellCheck,
-            dateFormat: preferences.dateFormat,
-            timeFormat: preferences.timeFormat,
-            startOfWeek: preferences.startOfWeek,
-            privacyBlur: preferences.privacyBlur,
-            workspaceName: preferences.workspaceName
+            ...preferences
         }
     };
 
@@ -96,16 +88,7 @@ export function useStore() {
                 todos,
                 journal,
                 metrics,
-                preferences: { // Use actual preferences from Context
-                    theme: preferences.theme,
-                    reducedMotion: preferences.reducedMotion,
-                    language: preferences.language,
-                    spellCheck: preferences.spellCheck,
-                    dateFormat: preferences.dateFormat,
-                    timeFormat: preferences.timeFormat,
-                    startOfWeek: preferences.startOfWeek,
-                    privacyBlur: preferences.privacyBlur
-                }
+                preferences: { ...preferences } // Use actual preferences from Context
             };
 
             const json = JSON.stringify(fullData, null, 2);
