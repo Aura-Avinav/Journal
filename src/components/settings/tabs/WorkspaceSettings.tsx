@@ -42,13 +42,13 @@ export function WorkspaceSettings() {
                         type="text"
                         value={workspaceName}
                         onChange={(e) => setWorkspaceName(e.target.value)}
-                        className="w-full p-3 bg-surfaceHighlight/30 hover:bg-surfaceHighlight/50 rounded-lg border border-border/5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/40 transition-all placeholder:text-secondary/40"
+                        className="w-full p-3 bg-transparent hover:bg-surfaceHighlight/30 rounded-lg text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all placeholder:text-secondary/40"
                         placeholder="My Awesome Workspace"
                     />
                 </div>
 
                 {/* Analytics Toggle (Mock) */}
-                <div className="flex items-center justify-between py-4 border-t border-border/5">
+                <div className="flex items-center justify-between py-4">
                     <div className="pr-8">
                         <div className="font-medium text-foreground text-sm">Analytics</div>
                         <p className="text-xs text-secondary mt-0.5">
@@ -62,7 +62,7 @@ export function WorkspaceSettings() {
                 </div>
 
                 {/* Export Content */}
-                <div className="flex items-center justify-between py-4 border-t border-border/5">
+                <div className="flex items-center justify-between py-4">
                     <div>
                         <div className="font-medium text-foreground text-sm">Export Content</div>
                         <p className="text-xs text-secondary mt-0.5">
@@ -71,7 +71,7 @@ export function WorkspaceSettings() {
                     </div>
                     <button
                         onClick={exportData}
-                        className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-foreground bg-surfaceHighlight hover:bg-surfaceHighlight/80 rounded-lg transition-all active:scale-95 border border-border/5"
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-foreground bg-surfaceHighlight/50 hover:bg-surfaceHighlight rounded-lg transition-all active:scale-95"
                     >
                         <Download className="w-3.5 h-3.5" />
                         Export

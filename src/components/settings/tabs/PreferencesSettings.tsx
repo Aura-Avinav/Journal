@@ -94,15 +94,15 @@ export function PreferencesSettings() {
                         <p className="text-xs text-secondary pl-9">Choose how the app looks.</p>
                     </div>
 
-                    <div className="p-1.5 bg-surfaceHighlight/30 rounded-xl inline-flex relative w-full sm:w-auto border border-border/5">
+                    <div className="p-1 rounded-xl inline-flex relative w-full sm:w-auto">
                         <AnimatePresence>
                             {/* Active Background Pill */}
                             <motion.div
                                 layoutId="theme-active"
-                                className="absolute inset-y-1.5 rounded-lg bg-background shadow-md border border-border/5"
+                                className="absolute inset-y-1 rounded-lg bg-surfaceHighlight/50 shadow-sm"
                                 style={{
-                                    left: `calc(${themes.findIndex(t => t.id === draft.theme) * 33.333}% + 0.375rem)`,
-                                    width: `calc(33.333% - 0.75rem)`
+                                    left: `calc(${themes.findIndex(t => t.id === draft.theme) * 33.333}% + 0.25rem)`,
+                                    width: `calc(33.333% - 0.5rem)`
                                 }}
                                 transition={spring}
                             />
@@ -150,7 +150,7 @@ export function PreferencesSettings() {
                                 <select
                                     value={draft.language || 'en-US'}
                                     onChange={(e) => handleChange('language', e.target.value)}
-                                    className="w-full p-2.5 bg-background/50 hover:bg-surfaceHighlight/50 rounded-lg border border-border/5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all cursor-pointer appearance-none pl-3"
+                                    className="w-full p-2.5 bg-transparent hover:bg-surfaceHighlight/30 rounded-lg text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all cursor-pointer appearance-none pl-3"
                                 >
                                     <option value="en-US">English (US)</option>
                                     <option value="en-GB">English (UK)</option>
@@ -170,10 +170,10 @@ export function PreferencesSettings() {
                             <button
                                 onClick={() => handleChange('spellCheck', !draft.spellCheck)}
                                 className={cn(
-                                    "w-full p-2.5 rounded-lg border text-sm text-left flex items-center justify-between transition-all",
+                                    "w-full p-2.5 rounded-lg text-sm text-left flex items-center justify-between transition-all",
                                     draft.spellCheck
-                                        ? "bg-blue-500/5 border-blue-500/20 text-blue-600 dark:text-blue-400"
-                                        : "bg-background/50 border-border/5 text-secondary hover:bg-surfaceHighlight/30"
+                                        ? "bg-blue-500/5 text-blue-600 dark:text-blue-400"
+                                        : "bg-transparent text-secondary hover:bg-surfaceHighlight/30"
                                 )}
                             >
                                 {draft.spellCheck ? 'Enabled' : 'Disabled'}
@@ -192,7 +192,7 @@ export function PreferencesSettings() {
                                 <select
                                     value={draft.dateFormat || 'MM/DD/YYYY'}
                                     onChange={(e) => handleChange('dateFormat', e.target.value)}
-                                    className="w-full p-2.5 bg-background/50 hover:bg-surfaceHighlight/50 rounded-lg border border-border/5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all cursor-pointer appearance-none pl-3"
+                                    className="w-full p-2.5 bg-transparent hover:bg-surfaceHighlight/30 rounded-lg text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all cursor-pointer appearance-none pl-3"
                                 >
                                     <option value="MM/DD/YYYY">MM/DD/YYYY</option>
                                     <option value="DD/MM/YYYY">DD/MM/YYYY</option>
@@ -218,10 +218,10 @@ export function PreferencesSettings() {
                                         key={opt.value}
                                         onClick={() => handleChange('timeFormat', opt.value)}
                                         className={cn(
-                                            "flex-1 p-2.5 text-sm font-medium rounded-lg transition-all border",
+                                            "flex-1 p-2.5 text-sm font-medium rounded-lg transition-all",
                                             draft.timeFormat === opt.value
-                                                ? "bg-blue-500/5 border-blue-500/20 text-blue-600 dark:text-blue-400"
-                                                : "bg-background/50 border-border/5 text-secondary hover:bg-surfaceHighlight/30"
+                                                ? "bg-blue-500/5 text-blue-600 dark:text-blue-400"
+                                                : "bg-transparent text-secondary hover:bg-surfaceHighlight/30"
                                         )}
                                     >
                                         {opt.label}
@@ -244,10 +244,10 @@ export function PreferencesSettings() {
                                         key={opt.value}
                                         onClick={() => handleChange('startOfWeek', opt.value)}
                                         className={cn(
-                                            "flex-1 p-2.5 text-sm font-medium rounded-lg transition-all border capitalize",
+                                            "flex-1 p-2.5 text-sm font-medium rounded-lg transition-all capitalize",
                                             draft.startOfWeek === opt.value
-                                                ? "bg-blue-500/5 border-blue-500/20 text-blue-600 dark:text-blue-400"
-                                                : "bg-background/50 border-border/5 text-secondary hover:bg-surfaceHighlight/30"
+                                                ? "bg-blue-500/5 text-blue-600 dark:text-blue-400"
+                                                : "bg-transparent text-secondary hover:bg-surfaceHighlight/30"
                                         )}
                                     >
                                         {opt.label}
@@ -276,10 +276,10 @@ export function PreferencesSettings() {
                         <button
                             onClick={() => handleChange('privacyBlur', !draft.privacyBlur)}
                             className={cn(
-                                "p-4 rounded-xl border transition-all text-left space-y-2 group",
+                                "p-4 rounded-xl transition-all text-left space-y-2 group hover:bg-surfaceHighlight/10",
                                 draft.privacyBlur
-                                    ? "bg-green-500/5 border-green-500/20"
-                                    : "bg-background/50 border-border/20 hover:bg-surfaceHighlight/30"
+                                    ? "bg-green-500/5"
+                                    : "bg-transparent"
                             )}
                         >
                             <div className="flex items-center justify-between">
@@ -297,10 +297,10 @@ export function PreferencesSettings() {
                         <button
                             onClick={() => handleChange('reducedMotion', !draft.reducedMotion)}
                             className={cn(
-                                "p-4 rounded-xl border transition-all text-left space-y-2 group",
+                                "p-4 rounded-xl transition-all text-left space-y-2 group hover:bg-surfaceHighlight/10",
                                 draft.reducedMotion
-                                    ? "bg-green-500/5 border-green-500/20"
-                                    : "bg-background/50 border-border/20 hover:bg-surfaceHighlight/30"
+                                    ? "bg-green-500/5"
+                                    : "bg-transparent"
                             )}
                         >
                             <div className="flex items-center justify-between">
@@ -345,7 +345,7 @@ export function PreferencesSettings() {
                                     resetData();
                                 }
                             }}
-                            className="flex-1 p-4 rounded-xl border border-red-500/10 bg-red-500/5 hover:bg-red-500/10 transition-all text-left space-y-2 group"
+                            className="flex-1 p-4 rounded-xl hover:bg-red-500/10 transition-all text-left space-y-2 group"
                         >
                             <div className="flex items-center gap-2 font-medium text-sm text-red-500">
                                 <Trash2 className="w-4 h-4" /> Reset Everything

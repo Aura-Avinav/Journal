@@ -141,7 +141,7 @@ export function AccountSettings() {
             {/* Avatar Card */}
             <div className="flex items-center gap-6">
                 <div className="relative group shrink-0">
-                    <div className="w-24 h-24 rounded-full bg-surfaceHighlight overflow-hidden flex items-center justify-center text-3xl font-bold text-secondary border border-border/5 shadow-sm transition-transform duration-300 group-hover:scale-[1.02]">
+                    <div className="w-24 h-24 rounded-full bg-surfaceHighlight overflow-hidden flex items-center justify-center text-3xl font-bold text-secondary transition-transform duration-300 group-hover:scale-[1.02]">
                         {avatarUrl ? (
                             <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                         ) : (
@@ -171,7 +171,7 @@ export function AccountSettings() {
                             {uploading ? 'Uploading...' : 'Upload New Photo'}
                         </button>
                         <button
-                            className="text-xs font-medium px-4 py-2 text-red-500 hover:bg-red-500/10 rounded-md transition-colors border border-transparent hover:border-red-500/10 active:scale-95"
+                            className="text-xs font-medium px-4 py-2 text-red-500 hover:bg-red-500/10 rounded-md transition-colors active:scale-95"
                             onClick={async () => {
                                 if (!window.confirm("Remove profile photo?")) return;
                                 await supabase.from('profiles').upsert({ id: userId, avatar_url: null, updated_at: new Date().toISOString() });
@@ -204,7 +204,7 @@ export function AccountSettings() {
                 <div className="space-y-4">
                     <div className="grid gap-2">
                         <label className="text-sm font-medium text-secondary">Email Address</label>
-                        <div className="flex items-center gap-3 p-3 bg-surfaceHighlight/30 rounded-lg border border-border/5 text-sm text-foreground/80 cursor-not-allowed select-none">
+                        <div className="flex items-center gap-3 p-3 bg-transparent rounded-lg text-sm text-foreground/80 cursor-not-allowed select-none border-b border-border/5">
                             <Mail className="w-4 h-4 text-secondary" />
                             {email}
                         </div>
@@ -223,7 +223,7 @@ export function AccountSettings() {
                                 onChange={(e) => setDisplayName(e.target.value)}
                                 placeholder="Enter your display name"
                                 autoComplete="off"
-                                className="w-full pl-10 p-3 bg-surfaceHighlight/30 hover:bg-surfaceHighlight/50 rounded-lg border border-border/5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/40 transition-all placeholder:text-secondary/40"
+                                className="w-full pl-10 p-3 bg-transparent hover:bg-surfaceHighlight/30 rounded-lg text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all placeholder:text-secondary/40"
                             />
                         </div>
                     </div>
@@ -269,7 +269,7 @@ export function AccountSettings() {
                                 // Let's correct this by destructuring signOut at the top.
                             }
                         }}
-                        className="w-full flex items-center justify-between p-3 rounded-lg bg-card border border-border/10 hover:border-border/30 hover:bg-surfaceHighlight/30 transition-all group"
+                        className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-surfaceHighlight/30 transition-all group"
                     >
                         <div className="text-left">
                             <div className="text-sm font-medium text-foreground flex items-center gap-2">
@@ -290,7 +290,7 @@ export function AccountSettings() {
                                 useStore().signOut();
                             }
                         }}
-                        className="w-full flex items-center justify-between p-3 rounded-lg bg-card border border-border/10 hover:border-destructive/30 hover:bg-destructive/10 transition-all group"
+                        className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-destructive/10 transition-all group"
                     >
                         <div className="text-left">
                             <div className="text-sm font-medium text-destructive flex items-center gap-2">
