@@ -2,6 +2,7 @@ export interface Habit {
     id: string;
     name: string;
     category?: string; // e.g. "Health", "Study"
+    month?: string; // "YYYY-MM" (If undefined, applies to all/legacy)
     completedDates: string[]; // ISO Date strings "YYYY-MM-DD"
 }
 
@@ -49,5 +50,6 @@ export interface AppData {
         fontFamily?: 'sans' | 'serif' | 'mono';
         contentWidth?: 'standard' | 'full';
         startView?: 'dashboard' | 'journal' | 'year';
+        _updatedAt?: number;
     };
 }

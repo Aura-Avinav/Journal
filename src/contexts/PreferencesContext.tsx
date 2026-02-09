@@ -24,6 +24,7 @@ interface PreferencesState {
     fontFamily: 'sans' | 'serif' | 'mono';
     contentWidth: 'standard' | 'full';
     startView: 'dashboard' | 'journal' | 'year';
+    _updatedAt?: number;
 }
 
 interface PreferencesContextType {
@@ -150,12 +151,31 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     }, [preferences]);
 
     // 4. Load Preferences from Auth Metadata on Auth Change (Source of Truth for Cloud)
+    // Protected by timestamp check to prevent stale overwrites
     useEffect(() => {
         if (!user) return;
 
-        const metadata = user.user_metadata?.preferences;
+        const metadata = user.user_metadata?.preferences as Partial<PreferencesState> | undefined;
         if (metadata) {
-            setPreferences(prev => ({ ...prev, ...metadata }));
+            setPreferences(prev => {
+                // If local has no timestamp, accept cloud.
+                // If cloud has no timestamp, assume it's legacy/initial.
+                // STRICT MODE: Only accept cloud if it is STRICTLY newer than local.
+                // This prevents the "echo" from the server (which has the same timestamp or slightly older due to latency)
+                // from overwriting the local optimistic state.
+                const cloudTime = metadata._updatedAt || 0;
+                const localTime = prev._updatedAt || 0;
+
+                // Sync Protocol:
+                // 1. If Cloud is newer, apply it.
+                // 2. If timestamps are equal, Local wins (it's the source of the update).
+                // 3. If Cloud is older, ignore it.
+                if (cloudTime > localTime) {
+                    return { ...prev, ...metadata };
+                } else {
+                    return prev;
+                }
+            });
         } else {
             // Legacy: Check profiles table if metadata is empty (migration path)
             const fetchProfile = async () => {
@@ -166,17 +186,20 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
             };
             fetchProfile();
         }
-    }, [user]);
+    }, [user, preferences._updatedAt]); // Added dependency to re-evaluate if needed, but 'user' change is the trigger
 
     // Actions
     const updatePreferences = (updates: Partial<PreferencesState>) => {
         setPreferences(prev => {
-            const next = { ...prev, ...updates };
+            const next = { ...prev, ...updates, _updatedAt: Date.now() }; // Update timestamp
+            console.log('[Preferences] Updating Local:', updates);
 
             // Sync to Cloud (User Metadata)
             if (user) {
                 supabase.auth.updateUser({
                     data: { preferences: next }
+                }).then(({ error }) => {
+                    if (error) console.error('[Preferences] Sync Error:', error);
                 });
 
                 // Legacy: Also sync theme to profiles table for now (for backend triggers if any)

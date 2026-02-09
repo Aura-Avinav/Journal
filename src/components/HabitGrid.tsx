@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useStore } from '../hooks/useStore';
 import { cn } from '../lib/utils';
-import { Check, Plus, Trash2, Sparkles } from 'lucide-react';
+import { Check, Plus, Trash2, Sparkles, Flame } from 'lucide-react';
 import { format, getDaysInMonth } from 'date-fns';
 import { Modal, Button } from './ui/Modal';
+import { calculateHabitStats } from '../lib/analytics';
+import { HabitDetailsModal } from './HabitDetailsModal';
 
 export function HabitGrid({ date }: { date: Date }) {
     const { data, toggleHabit, addHabit, removeHabit } = useStore();
@@ -18,6 +20,9 @@ export function HabitGrid({ date }: { date: Date }) {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [newHabitName, setNewHabitName] = useState('');
     const [habitToDelete, setHabitToDelete] = useState<{ id: string, name: string } | null>(null);
+    const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
+
+    const currentMonthStr = format(date, 'yyyy-MM');
 
     const handleAddClick = () => {
         setNewHabitName('');
@@ -26,7 +31,7 @@ export function HabitGrid({ date }: { date: Date }) {
 
     const confirmAddHabit = () => {
         if (newHabitName.trim()) {
-            addHabit(newHabitName.trim());
+            addHabit(newHabitName.trim(), currentMonthStr); // Pass month
             setIsAddModalOpen(false);
         }
     };
@@ -43,6 +48,22 @@ export function HabitGrid({ date }: { date: Date }) {
             setIsDeleteModalOpen(false);
         }
     };
+
+    // Derived state for selected habit for details
+    const selectedHabit = data.habits.find(h => h.id === selectedHabitId) || null;
+
+    // Filter habits for the current month view
+    // Strict Mode: Only show habits explicitly assigned to this month.
+    // Legacy Support: Also show habits with NO month (global) to prevent them from disappearing entirely,
+    // BUT this means they will still mirror across months until deleted/re-created.
+    // The user requested strict separation, so we should prioritize that.
+    // However, hiding all legacy data is bad UX.
+    // Compromise: We show no-month habits everywhere.
+    // BUT we encourage creating new monthly habits.
+    const visibleHabits = data.habits.filter(h => {
+        if (h.month) return h.month === currentMonthStr;
+        return true; // Show legacy habits everywhere
+    });
 
     return (
         <div className="space-y-6">
@@ -61,7 +82,7 @@ export function HabitGrid({ date }: { date: Date }) {
                 <table className="w-full text-sm text-left border-separate border-spacing-0">
                     <thead className="text-xs uppercase text-secondary">
                         <tr>
-                            <th scope="col" className="sticky left-0 z-20 px-4 py-3 bg-background/95 backdrop-blur-md min-w-[150px] font-semibold text-primary/80 border-b border-surfaceHighlight/20">
+                            <th scope="col" className="sticky left-0 z-20 px-4 py-3 bg-background/95 backdrop-blur-md min-w-[200px] font-semibold text-primary/80 border-b border-surfaceHighlight/20">
                                 Habit
                             </th>
                             {days.map(d => (
@@ -72,62 +93,83 @@ export function HabitGrid({ date }: { date: Date }) {
                         </tr>
                     </thead>
                     <tbody>
-                        {data.habits.map((habit) => (
-                            <tr key={habit.id} className="group hover:bg-surfaceHighlight/5 transition-colors">
-                                <th scope="row" className="sticky left-0 z-20 px-4 py-3 font-medium text-primary bg-background/95 backdrop-blur-md whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px] border-b border-surfaceHighlight/10">
-                                    <div className="flex items-center justify-between gap-2">
-                                        <span className="truncate">{habit.name}</span>
-                                        <button
-                                            onClick={() => handleDeleteClick(habit.id, habit.name)}
-                                            className="opacity-0 group-hover:opacity-100 text-secondary hover:text-red-500 transition-all"
-                                            title="Remove habit"
-                                        >
-                                            <Trash2 className="w-3.5 h-3.5" />
-                                        </button>
-                                    </div>
-                                </th>
-                                {days.map(day => {
-                                    // Construct date string YYYY-MM-DD reliably
-                                    const dateObj = new Date(currentYear, currentMonth, day);
-                                    const dateStr = format(dateObj, 'yyyy-MM-dd');
+                        {visibleHabits.map((habit) => {
+                            const stats = calculateHabitStats(habit);
+                            const showStreak = stats.currentStreak > 2;
 
-                                    const isCompleted = habit.completedDates.includes(dateStr);
-
-                                    // Highlight today if looking at current month/year
-                                    const today = new Date();
-                                    const isToday = day === today.getDate() &&
-                                        currentMonth === today.getMonth() &&
-                                        currentYear === today.getFullYear();
-
-                                    // Check if date is in the future
-                                    const isFuture = dateObj > new Date(new Date().setHours(23, 59, 59, 999));
-
-                                    return (
-                                        <td key={day} className={cn(
-                                            "p-0 text-center border-b border-surfaceHighlight/10 relative",
-                                            isToday && "bg-accent/5",
-                                            isFuture && "bg-surface/5"
-                                        )}>
+                            return (
+                                <tr key={habit.id} className="group hover:bg-surfaceHighlight/5 transition-colors">
+                                    <th scope="row" className="sticky left-0 z-20 px-4 py-3 font-medium text-primary bg-background/95 backdrop-blur-md whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px] border-b border-surfaceHighlight/10">
+                                        <div className="flex items-center justify-between gap-2">
                                             <button
-                                                onClick={() => !isFuture && toggleHabit(habit.id, dateStr)}
-                                                disabled={isFuture}
-                                                className={cn(
-                                                    "w-full h-10 flex items-center justify-center transition-all duration-200",
-                                                    isFuture ? "cursor-not-allowed opacity-20" :
-                                                        isCompleted ? "text-accent scale-110" : "text-surfaceHighlight/20 hover:text-secondary/50 hover:scale-105"
-                                                )}
+                                                onClick={() => setSelectedHabitId(habit.id)}
+                                                className="truncate hover:text-accent hover:underline decoration-dashed underline-offset-4 transition-all text-left flex items-center gap-2"
                                             >
-                                                {isCompleted ? (
-                                                    <Check className="w-5 h-5 shadow-sm" strokeWidth={3} />
-                                                ) : (
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-current opacity-20" />
+                                                {habit.name}
+                                                {showStreak && (
+                                                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-500 text-[10px] font-bold">
+                                                        <Flame className="w-3 h-3 fill-current" /> {stats.currentStreak}
+                                                    </span>
+                                                )}
+                                                {!habit.month && (
+                                                    <span className="text-[10px] bg-secondary/10 text-secondary px-1 py-0.5 rounded ml-1" title="This protocol appears in all months">
+                                                        Global
+                                                    </span>
                                                 )}
                                             </button>
-                                        </td>
-                                    )
-                                })}
-                            </tr>
-                        ))}
+
+                                            <button
+                                                onClick={() => handleDeleteClick(habit.id, habit.name)}
+                                                className="opacity-0 group-hover:opacity-100 text-secondary hover:text-red-500 transition-all"
+                                                title="Remove habit"
+                                            >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+                                    </th>
+                                    {days.map(day => {
+                                        // Construct date string YYYY-MM-DD reliably
+                                        const dateObj = new Date(currentYear, currentMonth, day);
+                                        const dateStr = format(dateObj, 'yyyy-MM-dd');
+
+                                        const isCompleted = habit.completedDates.includes(dateStr);
+
+                                        // Highlight today if looking at current month/year
+                                        const today = new Date();
+                                        const isToday = day === today.getDate() &&
+                                            currentMonth === today.getMonth() &&
+                                            currentYear === today.getFullYear();
+
+                                        // Check if date is in the future
+                                        const isFuture = dateObj > new Date(new Date().setHours(23, 59, 59, 999));
+
+                                        return (
+                                            <td key={day} className={cn(
+                                                "p-0 text-center border-b border-surfaceHighlight/10 relative",
+                                                isToday && "bg-accent/5",
+                                                isFuture && "bg-surface/5"
+                                            )}>
+                                                <button
+                                                    onClick={() => !isFuture && toggleHabit(habit.id, dateStr)}
+                                                    disabled={isFuture}
+                                                    className={cn(
+                                                        "w-full h-10 flex items-center justify-center transition-all duration-200",
+                                                        isFuture ? "cursor-not-allowed opacity-20" :
+                                                            isCompleted ? "text-accent scale-110" : "text-surfaceHighlight/20 hover:text-secondary/50 hover:scale-105"
+                                                    )}
+                                                >
+                                                    {isCompleted ? (
+                                                        <Check className="w-5 h-5 shadow-sm" strokeWidth={3} />
+                                                    ) : (
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-current opacity-20" />
+                                                    )}
+                                                </button>
+                                            </td>
+                                        )
+                                    })}
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
 
@@ -205,6 +247,13 @@ export function HabitGrid({ date }: { date: Date }) {
                     </div>
                 </div>
             </Modal>
+
+            {/* Habit Details Modal */}
+            <HabitDetailsModal
+                habit={selectedHabit}
+                isOpen={!!selectedHabit}
+                onClose={() => setSelectedHabitId(null)}
+            />
         </div>
     );
 }

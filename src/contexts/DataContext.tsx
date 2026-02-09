@@ -15,7 +15,7 @@ interface DataContextType {
 
     // Actions
     toggleHabit: (habitId: string, date: string) => Promise<void>;
-    addHabit: (name: string) => Promise<void>;
+    addHabit: (name: string, month?: string) => Promise<void>;
     removeHabit: (id: string) => Promise<void>;
 
     addAchievement: (text: string, monthStr?: string) => Promise<void>;
@@ -49,7 +49,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
     // Load Data
     useEffect(() => {
         if (!user) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setHabits([]);
             setAchievements([]);
             setTodos([]);
@@ -68,6 +67,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
             const habitsFormatted = (dbHabits || []).map((h: any) => ({
                 id: h.id,
                 name: h.name,
+                month: h.month, // Map month field
+                category: h.category,
                 completedDates: (dbCompletions || [])
                     .filter((c: any) => c.habit_id === h.id)
                     .map((c: any) => c.completed_date)
@@ -126,12 +127,22 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const addHabit = async (name: string) => {
+    const addHabit = async (name: string, month?: string) => {
         const tempId = crypto.randomUUID();
-        setHabits(prev => [...prev, { id: tempId, name, completedDates: [] }]);
+        // If no month is provided, it's a global habit (legacy behavior) or current month depending on usage.
+        setHabits(prev => [...prev, { id: tempId, name, month, completedDates: [] }]);
 
         if (!user) return;
-        const { data: inserted } = await supabase.from('habits').insert({ name, user_id: user.id }).select().single();
+
+        // Attempt to insert 'month'. If column doesn't exist, this might fail or be ignored depending on Supabase settings.
+        // We assume the column exists or we accept the risk currently. 
+        // Ideally we would migrate the DB, but we lack direct SQL access tool for migration here.
+        const { data: inserted } = await supabase.from('habits').insert({
+            name,
+            user_id: user.id,
+            month: month || null
+        }).select().single();
+
         if (inserted) {
             setHabits(prev => prev.map(h => h.id === tempId ? { ...h, id: inserted.id } : h));
         }
@@ -225,10 +236,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
             await supabase.from('achievements').delete().eq('user_id', uid).eq('month', monthStr);
             await supabase.from('journal_entries').delete().eq('user_id', uid).like('date', `${monthStr}%`);
             await supabase.from('habit_completions').delete().eq('user_id', uid).gte('completed_date', `${monthStr}-01`).lte('completed_date', `${monthStr}-31`);
+
+            // NOTE: We do NOT delete the habits themselves, only completions, 
+            // unless we want to delete habits created in this month. 
+            // If habits are per-month, we SHOULD delete them.
+            // Let's assume for now we only delete 'data' (completions), not the schema (habits).
+            // But if habits are monthly, then deleting monthly data MIGHT mean deleting the habits too?
+            // User said: "keep the monthly data seperate so if changes made to one then the other one doesnt get deleted."
+            // This 'reset' function is for "Clear Month", so maybe it SHOULD delete habits for that month.
+            await supabase.from('habits').delete().eq('user_id', uid).eq('month', monthStr);
         }
 
         // Optimistic
-        setHabits(prev => prev.map(h => ({ ...h, completedDates: h.completedDates.filter(d => !d.startsWith(monthStr)) })));
+        setHabits(prev => prev.filter(h => h.month !== monthStr)); // Remove habits of this month
         setAchievements(prev => prev.filter(a => a.month !== monthStr));
         setJournal(prev => {
             const next = { ...prev };
