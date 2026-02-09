@@ -16,6 +16,15 @@ type ViewState = 'dashboard' | 'journal' | 'achievements' | 'year' | 'settings';
 function App() {
   const [view, setView] = useState<ViewState>(() => {
     if (typeof window !== 'undefined') {
+      // 1. Check for specific "Start View" preference first
+      try {
+        const prefs = JSON.parse(localStorage.getItem('ituts_preferences_v1') || '{}');
+        if (prefs.startView && prefs.startView !== 'dashboard') {
+          return prefs.startView;
+        }
+      } catch (e) { /* ignore */ }
+
+      // 2. Fallback to "Last Open View"
       const savedView = localStorage.getItem('journal_current_view');
       return (savedView as ViewState) || 'dashboard';
     }
@@ -23,6 +32,8 @@ function App() {
   });
 
   useEffect(() => {
+    // Don't save 'settings' as the current view to return to, strictly speaking, or maybe yes?
+    // For now, keep saving all.
     localStorage.setItem('journal_current_view', view);
   }, [view]);
 

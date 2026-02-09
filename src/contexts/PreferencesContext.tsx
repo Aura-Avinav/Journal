@@ -23,6 +23,7 @@ interface PreferencesState {
     fontSize: 'sm' | 'base' | 'lg';
     fontFamily: 'sans' | 'serif' | 'mono';
     contentWidth: 'standard' | 'full';
+    startView: 'dashboard' | 'journal' | 'year';
 }
 
 interface PreferencesContextType {
@@ -41,6 +42,7 @@ interface PreferencesContextType {
     setFontSize: (size: 'sm' | 'base' | 'lg') => void;
     setFontFamily: (family: 'sans' | 'serif' | 'mono') => void;
     setContentWidth: (width: 'standard' | 'full') => void;
+    setStartView: (view: 'dashboard' | 'journal' | 'year') => void;
 }
 
 const THEME_STORAGE_KEY = 'journal_theme_preference';
@@ -81,7 +83,8 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
             workspaceName: 'My Workspace',
             fontSize: 'base',
             fontFamily: 'sans',
-            contentWidth: 'standard'
+            contentWidth: 'standard',
+            startView: 'dashboard'
         };
     });
 
@@ -205,6 +208,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     const setFontSize = (fontSize: 'sm' | 'base' | 'lg') => updatePreferences({ fontSize });
     const setFontFamily = (fontFamily: 'sans' | 'serif' | 'mono') => updatePreferences({ fontFamily });
     const setContentWidth = (contentWidth: 'standard' | 'full') => updatePreferences({ contentWidth });
+    const setStartView = (startView: 'dashboard' | 'journal' | 'year') => updatePreferences({ startView });
 
     const value = {
         preferences,
@@ -221,7 +225,8 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         setWorkspaceName,
         setFontSize,
         setFontFamily,
-        setContentWidth
+        setContentWidth,
+        setStartView
     };
 
     return (

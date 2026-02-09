@@ -40,7 +40,7 @@ export function PreferencesSettings() {
             const keysToCheck = [
                 'theme', 'language', 'spellCheck', 'dateFormat',
                 'timeFormat', 'startOfWeek', 'privacyBlur', 'reducedMotion',
-                'fontSize', 'fontFamily', 'contentWidth'
+                'fontSize', 'fontFamily', 'contentWidth', 'startView'
             ] as const;
 
             const hasChanges = keysToCheck.some(k => next[k] !== stableGlobalPreferences[k]);
@@ -354,6 +354,31 @@ export function PreferencesSettings() {
                                     >
                                         <span className="text-xs font-semibold">{opt.label}</span>
                                         <span className="text-[10px] opacity-70 hidden sm:block">{opt.desc}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Default Start View */}
+                        <div className="space-y-3">
+                            <label className="text-xs font-medium text-secondary uppercase tracking-wider">Default Startup View</label>
+                            <div className="flex bg-surfaceHighlight/30 rounded-lg p-1">
+                                {[
+                                    { value: 'dashboard', label: 'Tracker' },
+                                    { value: 'journal', label: 'Journal' },
+                                    { value: 'year', label: '2026' },
+                                ].map((opt) => (
+                                    <button
+                                        key={opt.value}
+                                        onClick={() => handleChange('startView', opt.value)}
+                                        className={cn(
+                                            "flex-1 py-2 px-3 rounded-md transition-all",
+                                            (draft.startView || 'dashboard') === opt.value
+                                                ? "bg-background shadow-sm text-foreground font-semibold"
+                                                : "text-secondary hover:text-foreground/80 font-medium"
+                                        )}
+                                    >
+                                        {opt.label}
                                     </button>
                                 ))}
                             </div>

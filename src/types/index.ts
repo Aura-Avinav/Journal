@@ -48,5 +48,6 @@ export interface AppData {
         fontSize?: 'sm' | 'base' | 'lg';
         fontFamily?: 'sans' | 'serif' | 'mono';
         contentWidth?: 'standard' | 'full';
+        startView?: 'dashboard' | 'journal' | 'year';
     };
 }
