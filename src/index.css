@@ -58,6 +58,16 @@
   }
 
   /* Typography Settings */
+  :root {
+    /* Font Stacks */
+    --font-stack-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-stack-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    --font-stack-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    /* default to sans */
+    --font-ui: var(--font-stack-sans);
+  }
+
   :root[data-font-size="sm"] {
     font-size: 14px;
   }
@@ -70,19 +80,17 @@
     font-size: 18px;
   }
 
-  :root[data-font-family="sans"],
-  :root[data-font-family="sans"] body {
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Map selections to the UI font variable */
+  :root[data-font-family="sans"] {
+    --font-ui: var(--font-stack-sans);
   }
 
-  :root[data-font-family="serif"],
-  :root[data-font-family="serif"] body {
-    font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  :root[data-font-family="serif"] {
+    --font-ui: var(--font-stack-serif);
   }
 
-  :root[data-font-family="mono"],
-  :root[data-font-family="mono"] body {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  :root[data-font-family="mono"] {
+    --font-ui: var(--font-stack-mono);
   }
 }
 
