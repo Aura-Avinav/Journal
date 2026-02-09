@@ -74,13 +74,36 @@ function getChartData(data: AppData) {
         end: new Date()
     });
 
-    const metricsMap = new Map(data.metrics.map(m => [m.date, m.value]));
+    const totalHabits = data.habits.length;
 
     return days.map(day => {
         const dateStr = format(day, 'yyyy-MM-dd');
+
+        let score = 0;
+
+        // 1. Habit Score (Base 0-7)
+        if (totalHabits > 0) {
+            let completedCount = 0;
+            data.habits.forEach(habit => {
+                if (habit.completedDates.includes(dateStr)) {
+                    completedCount++;
+                }
+            });
+            // Normalize to 0-7 range
+            score += (completedCount / totalHabits) * 7;
+        }
+
+        // 2. Journal Bonus (+3)
+        if (data.journal[dateStr]) {
+            score += 3;
+        }
+
+        // Round to 1 decimal
+        score = Math.round(score * 10) / 10;
+
         return {
             day: format(day, 'd'),
-            value: metricsMap.get(dateStr) || 0
+            value: score
         };
     });
 }
