@@ -45,5 +45,7 @@ export interface AppData {
         startOfWeek?: 'monday' | 'sunday';
         privacyBlur?: boolean;
         workspaceName?: string;
+        fontSize?: 'sm' | 'base' | 'lg';
+        fontFamily?: 'sans' | 'serif' | 'mono';
     };
 }

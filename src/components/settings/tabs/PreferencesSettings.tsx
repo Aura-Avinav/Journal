@@ -1,4 +1,4 @@
-import { Moon, Sun, Monitor, Type, Languages, Calendar, Clock, EyeOff, Download, Trash2, Globe, Check } from 'lucide-react';
+import { Moon, Sun, Monitor, Type, Check, Download, Trash2, Calendar, Clock, Globe } from 'lucide-react';
 import { useStore } from '../../../hooks/useStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useMemo } from 'react';
@@ -260,59 +260,28 @@ export function PreferencesSettings() {
 
 
                 {/* Privacy & Data */}
+                {/* Typography */}
                 <div className="space-y-6">
                     <div className="space-y-1">
                         <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                             <div className="p-1.5 rounded-md bg-green-500/10 text-green-500">
-                                <EyeOff className="w-4 h-4" />
-                            </div>
-                            Privacy & System
-                        </h3>
-                        <p className="text-xs text-secondary pl-9">Manage privacy and performance.</p>
-                    </div>
-
-                    <div className="grid gap-4 sm:grid-cols-2">
-                        {/* Privacy Blur */}
-                        <button
-                            onClick={() => handleChange('privacyBlur', !draft.privacyBlur)}
-                            className={cn(
-                                "p-4 rounded-xl transition-all text-left space-y-2 group hover:bg-surfaceHighlight/10",
-                                draft.privacyBlur
-                                    ? "bg-green-500/5"
-                                    : "bg-transparent"
-                            )}
+                                className={cn(
+                                    "p-4 rounded-xl transition-all text-left space-y-2 group hover:bg-surfaceHighlight/10",
+                                    draft.reducedMotion
+                                        ? "bg-green-500/5"
+                                        : "bg-transparent"
+                                )}
                         >
-                            <div className="flex items-center justify-between">
-                                <span className={cn("text-sm font-medium", draft.privacyBlur ? "text-green-600 dark:text-green-400" : "text-foreground")}>Privacy Blur</span>
-                                <div className={cn("w-8 h-5 rounded-full relative transition-colors", draft.privacyBlur ? "bg-green-500" : "bg-border/40")}>
-                                    <div className={cn("absolute top-1 bottom-1 w-3 h-3 bg-white rounded-full transition-all", draft.privacyBlur ? "left-4" : "left-1")} />
+                                <div className="flex items-center justify-between">
+                                    <span className={cn("text-sm font-medium", draft.reducedMotion ? "text-green-600 dark:text-green-400" : "text-foreground")}>Reduce Motion</span>
+                                    <div className={cn("w-8 h-5 rounded-full relative transition-colors", draft.reducedMotion ? "bg-green-500" : "bg-border/40")}>
+                                        <div className={cn("absolute top-1 bottom-1 w-3 h-3 bg-white rounded-full transition-all", draft.reducedMotion ? "left-4" : "left-1")} />
+                                    </div>
                                 </div>
-                            </div>
-                            <p className="text-xs text-secondary leading-relaxed">
-                                Blur content when swiching apps.
-                            </p>
-                        </button>
-
-                        {/* Reduce Motion */}
-                        <button
-                            onClick={() => handleChange('reducedMotion', !draft.reducedMotion)}
-                            className={cn(
-                                "p-4 rounded-xl transition-all text-left space-y-2 group hover:bg-surfaceHighlight/10",
-                                draft.reducedMotion
-                                    ? "bg-green-500/5"
-                                    : "bg-transparent"
-                            )}
-                        >
-                            <div className="flex items-center justify-between">
-                                <span className={cn("text-sm font-medium", draft.reducedMotion ? "text-green-600 dark:text-green-400" : "text-foreground")}>Reduce Motion</span>
-                                <div className={cn("w-8 h-5 rounded-full relative transition-colors", draft.reducedMotion ? "bg-green-500" : "bg-border/40")}>
-                                    <div className={cn("absolute top-1 bottom-1 w-3 h-3 bg-white rounded-full transition-all", draft.reducedMotion ? "left-4" : "left-1")} />
-                                </div>
-                            </div>
-                            <p className="text-xs text-secondary leading-relaxed">
-                                Minimize UI animations.
-                            </p>
-                        </button>
+                                <p className="text-xs text-secondary leading-relaxed">
+                                    Minimize UI animations.
+                                </p>
+                            </button>
                     </div>
                 </div>
 

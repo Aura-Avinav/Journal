@@ -56,6 +56,15 @@
   body {
     @apply bg-background text-primary antialiased;
   }
+
+  /* Typography Settings */
+  :root[data-font-size="sm"] { font-size: 14px; }
+  :root[data-font-size="base"] { font-size: 16px; }
+  :root[data-font-size="lg"] { font-size: 18px; }
+
+  :root[data-font-family="sans"] body { font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; }
+  :root[data-font-family="serif"] body { font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; }
+  :root[data-font-family="mono"] body { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
 }
 
 /* Custom Scrollbar for "Premium" feel */

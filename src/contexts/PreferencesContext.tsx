@@ -20,6 +20,8 @@ interface PreferencesState {
     startOfWeek: StartOfWeek;
     privacyBlur: boolean;
     workspaceName: string;
+    fontSize: 'sm' | 'base' | 'lg';
+    fontFamily: 'sans' | 'serif' | 'mono';
 }
 
 interface PreferencesContextType {
@@ -35,6 +37,8 @@ interface PreferencesContextType {
     togglePrivacyBlur: () => void;
     toggleReducedMotion: () => void;
     setWorkspaceName: (name: string) => void;
+    setFontSize: (size: 'sm' | 'base' | 'lg') => void;
+    setFontFamily: (family: 'sans' | 'serif' | 'mono') => void;
 }
 
 const THEME_STORAGE_KEY = 'journal_theme_preference';
@@ -72,7 +76,9 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
             timeFormat: '12',
             startOfWeek: 'sunday',
             privacyBlur: false,
-            workspaceName: 'My Workspace'
+            workspaceName: 'My Workspace',
+            fontSize: 'base',
+            fontFamily: 'sans'
         };
     });
 
@@ -102,6 +108,13 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
             return () => mediaQuery.removeEventListener('change', handleChange);
         }
     }, [preferences.theme]);
+
+    // 1.5 Sync Typography to DOM
+    useEffect(() => {
+        const root = document.documentElement;
+        root.setAttribute('data-font-size', preferences.fontSize);
+        root.setAttribute('data-font-family', preferences.fontFamily);
+    }, [preferences.fontSize, preferences.fontFamily]);
 
     // 2. Privacy Blur Effect
     useEffect(() => {
@@ -170,6 +183,9 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     const toggleReducedMotion = () => updatePreferences({ reducedMotion: !preferences.reducedMotion });
     const setWorkspaceName = (workspaceName: string) => updatePreferences({ workspaceName });
 
+    const setFontSize = (fontSize: 'sm' | 'base' | 'lg') => updatePreferences({ fontSize });
+    const setFontFamily = (fontFamily: 'sans' | 'serif' | 'mono') => updatePreferences({ fontFamily });
+
     const value = {
         preferences,
         updatePreferences,
@@ -182,7 +198,9 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         setStartOfWeek,
         togglePrivacyBlur,
         toggleReducedMotion,
-        setWorkspaceName
+        setWorkspaceName,
+        setFontSize,
+        setFontFamily
     };
 
     return (
