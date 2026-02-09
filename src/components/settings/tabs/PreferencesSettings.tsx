@@ -1,4 +1,4 @@
-import { Moon, Sun, Monitor, Type, Check, Download, Trash2, Calendar, Clock, Globe } from 'lucide-react';
+import { Moon, Sun, Monitor, Type, Check, Download, Trash2, Calendar, Clock, Globe, Languages } from 'lucide-react';
 import { useStore } from '../../../hooks/useStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useMemo } from 'react';
