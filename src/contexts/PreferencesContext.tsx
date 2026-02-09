@@ -143,26 +143,42 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('ituts_preferences_v1', JSON.stringify(preferences));
     }, [preferences]);
 
-    // 4. Load Preferences from DB on Auth (Merge logic could be improved, currently DB wins for theme)
+    // 4. Load Preferences from Auth Metadata on Auth Change (Source of Truth for Cloud)
     useEffect(() => {
         if (!user) return;
-        const fetchProfile = async () => {
-            const { data } = await supabase.from('profiles').select('theme').eq('id', user.id).single();
-            if (data?.theme) {
-                setPreferences(prev => ({ ...prev, theme: data.theme as Theme }));
-            }
-        };
-        fetchProfile();
+
+        const metadata = user.user_metadata?.preferences;
+        if (metadata) {
+            setPreferences(prev => ({ ...prev, ...metadata }));
+        } else {
+            // Legacy: Check profiles table if metadata is empty (migration path)
+            const fetchProfile = async () => {
+                const { data } = await supabase.from('profiles').select('theme').eq('id', user.id).single();
+                if (data?.theme) {
+                    setPreferences(prev => ({ ...prev, theme: data.theme as Theme }));
+                }
+            };
+            fetchProfile();
+        }
     }, [user]);
 
     // Actions
     const updatePreferences = (updates: Partial<PreferencesState>) => {
         setPreferences(prev => {
             const next = { ...prev, ...updates };
-            // Optional: Persist specific priority fields to DB here if needed
-            if (updates.theme && user) {
-                supabase.from('profiles').upsert({ id: user.id, theme: updates.theme, updated_at: new Date().toISOString() });
+
+            // Sync to Cloud (User Metadata)
+            if (user) {
+                supabase.auth.updateUser({
+                    data: { preferences: next }
+                });
+
+                // Legacy: Also sync theme to profiles table for now (for backend triggers if any)
+                if (updates.theme) {
+                    supabase.from('profiles').upsert({ id: user.id, theme: updates.theme, updated_at: new Date().toISOString() });
+                }
             }
+
             return next;
         });
     };

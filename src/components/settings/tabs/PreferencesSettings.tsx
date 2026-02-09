@@ -185,7 +185,9 @@ export function PreferencesSettings() {
                         </div>
 
                         {/* Date Format */}
-                        <div className="space-y-2">
+                        {/* Date Format (Coming Soon) */}
+                        {/* 
+                        <div className="space-y-2 opacity-50 pointer-events-none filter grayscale">
                             <label className="text-sm font-medium text-secondary flex items-center gap-2">
                                 <Calendar className="w-3.5 h-3.5" /> Date Format
                             </label>
@@ -199,18 +201,14 @@ export function PreferencesSettings() {
                                     <option value="DD/MM/YYYY">DD/MM/YYYY</option>
                                     <option value="YYYY-MM-DD">YYYY-MM-DD</option>
                                 </select>
-                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-secondary">
-                                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                                </div>
                             </div>
                         </div>
 
-                        {/* Time Format */}
-                        <div className="space-y-2">
+                        <div className="space-y-2 opacity-50 pointer-events-none filter grayscale">
                             <label className="text-sm font-medium text-secondary flex items-center gap-2">
                                 <Clock className="w-3.5 h-3.5" /> Time Format
                             </label>
-                            <div className="flex gap-2">
+                             <div className="flex gap-2">
                                 {[
                                     { value: '12', label: '12-Hour' },
                                     { value: '24', label: '24-Hour' }
@@ -229,7 +227,8 @@ export function PreferencesSettings() {
                                     </button>
                                 ))}
                             </div>
-                        </div>
+                        </div> 
+                        */}
 
                         {/* Start of Week */}
                         <div className="space-y-2">
