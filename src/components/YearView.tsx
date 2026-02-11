@@ -48,7 +48,7 @@ export function YearView({ onSelectMonth }: YearViewProps) {
         <div className="space-y-8 pb-10">
             <header className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-surfaceHighlight pb-6">
                 <div>
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-white to-secondary bg-clip-text text-transparent">
+                    <h1 className="text-4xl font-bold text-primary">
                         {year} Overview
                     </h1>
                     <p className="text-secondary mt-1 text-lg">
