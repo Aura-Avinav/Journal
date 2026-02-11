@@ -168,14 +168,14 @@ function App() {
           <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
             <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl relative overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-              <HabitGrid date={currentDate} />
+              <HabitGrid date={currentDate} key={`habit-grid-${currentDate.toISOString()}`} />
             </div>
           </section>
 
           {/* Section 2: Achievements & ToDo */}
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
             <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl h-full min-h-[400px]">
-              <AchievementBoard date={currentDate} />
+              <AchievementBoard date={currentDate} key={`achievements-${currentDate.toISOString()}`} />
             </div>
             <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl h-full min-h-[400px]">
               <TodoBoard />
@@ -185,7 +185,7 @@ function App() {
           {/* Section 3: Metrics */}
           <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
             <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl">
-              <MetricGraph date={currentDate} />
+              <MetricGraph date={currentDate} key={currentDate.toISOString()} />
             </div>
           </section>
         </div>
