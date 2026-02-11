@@ -2,12 +2,14 @@ import { useStore } from '../hooks/useStore';
 import type { AppData } from '../types';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { Activity } from 'lucide-react';
-import { format, subDays, eachDayOfInterval } from 'date-fns';
+import { format, eachDayOfInterval } from 'date-fns';
 
 export function MetricGraph({ date }: { date: Date }) {
-    void date; // Silence unused warning
     const { data } = useStore();
-    // For now, metrics are generic, but accepting date allows future filtering
+    const currentMonthStr = format(date, 'yyyy-MM');
+
+    // Filter habits for the current month (Strict separation to match HabitGrid)
+    const activeHabits = data.habits.filter(h => h.month === currentMonthStr);
 
     return (
         <div className="h-full flex flex-col">
@@ -23,7 +25,7 @@ export function MetricGraph({ date }: { date: Date }) {
 
             <div className="h-[200px] w-full min-h-[200px]">
                 <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={getChartData(data)}>
+                    <AreaChart data={getChartData(data, date, activeHabits)}>
                         <defs>
                             <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
@@ -38,6 +40,8 @@ export function MetricGraph({ date }: { date: Date }) {
                             tickLine={false}
                             axisLine={false}
                             dy={10}
+                            interval="preserveStartEnd"
+                            minTickGap={15}
                         />
                         <YAxis hide domain={[0, 10]} />
                         <Tooltip
@@ -67,29 +71,28 @@ export function MetricGraph({ date }: { date: Date }) {
 }
 
 
-function getChartData(data: AppData) {
-    // Generate last 14 days
-    const days = eachDayOfInterval({
-        start: subDays(new Date(), 13),
-        end: new Date()
+function getChartData(data: AppData, date: Date, activeHabits: AppData['habits']) {
+    // Generate days for the selected month
+    const daysInMonth = eachDayOfInterval({
+        start: new Date(date.getFullYear(), date.getMonth(), 1),
+        end: new Date(date.getFullYear(), date.getMonth() + 1, 0)
     });
 
-    const totalHabits = data.habits.length;
+    const totalHabits = activeHabits.length;
 
-    return days.map(day => {
+    return daysInMonth.map(day => {
         const dateStr = format(day, 'yyyy-MM-dd');
-
         let score = 0;
 
         // 1. Habit Score (Base 0-7)
         if (totalHabits > 0) {
             let completedCount = 0;
-            data.habits.forEach(habit => {
+            activeHabits.forEach(habit => {
                 if (habit.completedDates.includes(dateStr)) {
                     completedCount++;
                 }
             });
-            // Normalize to 0-7 range
+            // Normalize to 0-7 range based on SELECTED MONTH'S ACTIVE HABITS
             score += (completedCount / totalHabits) * 7;
         }
 
