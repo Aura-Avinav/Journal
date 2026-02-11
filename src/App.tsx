@@ -11,9 +11,12 @@ import { SettingsView } from './components/SettingsView';
 import { getDaysInMonth, differenceInCalendarDays, startOfYear, endOfYear } from 'date-fns';
 import { useStore } from './hooks/useStore';
 
+import { useDynamicFavicon } from './hooks/useDynamicFavicon';
+
 type ViewState = 'dashboard' | 'journal' | 'achievements' | 'year' | 'settings';
 
 function App() {
+  useDynamicFavicon();
   const [view, setView] = useState<ViewState>(() => {
     if (typeof window !== 'undefined') {
       // 1. Check for specific "Start View" preference first
