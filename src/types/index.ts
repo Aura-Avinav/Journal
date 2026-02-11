@@ -50,6 +50,8 @@ export interface AppData {
         fontFamily?: 'sans' | 'serif' | 'mono';
         contentWidth?: 'standard' | 'full';
         startView?: 'dashboard' | 'journal' | 'year';
+        accentColor?: 'blue' | 'purple' | 'rose' | 'orange' | 'green' | 'cyan';
+        soundEnabled?: boolean;
         _updatedAt?: number;
     };
 }
