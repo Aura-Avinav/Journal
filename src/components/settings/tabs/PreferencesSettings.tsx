@@ -257,12 +257,12 @@ export function PreferencesSettings() {
                                 className={cn(
                                     "w-full p-2.5 rounded-lg text-sm text-left flex items-center justify-between transition-all",
                                     draft.spellCheck
-                                        ? "bg-blue-500/5 text-blue-600 dark:text-blue-400"
+                                        ? "bg-accent/10 text-accent font-medium dark:text-accent"
                                         : "bg-transparent text-secondary hover:bg-surfaceHighlight/30"
                                 )}
                             >
                                 {draft.spellCheck ? 'Enabled' : 'Disabled'}
-                                <div className={cn("w-4 h-4 rounded-full flex items-center justify-center transition-colors", draft.spellCheck ? "bg-blue-500 text-white" : "bg-border/20")}>
+                                <div className={cn("w-4 h-4 rounded-full flex items-center justify-center transition-colors", draft.spellCheck ? "bg-accent text-white" : "bg-border/20")}>
                                     {draft.spellCheck && <Check className="w-2.5 h-2.5" />}
                                 </div>
                             </button>
@@ -330,7 +330,7 @@ export function PreferencesSettings() {
                                         className={cn(
                                             "flex-1 p-2.5 text-sm font-medium rounded-lg transition-all capitalize",
                                             draft.startOfWeek === opt.value
-                                                ? "bg-blue-500/5 text-blue-600 dark:text-blue-400"
+                                                ? "bg-accent/10 text-accent font-medium dark:text-accent"
                                                 : "bg-transparent text-secondary hover:bg-surfaceHighlight/30"
                                         )}
                                     >
@@ -475,13 +475,13 @@ export function PreferencesSettings() {
                             className={cn(
                                 "p-4 rounded-xl transition-all text-left space-y-2 group hover:bg-surfaceHighlight/10 w-full",
                                 draft.reducedMotion
-                                    ? "bg-green-500/5"
+                                    ? "bg-accent/10"
                                     : "bg-transparent"
                             )}
                         >
                             <div className="flex items-center justify-between">
-                                <span className={cn("text-sm font-medium", draft.reducedMotion ? "text-green-600 dark:text-green-400" : "text-foreground")}>Reduce Motion</span>
-                                <div className={cn("w-8 h-5 rounded-full relative transition-colors", draft.reducedMotion ? "bg-green-500" : "bg-border/40")}>
+                                <span className={cn("text-sm font-medium", draft.reducedMotion ? "text-accent dark:text-accent" : "text-foreground")}>Reduce Motion</span>
+                                <div className={cn("w-8 h-5 rounded-full relative transition-colors", draft.reducedMotion ? "bg-accent" : "bg-border/40")}>
                                     <div className={cn("absolute top-1 bottom-1 w-3 h-3 bg-white rounded-full transition-all", draft.reducedMotion ? "left-4" : "left-1")} />
                                 </div>
                             </div>
