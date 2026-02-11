@@ -7,9 +7,11 @@ import { Modal, Button } from './ui/Modal';
 import { calculateHabitStats } from '../lib/analytics';
 import { HabitDetailsModal } from './HabitDetailsModal';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSound } from '../hooks/useSound';
 
 export function HabitGrid({ date }: { date: Date }) {
     const { data, toggleHabit, addHabit, removeHabit } = useStore();
+    const { play } = useSound();
     const currentYear = date.getFullYear();
     const currentMonth = date.getMonth(); // 0-indexed
 
@@ -54,17 +56,6 @@ export function HabitGrid({ date }: { date: Date }) {
     const selectedHabit = data.habits.find(h => h.id === selectedHabitId) || null;
 
     // Filter habits for the current month view
-    // Strict Mode: Only show habits explicitly assigned to this month.
-    // Legacy Support: Also show habits with NO month (global) to prevent them from disappearing entirely,
-    // BUT this means they will still mirror across months until deleted/re-created.
-    // The user requested strict separation, so we should prioritize that.
-    // However, hiding all legacy data is bad UX.
-    // Compromise: We show no-month habits everywhere.
-    // BUT we encourage creating new monthly habits.
-    // Filter habits for the current month view
-    // Strict Mode: Only show habits explicitly assigned to this month.
-    // "No global habits": Habits without a month (legacy) will NOT be shown.
-    // This strictly isolates data per month as requested.
     const visibleHabits = data.habits.filter(h => {
         return h.month === currentMonthStr;
     });
@@ -161,19 +152,16 @@ export function HabitGrid({ date }: { date: Date }) {
                                             </div>
                                         </th>
                                         {days.map(day => {
-                                            // Construct date string YYYY-MM-DD reliably
                                             const dateObj = new Date(currentYear, currentMonth, day);
                                             const dateStr = format(dateObj, 'yyyy-MM-dd');
 
                                             const isCompleted = habit.completedDates.includes(dateStr);
 
-                                            // Highlight today if looking at current month/year
                                             const today = new Date();
                                             const isToday = day === today.getDate() &&
                                                 currentMonth === today.getMonth() &&
                                                 currentYear === today.getFullYear();
 
-                                            // Check if date is in the future
                                             const isFuture = dateObj > new Date(new Date().setHours(23, 59, 59, 999));
 
                                             return (
@@ -183,7 +171,12 @@ export function HabitGrid({ date }: { date: Date }) {
                                                     isFuture && "bg-surface/5"
                                                 )}>
                                                     <button
-                                                        onClick={() => !isFuture && toggleHabit(habit.id, dateStr)}
+                                                        onClick={() => {
+                                                            if (!isFuture) {
+                                                                toggleHabit(habit.id, dateStr);
+                                                                if (!isCompleted) play('pop');
+                                                            }
+                                                        }}
                                                         disabled={isFuture}
                                                         className={cn(
                                                             "w-full h-10 flex items-center justify-center transition-all duration-200",

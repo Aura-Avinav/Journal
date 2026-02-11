@@ -2,12 +2,25 @@ import { useState } from 'react';
 import { useStore } from '../../../hooks/useStore';
 import { ImportModal } from '../../ui/ImportModal';
 import { Modal } from '../../ui/Modal';
-import { Upload } from 'lucide-react';
+import { Upload, Download } from 'lucide-react';
 
 export function DataSettings() {
-    const { resetData } = useStore();
+    const { resetData, data } = useStore();
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+
+    const handleExport = () => {
+        const jsonString = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonString], { type: "application/json" });
+        const href = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = href;
+        const date = new Date().toISOString().split('T')[0];
+        link.download = `ituts-backup-${date}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     return (
         <div className="space-y-8 animate-in fade-in duration-300 max-w-2xl">
@@ -17,6 +30,21 @@ export function DataSettings() {
             </div>
 
             <section className="space-y-6">
+                {/* Export Section */}
+                <div className="flex items-center justify-between py-4 border-b border-border/10">
+                    <div>
+                        <div className="font-medium text-foreground">Export Data</div>
+                        <p className="text-sm text-secondary">Download a JSON backup of your habits and journal.</p>
+                    </div>
+                    <button
+                        onClick={handleExport}
+                        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-foreground bg-surfaceHighlight hover:bg-surfaceHighlight/80 rounded-md transition-colors"
+                    >
+                        <Download className="w-3.5 h-3.5" />
+                        Export
+                    </button>
+                </div>
+
                 {/* Import Section */}
                 <div className="flex items-center justify-between py-4 border-b border-border/10">
                     <div>

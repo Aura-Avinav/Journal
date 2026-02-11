@@ -24,6 +24,8 @@ interface PreferencesState {
     fontFamily: 'sans' | 'serif' | 'mono';
     contentWidth: 'standard' | 'full';
     startView: 'dashboard' | 'journal' | 'year';
+    accentColor: 'blue' | 'purple' | 'rose' | 'orange' | 'green' | 'cyan';
+    soundEnabled: boolean;
     _updatedAt?: number;
 }
 
@@ -44,6 +46,8 @@ interface PreferencesContextType {
     setFontFamily: (family: 'sans' | 'serif' | 'mono') => void;
     setContentWidth: (width: 'standard' | 'full') => void;
     setStartView: (view: 'dashboard' | 'journal' | 'year') => void;
+    setAccentColor: (color: PreferencesState['accentColor']) => void;
+    toggleSound: () => void;
 }
 
 const THEME_STORAGE_KEY = 'journal_theme_preference';
@@ -85,7 +89,9 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
             fontSize: 'base',
             fontFamily: 'sans',
             contentWidth: 'standard',
-            startView: 'dashboard'
+            startView: 'dashboard',
+            accentColor: 'blue',
+            soundEnabled: true
         };
     });
 
@@ -150,43 +156,13 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('ituts_preferences_v1', JSON.stringify(preferences));
     }, [preferences]);
 
-    // 4. Load Preferences from Auth Metadata on Auth Change (Source of Truth for Cloud)
-    // Protected by timestamp check to prevent stale overwrites
+    // 5. Sync Accent Color to DOM (CSS Variable)
     useEffect(() => {
-        if (!user) return;
-
-        const metadata = user.user_metadata?.preferences as Partial<PreferencesState> | undefined;
-        if (metadata) {
-            setPreferences(prev => {
-                // If local has no timestamp, accept cloud.
-                // If cloud has no timestamp, assume it's legacy/initial.
-                // STRICT MODE: Only accept cloud if it is STRICTLY newer than local.
-                // This prevents the "echo" from the server (which has the same timestamp or slightly older due to latency)
-                // from overwriting the local optimistic state.
-                const cloudTime = metadata._updatedAt || 0;
-                const localTime = prev._updatedAt || 0;
-
-                // Sync Protocol:
-                // 1. If Cloud is newer, apply it.
-                // 2. If timestamps are equal, Local wins (it's the source of the update).
-                // 3. If Cloud is older, ignore it.
-                if (cloudTime > localTime) {
-                    return { ...prev, ...metadata };
-                } else {
-                    return prev;
-                }
-            });
-        } else {
-            // Legacy: Check profiles table if metadata is empty (migration path)
-            const fetchProfile = async () => {
-                const { data } = await supabase.from('profiles').select('theme').eq('id', user.id).single();
-                if (data?.theme) {
-                    setPreferences(prev => ({ ...prev, theme: data.theme as Theme }));
-                }
-            };
-            fetchProfile();
-        }
-    }, [user, preferences._updatedAt]); // Added dependency to re-evaluate if needed, but 'user' change is the trigger
+        const root = document.documentElement;
+        // Map friendly names to actual HSL values or predefined classes
+        // For simplicity, we'll set a data-accent attribute and handle colors in CSS
+        root.setAttribute('data-accent', preferences.accentColor);
+    }, [preferences.accentColor]);
 
     // Actions
     const updatePreferences = (updates: Partial<PreferencesState>) => {
@@ -232,6 +208,8 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     const setFontFamily = (fontFamily: 'sans' | 'serif' | 'mono') => updatePreferences({ fontFamily });
     const setContentWidth = (contentWidth: 'standard' | 'full') => updatePreferences({ contentWidth });
     const setStartView = (startView: 'dashboard' | 'journal' | 'year') => updatePreferences({ startView });
+    const setAccentColor = (accentColor: PreferencesState['accentColor']) => updatePreferences({ accentColor });
+    const toggleSound = () => updatePreferences({ soundEnabled: !preferences.soundEnabled });
 
     const value = {
         preferences,
@@ -249,7 +227,9 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         setFontSize,
         setFontFamily,
         setContentWidth,
-        setStartView
+        setStartView,
+        setAccentColor,
+        toggleSound
     };
 
     return (

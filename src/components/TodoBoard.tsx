@@ -3,9 +3,11 @@ import { useStore } from '../hooks/useStore';
 import { CheckCircle2, Circle, Plus, Trash2, CalendarDays, ListTodo, CalendarRange } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Modal, Button } from './ui/Modal';
+import { useSound } from '../hooks/useSound';
 
 export function TodoBoard() {
     const { data, toggleTodo, addTodo, removeTodo } = useStore();
+    const { play } = useSound();
     const [activeTab, setActiveTab] = useState<'daily' | 'weekly' | 'monthly'>('daily');
 
     const todos = data.todos.filter(t => t.type === activeTab);
@@ -99,7 +101,10 @@ export function TodoBoard() {
                         {todos.map(todo => (
                             <li key={todo.id} className="group flex items-center gap-3 p-2 rounded-lg hover:bg-surfaceHighlight/30 transition-all">
                                 <button
-                                    onClick={() => toggleTodo(todo.id)}
+                                    onClick={() => {
+                                        toggleTodo(todo.id);
+                                        if (!todo.completed) play('pop');
+                                    }}
                                     className={cn(
                                         "flex-shrink-0 transition-colors",
                                         todo.completed ? "text-pink-500" : "text-secondary hover:text-pink-400"

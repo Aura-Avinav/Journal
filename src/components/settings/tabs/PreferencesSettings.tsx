@@ -1,4 +1,4 @@
-import { Moon, Sun, Monitor, Type, Check, Globe, Languages } from 'lucide-react';
+import { Moon, Sun, Monitor, Type, Check, Globe, Languages, Volume2 } from 'lucide-react';
 import { useStore } from '../../../hooks/useStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useMemo } from 'react';
@@ -11,7 +11,25 @@ export function PreferencesSettings() {
     } = useStore();
 
     // Safely access global preferences with defaults
-    const globalPreferences = data.preferences || {} as NonNullable<typeof data.preferences>;
+    // Safely access global preferences with defaults
+    const globalPreferences = {
+        theme: data.preferences?.theme || 'system',
+        reducedMotion: data.preferences?.reducedMotion || false,
+        language: data.preferences?.language || 'en-US',
+        spellCheck: data.preferences?.spellCheck ?? true,
+        dateFormat: data.preferences?.dateFormat || 'MM/DD/YYYY',
+        timeFormat: data.preferences?.timeFormat || '12',
+        startOfWeek: data.preferences?.startOfWeek || 'sunday',
+        privacyBlur: data.preferences?.privacyBlur || false,
+        workspaceName: data.preferences?.workspaceName || 'My Workspace',
+        fontSize: data.preferences?.fontSize || 'base',
+        fontFamily: data.preferences?.fontFamily || 'sans',
+        contentWidth: data.preferences?.contentWidth || 'standard',
+        startView: data.preferences?.startView || 'dashboard',
+        accentColor: data.preferences?.accentColor || 'blue',
+        soundEnabled: data.preferences?.soundEnabled ?? true,
+        _updatedAt: data.preferences?._updatedAt
+    };
 
     // Memoize global preferences to avoid unstable reference issues from useStore
     const stableGlobalPreferences = useMemo(() => globalPreferences, [JSON.stringify(globalPreferences)]);
@@ -38,7 +56,8 @@ export function PreferencesSettings() {
             const keysToCheck = [
                 'theme', 'language', 'spellCheck', 'dateFormat',
                 'timeFormat', 'startOfWeek', 'privacyBlur', 'reducedMotion',
-                'fontSize', 'fontFamily', 'contentWidth', 'startView'
+                'fontSize', 'fontFamily', 'contentWidth', 'startView',
+                'accentColor', 'soundEnabled'
             ] as const;
 
             const hasChanges = keysToCheck.some(k => next[k] !== stableGlobalPreferences[k]);
@@ -124,6 +143,73 @@ export function PreferencesSettings() {
                                 </button>
                             );
                         })}
+                    </div>
+                </div>
+
+                {/* Accent & Sound */}
+                <div className="space-y-6">
+                    <div className="space-y-1">
+                        <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+                            <div className="p-1.5 rounded-md bg-pink-500/10 text-pink-500">
+                                <span className="w-4 h-4 rounded-full border-2 border-current block" />
+                            </div>
+                            Personalize
+                        </h3>
+                        <p className="text-xs text-secondary pl-9">Make it yours.</p>
+                    </div>
+
+                    <div className="grid gap-6 sm:grid-cols-2">
+                        {/* Accent Color */}
+                        <div className="space-y-3">
+                            <label className="text-sm font-medium text-secondary flex items-center gap-2">
+                                Accent Color
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                                {[
+                                    { id: 'blue', color: 'bg-blue-500' },
+                                    { id: 'purple', color: 'bg-purple-500' },
+                                    { id: 'rose', color: 'bg-rose-500' },
+                                    { id: 'orange', color: 'bg-orange-500' },
+                                    { id: 'green', color: 'bg-green-500' },
+                                    { id: 'cyan', color: 'bg-cyan-500' },
+                                ].map((c) => (
+                                    <button
+                                        key={c.id}
+                                        onClick={() => handleChange('accentColor', c.id)}
+                                        className={cn(
+                                            "w-8 h-8 rounded-full transition-all flex items-center justify-center ring-2 ring-offset-2 ring-offset-background",
+                                            c.color,
+                                            draft.accentColor === c.id ? "ring-foreground scale-110" : "ring-transparent hover:scale-110"
+                                        )}
+                                        aria-label={`Select ${c.id} accent`}
+                                    >
+                                        {draft.accentColor === c.id && <Check className="w-4 h-4 text-white font-bold" strokeWidth={3} />}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Sound Effects */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-secondary flex items-center gap-2">
+                                <Volume2 className="w-3.5 h-3.5" /> Sound Effects
+                            </label>
+                            <button
+                                onClick={() => handleChange('soundEnabled', !draft.soundEnabled)}
+                                className={cn(
+                                    "w-full p-2.5 rounded-lg text-sm text-left flex items-center justify-between transition-all",
+                                    draft.soundEnabled
+                                        ? "bg-accent/10 text-accent font-medium"
+                                        : "bg-transparent text-secondary hover:bg-surfaceHighlight/30"
+                                )}
+                            >
+                                {draft.soundEnabled ? 'On' : 'Off'}
+                                <div className={cn("w-8 h-5 rounded-full relative transition-colors", draft.soundEnabled ? "bg-accent" : "bg-border/40")}>
+                                    <div className={cn("absolute top-1 bottom-1 w-3 h-3 bg-white rounded-full transition-all", draft.soundEnabled ? "left-4" : "left-1")} />
+                                </div>
+                            </button>
+                            <p className="text-xs text-secondary">Play sounds when completing tasks.</p>
+                        </div>
                     </div>
                 </div>
 
