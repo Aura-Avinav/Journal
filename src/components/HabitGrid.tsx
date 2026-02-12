@@ -87,10 +87,10 @@ export function HabitGrid({ date }: { date: Date }) {
                 </div>
                 <button
                     onClick={handleAddClick}
-                    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium bg-surfaceHighlight hover:bg-accent/20 text-secondary hover:text-accent rounded-md transition-colors border border-surfaceHighlight"
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-surfaceHighlight hover:bg-surfaceHighlight/80 text-foreground hover:text-accent rounded-full transition-all duration-300 shadow-sm hover:shadow-md active:scale-95 group"
                 >
-                    <Plus className="w-4 h-4" />
-                    Add Protocol
+                    <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
+                    <span>Add Protocol</span>
                 </button>
             </div>
 

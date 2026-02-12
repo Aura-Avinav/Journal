@@ -8,7 +8,7 @@ import { JournalEditor } from './components/JournalEditor';
 import { MetricGraph } from './components/MetricGraph';
 import { YearView } from './components/YearView';
 import { SettingsView } from './components/SettingsView';
-import { getDaysInMonth, differenceInCalendarDays, startOfYear, endOfYear } from 'date-fns';
+import { getDaysInMonth, differenceInCalendarDays, startOfYear, endOfYear, format } from 'date-fns';
 import { useStore } from './hooks/useStore';
 
 import { useDynamicFavicon } from './hooks/useDynamicFavicon';
@@ -68,33 +68,44 @@ function App() {
 
   // Progress Calculations
   const calculateProgress = () => {
-    const habits = data.habits;
-    if (habits.length === 0) return { monthly: 0, yearly: 0 };
+    const currentMonthStr = format(currentDate, 'yyyy-MM');
+    // Filter habits: active if they are global OR match the current month
+    const activeHabits = data.habits.filter(h => !h.month || h.month === currentMonthStr);
+
+    if (activeHabits.length === 0) return { monthly: 0, yearly: 0 };
 
     // Monthly Progress
     let monthlyCompleted = 0;
-    // Calculate based on TOTAL days in the month (e.g. 3/28 days = ~10%)
-    const totalPossibleMonthly = habits.length * daysInMonth;
+    const totalPossibleMonthly = activeHabits.length * daysInMonth;
 
-    // Yearly Progress
+    // Yearly Progress (Legacy check: keep using all habits or just active? Usually all for year view, but let's stick to total habits for year)
+    // Actually, for yearly progress, we should probably consider all habits that exist in the year. 
+    // For simplicity and consistency, let's keep yearly looking at 'active' or revert to 'all'. 
+    // Let's use 'data.habits' for yearly to be safe, but 'activeHabits' for monthly.
+
     let yearlyCompleted = 0;
     const daysElapsedInYear = isRealCurrentYear
       ? differenceInCalendarDays(new Date(), startOfYear(currentDate)) + 1
       : differenceInCalendarDays(endOfYear(currentDate), startOfYear(currentDate)) + 1;
-    const totalPossibleYearly = habits.length * daysElapsedInYear;
+    const totalPossibleYearly = data.habits.length * daysElapsedInYear;
 
-    habits.forEach(habit => {
+    // Calculate Monthly Completions (using activeHabits)
+    activeHabits.forEach(habit => {
       habit.completedDates.forEach(dateStr => {
         const date = new Date(dateStr);
-        // Monthly check
         if (date.getMonth() === currentDate.getMonth() && date.getFullYear() === currentYear) {
-          // Logic to exclude future checks from calculation if user hacked them in somehow
           const isFuture = isCurrentMonth && date.getDate() > todayDate;
           if (!isFuture) {
             monthlyCompleted++;
           }
         }
-        // Yearly check
+      });
+    });
+
+    // Calculate Yearly Completions (using ALL habits)
+    data.habits.forEach(habit => {
+      habit.completedDates.forEach(dateStr => {
+        const date = new Date(dateStr);
         if (date.getFullYear() === currentYear) {
           const isFuture = isRealCurrentYear && date > new Date();
           if (!isFuture) {
@@ -130,8 +141,9 @@ function App() {
               {!isCurrentYear && (
                 <button
                   onClick={() => handleMonthSelect(new Date())}
-                  className="text-xs px-2 py-1 bg-accent/10 text-accent rounded hover:bg-accent/20 transition-colors"
+                  className="text-xs px-3 py-1.5 bg-accent/10 text-accent font-medium rounded-full hover:bg-accent/20 transition-all hover:pr-4 group flex items-center gap-1"
                 >
+                  <span className="opacity-0 w-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-300">←</span>
                   Back to Today
                 </button>
               )}
