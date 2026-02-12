@@ -104,7 +104,7 @@ export function PreferencesSettings() {
                 <div className="space-y-6">
                     <div className="space-y-1">
                         <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                            <div className="p-1.5 rounded-md bg-purple-500/10 text-purple-500">
+                            <div className="p-1.5 rounded-md bg-accent/10 text-accent">
                                 <Monitor className="w-4 h-4" />
                             </div>
                             Appearance
@@ -138,7 +138,7 @@ export function PreferencesSettings() {
                                         isActive ? "text-foreground" : "text-secondary hover:text-foreground/80"
                                     )}
                                 >
-                                    <Icon className={cn("w-4 h-4", isActive && "fill-current text-purple-500")} />
+                                    <Icon className={cn("w-4 h-4", isActive && "fill-current text-accent")} />
                                     {t.label}
                                 </button>
                             );
@@ -150,7 +150,7 @@ export function PreferencesSettings() {
                 <div className="space-y-6">
                     <div className="space-y-1">
                         <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                            <div className="p-1.5 rounded-md bg-pink-500/10 text-pink-500">
+                            <div className="p-1.5 rounded-md bg-accent/10 text-accent">
                                 <span className="w-4 h-4 rounded-full border-2 border-current block" />
                             </div>
                             Personalize
@@ -217,7 +217,7 @@ export function PreferencesSettings() {
                 <div className="space-y-6">
                     <div className="space-y-1">
                         <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                            <div className="p-1.5 rounded-md bg-blue-500/10 text-blue-500">
+                            <div className="p-1.5 rounded-md bg-accent/10 text-accent">
                                 <Globe className="w-4 h-4" />
                             </div>
                             General
