@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { getDaysInMonth, differenceInCalendarDays, startOfYear, endOfYear, format } from 'date-fns';
 import type { Habit } from '../types';
 
-export const useProgress = (habits: Habit[], currentDate: Date) => {
+export const useProgress = (habits: Habit[] = [], currentDate: Date) => {
     const progress = useMemo(() => {
         const currentMonthStr = format(currentDate, 'yyyy-MM');
         const currentYear = currentDate.getFullYear();

@@ -64,7 +64,7 @@ function App() {
   const isCurrentMonth = new Date().getMonth() === currentDate.getMonth() && new Date().getFullYear() === currentDate.getFullYear();
 
 
-  const progress = useProgress(data.habits, currentDate);
+  const progress = useProgress(data?.habits || [], currentDate);
 
   return (
     <Layout currentView={view} onNavigate={setView} currentDate={currentDate}>
