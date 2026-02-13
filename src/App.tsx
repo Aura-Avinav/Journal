@@ -8,10 +8,10 @@ import { JournalEditor } from './components/JournalEditor';
 import { MetricGraph } from './components/MetricGraph';
 import { YearView } from './components/YearView';
 import { SettingsView } from './components/SettingsView';
+import { getDaysInMonth, differenceInCalendarDays, startOfYear, endOfYear, format } from 'date-fns';
 import { useStore } from './hooks/useStore';
 
 import { useDynamicFavicon } from './hooks/useDynamicFavicon';
-import { useProgress } from './hooks/useProgress';
 
 type ViewState = 'dashboard' | 'journal' | 'achievements' | 'year' | 'settings';
 
@@ -59,12 +59,65 @@ function App() {
   const isCurrentYear = new Date().getFullYear() === currentYear && new Date().getMonth() === currentDate.getMonth();
 
   // Day Count Logic (Still needed for header display)
-  const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+  const daysInMonth = getDaysInMonth(currentDate);
   const todayDate = new Date().getDate();
   const isCurrentMonth = new Date().getMonth() === currentDate.getMonth() && new Date().getFullYear() === currentDate.getFullYear();
+  const isRealCurrentYear = new Date().getFullYear() === currentYear;
 
 
-  const progress = useProgress(data?.habits || [], currentDate);
+  // Progress Calculations
+  const calculateProgress = () => {
+    const habits = data?.habits || [];
+    const currentMonthStr = format(currentDate, 'yyyy-MM');
+    // Filter habits: active if they are global OR match the current month
+    const activeHabits = habits.filter(h => !h.month || h.month === currentMonthStr);
+
+    if (activeHabits.length === 0) return { monthly: 0, yearly: 0 };
+
+    // Monthly Progress
+    let monthlyCompleted = 0;
+    const totalPossibleMonthly = activeHabits.length * daysInMonth;
+
+    // Yearly Progress
+    let yearlyCompleted = 0;
+    const daysElapsedInYear = isRealCurrentYear
+      ? differenceInCalendarDays(new Date(), startOfYear(currentDate)) + 1
+      : differenceInCalendarDays(endOfYear(currentDate), startOfYear(currentDate)) + 1;
+    const totalPossibleYearly = habits.length * daysElapsedInYear;
+
+    // Calculate Monthly Completions (using activeHabits)
+    activeHabits.forEach(habit => {
+      habit.completedDates.forEach(dateStr => {
+        const date = new Date(dateStr);
+        if (date.getMonth() === currentDate.getMonth() && date.getFullYear() === currentYear) {
+          const isFuture = isCurrentMonth && date.getDate() > todayDate;
+          if (!isFuture) {
+            monthlyCompleted++;
+          }
+        }
+      });
+    });
+
+    // Calculate Yearly Completions (using ALL habits)
+    habits.forEach(habit => {
+      habit.completedDates.forEach(dateStr => {
+        const date = new Date(dateStr);
+        if (date.getFullYear() === currentYear) {
+          const isFuture = isRealCurrentYear && date > new Date();
+          if (!isFuture) {
+            yearlyCompleted++;
+          }
+        }
+      });
+    });
+
+    return {
+      monthly: totalPossibleMonthly > 0 ? Math.min(100, Math.round((monthlyCompleted / totalPossibleMonthly) * 100)) : 0,
+      yearly: totalPossibleYearly > 0 ? Math.min(100, Math.round((yearlyCompleted / totalPossibleYearly) * 100)) : 0
+    };
+  };
+
+  const progress = calculateProgress();
 
   return (
     <Layout currentView={view} onNavigate={setView} currentDate={currentDate}>
