@@ -21,7 +21,13 @@ export function Layout({ children, currentView, onNavigate, currentDate = new Da
     };
 
     return (
-        <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row font-sans selection:bg-accent/20">
+        <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row font-sans selection:bg-accent/20 relative isolation-auto">
+            {/* Ambient Background - Makes Glassmorphism visible */}
+            <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden select-none">
+                <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-accent/5 rounded-full blur-[100px] animate-pulse duration-[4000ms]" />
+                <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-purple-500/5 rounded-full blur-[100px] animate-pulse duration-[7000ms]" />
+            </div>
+
             {/* Mobile Header */}
             <header className="md:hidden flex items-center justify-between p-4 border-b border-surfaceHighlight bg-surface/50 backdrop-blur-md sticky top-0 z-20">
                 <div className="flex items-center gap-2 h-8">
