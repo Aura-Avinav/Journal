@@ -168,7 +168,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     const updatePreferences = (updates: Partial<PreferencesState>) => {
         setPreferences(prev => {
             const next = { ...prev, ...updates, _updatedAt: Date.now() }; // Update timestamp
-            console.log('[Preferences] Updating Local:', updates);
+            // console.log('[Preferences] Updating Local:', updates);
 
             // Sync to Cloud (User Metadata)
             if (user) {

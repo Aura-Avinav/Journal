@@ -41,10 +41,10 @@ export function PreferencesSettings() {
     // Sync draft with global state only when global state *values* change significantly
     useEffect(() => {
         if (!isDirty) {
-            console.log('[PreferencesSettings] syncing draft to global:', stableGlobalPreferences.contentWidth);
+            // console.log('[PreferencesSettings] syncing draft to global:', stableGlobalPreferences.contentWidth);
             setDraft(stableGlobalPreferences);
         } else {
-            console.log('[PreferencesSettings] NOT syncing (dirty). Global:', stableGlobalPreferences.contentWidth, 'Draft:', draft.contentWidth);
+            // console.log('[PreferencesSettings] NOT syncing (dirty). Global:', stableGlobalPreferences.contentWidth, 'Draft:', draft.contentWidth);
         }
     }, [stableGlobalPreferences, isDirty]);
 
