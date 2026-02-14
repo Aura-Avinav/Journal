@@ -26,8 +26,10 @@ export interface JournalEntry {
 }
 
 export interface MetricData {
+    id?: string;
     date: string; // "YYYY-MM-DD"
     value: number; // e.g. 1-10
+    label: 'mood' | 'energy' | string;
 }
 
 export interface AppData {

@@ -1,6 +1,0 @@
-
-> digital-journal@0.0.0 build
-> tsc -b && vite build
-
-src/components/settings/tabs/AccountSettings.tsx(2,44): error TS6133: 'LucideIcon' is declared but its value is never read.
-src/components/settings/tabs/AccountSettings.tsx(5,1): error TS6133: 'cn' is declared but its value is never read.

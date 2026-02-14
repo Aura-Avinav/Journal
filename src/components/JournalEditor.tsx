@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '../hooks/useStore';
 import { cn } from '../lib/utils';
-import { ChevronRight, Calendar, Save, Trash2 } from 'lucide-react';
+import { ChevronRight, Calendar, Save, Trash2, Search, Maximize2, Minimize2 } from 'lucide-react';
 
 import { format } from 'date-fns';
 
@@ -12,6 +12,8 @@ export function JournalEditor() {
         return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     });
     const [content, setContent] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isFocusMode, setIsFocusMode] = useState(false);
 
     // Load content when date changes
     useEffect(() => {
@@ -41,18 +43,44 @@ export function JournalEditor() {
 
     const formattedDate = dateFnsFormat(selectedDate);
 
+    // Filter entries for sidebar
+    const filteredDates = Object.keys(data.journal).filter(date => {
+        const entryContent = data.journal[date]?.toLowerCase() || '';
+        const query = searchQuery.toLowerCase();
+        return entryContent.includes(query) || date.includes(query);
+    }).sort().reverse();
+
     return (
-        <div className="flex flex-col md:flex-row h-[80vh] gap-6 animate-in fade-in duration-500">
+        <div className={cn(
+            "flex flex-col md:flex-row gap-6 animate-in fade-in duration-500",
+            isFocusMode ? "fixed inset-0 z-50 bg-background p-8" : "h-[80vh]"
+        )}>
             {/* Sidebar: Date Picker / List */}
-            <div className="w-full md:w-64 bg-surface/30 border border-surfaceHighlight rounded-xl flex flex-col p-4 shrink-0">
-                <div className="mb-6">
-                    <label className="text-xs font-semibold text-secondary uppercase tracking-wider mb-2 block">Jump to Date</label>
-                    <input
-                        type="date"
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
-                        className="bg-surfaceHighlight/50 border border-surfaceHighlight text-white text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-                    />
+            <div className={cn(
+                "w-full md:w-64 bg-surface/30 border border-surfaceHighlight rounded-xl flex flex-col p-4 shrink-0 transition-all duration-500",
+                isFocusMode ? "hidden" : ""
+            )}>
+                <div className="mb-6 space-y-4">
+                    <div>
+                        <label className="text-xs font-semibold text-secondary uppercase tracking-wider mb-2 block">Jump to Date</label>
+                        <input
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            className="bg-surfaceHighlight/50 border border-surfaceHighlight text-white text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                        />
+                    </div>
+
+                    <div className="relative">
+                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-secondary" />
+                        <input
+                            type="text"
+                            placeholder="Search entries..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full bg-surfaceHighlight/30 border border-surfaceHighlight rounded-lg pl-9 pr-3 py-2 text-sm text-foreground focus:ring-1 focus:ring-accent outline-none placeholder:text-secondary/50"
+                        />
+                    </div>
                 </div>
 
                 <h3 className="text-sm font-semibold text-secondary uppercase tracking-wider mb-2 flex items-center gap-2">
@@ -61,24 +89,20 @@ export function JournalEditor() {
                 </h3>
 
                 <div className="flex-1 overflow-y-auto space-y-1">
-                    {Object.keys(data.journal).filter(date => data.journal[date]?.trim()).length > 0 ? (
-                        Object.keys(data.journal)
-                            .filter(date => data.journal[date]?.trim())
-                            .sort()
-                            .reverse()
-                            .map(date => (
-                                <button
-                                    key={date}
-                                    onClick={() => setSelectedDate(date)}
-                                    className={cn(
-                                        "w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center justify-between group",
-                                        date === selectedDate ? "bg-accent/20 text-accent" : "text-secondary hover:bg-surfaceHighlight"
-                                    )}
-                                >
-                                    <span>{date}</span>
-                                    <ChevronRight className={cn("w-4 h-4 opacity-0 transition-opacity", date === selectedDate ? "opacity-100" : "group-hover:opacity-50")} />
-                                </button>
-                            ))
+                    {filteredDates.length > 0 ? (
+                        filteredDates.map(date => (
+                            <button
+                                key={date}
+                                onClick={() => setSelectedDate(date)}
+                                className={cn(
+                                    "w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center justify-between group",
+                                    date === selectedDate ? "bg-accent/20 text-accent" : "text-secondary hover:bg-surfaceHighlight"
+                                )}
+                            >
+                                <span>{date}</span>
+                                <ChevronRight className={cn("w-4 h-4 opacity-0 transition-opacity", date === selectedDate ? "opacity-100" : "group-hover:opacity-50")} />
+                            </button>
+                        ))
                     ) : (
                         <div className="flex flex-col items-center justify-center py-8 text-secondary/50">
                             <span className="text-xs italic">No saved entries</span>
@@ -103,6 +127,15 @@ export function JournalEditor() {
                         ) : (
                             <span className="opacity-50 italic">No Entry Saved</span>
                         )}
+
+                        {/* Focus Mode Toggle */}
+                        <button
+                            onClick={() => setIsFocusMode(!isFocusMode)}
+                            className="p-1.5 hover:bg-surfaceHighlight rounded-md transition-colors text-secondary"
+                            title={isFocusMode ? "Exit Zen Mode" : "Enter Zen Mode"}
+                        >
+                            {isFocusMode ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                        </button>
 
                         {/* Delete Button */}
                         {(data.journal[selectedDate] || '').trim() && (

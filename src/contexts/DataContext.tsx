@@ -14,6 +14,7 @@ interface DataContextType {
     metrics: MetricData[];
 
     // Actions
+    updateMetric: (date: string, label: string, value: number) => Promise<void>;
     toggleHabit: (habitId: string, date: string) => Promise<void>;
     addHabit: (name: string, month?: string) => Promise<void>;
     removeHabit: (id: string) => Promise<void>;
@@ -209,6 +210,27 @@ export function DataProvider({ children }: { children: ReactNode }) {
         if (user) await supabase.from('journal_entries').upsert({ user_id: user.id, date, content }, { onConflict: 'user_id,date' });
     };
 
+    const updateMetric = async (date: string, label: string, value: number) => {
+        // Optimistic update
+        setMetrics(prev => {
+            const existing = prev.find(m => m.date === date && m.label === label);
+            if (existing) {
+                return prev.map(m => m.date === date && m.label === label ? { ...m, value } : m);
+            }
+            return [...prev, { date, label, value }];
+        });
+
+        if (user) {
+            // Upsert based on match (assuming unique constraint on user_id, date, label)
+            // If ID is needed forupsert, we might need to handle it, but match on unique columns usually works if DB supports it.
+            // Using upsert with specific onConflict
+            await supabase.from('metrics').upsert(
+                { user_id: user.id, date, label, value },
+                { onConflict: 'user_id,date,label' }
+            );
+        }
+    };
+
     // Bulk & Reset
     const resetData = async () => {
         if (user) {
@@ -298,6 +320,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         addAchievement, removeAchievement,
         toggleTodo, addTodo, removeTodo,
         updateJournal,
+        updateMetric,
         mergeData, resetData, resetMonthlyData,
         exportDataJSON, importDataJSON
     };

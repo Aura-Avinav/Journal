@@ -31,6 +31,7 @@ export function useStore() {
         addAchievement, removeAchievement,
         toggleTodo, addTodo, removeTodo,
         updateJournal,
+        updateMetric,
         mergeData, resetData, resetMonthlyData,
         importDataJSON
     } = useData();
@@ -75,6 +76,7 @@ export function useStore() {
         addTodo,
         removeTodo,
         updateJournal,
+        updateMetric,
         mergeData,
         resetData,
         resetMonthlyData,

@@ -1,8 +1,8 @@
-import { User, Monitor, Database, Building } from 'lucide-react';
+import { User, Monitor, Database, Building, Shield } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-export type SettingsTab = 'account' | 'preferences' | 'workspace' | 'data';
+export type SettingsTab = 'account' | 'preferences' | 'workspace' | 'data' | 'privacy';
 
 interface SettingsSidebarProps {
     activeTab: SettingsTab;
@@ -13,7 +13,8 @@ const MENU_ITEMS: { id: SettingsTab; label: string; icon: LucideIcon }[] = [
     { id: 'account', label: 'My Account', icon: User },
     { id: 'preferences', label: 'My Settings', icon: Monitor },
     { id: 'workspace', label: 'Workspace', icon: Building }, // General workspace settings
-    { id: 'data', label: 'Data & Privacy', icon: Database },
+    { id: 'data', label: 'Data Management', icon: Database },
+    { id: 'privacy', label: 'Privacy Policy', icon: Shield },
 ];
 
 export function SettingsSidebar({ activeTab, onTabChange }: SettingsSidebarProps) {

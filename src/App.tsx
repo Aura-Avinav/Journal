@@ -12,6 +12,7 @@ import { getDaysInMonth, differenceInCalendarDays, startOfYear, endOfYear, forma
 import { useStore } from './hooks/useStore';
 
 import { useDynamicFavicon } from './hooks/useDynamicFavicon';
+import { MoodSelector } from './components/MoodSelector';
 
 type ViewState = 'dashboard' | 'journal' | 'achievements' | 'year' | 'settings';
 
@@ -177,6 +178,13 @@ function App() {
             <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl relative overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
               <HabitGrid date={currentDate} key={`habit-grid-${currentDate.toISOString()}`} />
+            </div>
+          </section>
+
+          {/* Section 1.5: Mood & Energy (New) */}
+          <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
+            <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl">
+              <MoodSelector date={currentDate} />
             </div>
           </section>
 

@@ -6,6 +6,7 @@ import { AccountSettings } from './settings/tabs/AccountSettings';
 import { PreferencesSettings } from './settings/tabs/PreferencesSettings';
 import { WorkspaceSettings } from './settings/tabs/WorkspaceSettings';
 import { DataSettings } from './settings/tabs/DataSettings';
+import { PrivacyPolicy } from './settings/tabs/PrivacyPolicy';
 
 export function SettingsView({ onBack }: { onBack: () => void }) {
     const [activeTab, setActiveTab] = useState<SettingsTab>('account');
@@ -20,6 +21,8 @@ export function SettingsView({ onBack }: { onBack: () => void }) {
                 return <WorkspaceSettings />; // General workspace settings
             case 'data':
                 return <DataSettings />; // Reset, Import, Export
+            case 'privacy':
+                return <PrivacyPolicy />;
             default:
                 return <div>Select a tab</div>;
         }
