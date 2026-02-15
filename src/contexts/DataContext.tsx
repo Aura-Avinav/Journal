@@ -50,11 +50,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
     // Load Data
     useEffect(() => {
         if (!user) {
-            setHabits([]);
-            setAchievements([]);
-            setTodos([]);
-            setJournal({});
-            setMetrics([]);
+            // Load from LocalStorage if no user (Guest Mode / Offline)
+            const local = localStorage.getItem('aura_data');
+            if (local) {
+                try {
+                    const parsed = JSON.parse(local);
+                    setHabits(parsed.habits || []);
+                    setAchievements(parsed.achievements || []);
+                    setTodos(parsed.todos || []);
+                    setJournal(parsed.journal || {});
+                    setMetrics(parsed.metrics || []);
+                } catch (e) {
+                    console.error("Failed to parse local data", e);
+                }
+            }
             return;
         }
 
@@ -105,6 +114,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
         fetchData();
     }, [user]);
+
+    // Persist to LocalStorage on Change
+    useEffect(() => {
+        const dataToSave = {
+            habits,
+            achievements,
+            todos,
+            journal,
+            metrics
+        };
+        localStorage.setItem('aura_data', JSON.stringify(dataToSave));
+    }, [habits, achievements, todos, journal, metrics]);
 
     // --- Actions ---
 
