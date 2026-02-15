@@ -87,7 +87,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
                 category: h.category,
                 completedDates: (dbCompletions || [])
                     .filter((c: any) => c.habit_id === h.id)
-                    .map((c: any) => c.completed_date)
+                    .map((c: any) => {
+                        // Normalize date: ensure it's YYYY-MM-DD
+                        // If it's a full timestamp (e.g. 2024-02-15T00:00:00), take the first part.
+                        return String(c.completed_date).split('T')[0];
+                    })
             }));
             setHabits(habitsFormatted);
 
