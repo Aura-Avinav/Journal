@@ -12,6 +12,7 @@ interface DataContextType {
     todos: ToDo[];
     journal: Record<string, string>;
     metrics: MetricData[];
+    loading: boolean;
 
     // Actions
     updateMetric: (date: string, label: string, value: number) => Promise<void>;
@@ -353,7 +354,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     };
 
     const value = {
-        habits, achievements, todos, journal, metrics,
+        habits, achievements, todos, journal, metrics, loading,
         toggleHabit, addHabit, removeHabit,
         addAchievement, removeAchievement,
         toggleTodo, addTodo, removeTodo,

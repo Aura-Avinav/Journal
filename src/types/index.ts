@@ -56,4 +56,5 @@ export interface AppData {
         soundEnabled?: boolean;
         _updatedAt?: number;
     };
+    loading?: boolean;
 }

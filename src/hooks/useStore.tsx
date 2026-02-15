@@ -26,7 +26,7 @@ export function useStore() {
     } = usePreferences();
 
     const {
-        habits, achievements, todos, journal, metrics,
+        habits, achievements, todos, journal, metrics, loading,
         toggleHabit, addHabit, removeHabit,
         addAchievement, removeAchievement,
         toggleTodo, addTodo, removeTodo,
@@ -43,6 +43,7 @@ export function useStore() {
         todos,
         journal,
         metrics,
+        loading,
         preferences: {
             ...preferences
         }
