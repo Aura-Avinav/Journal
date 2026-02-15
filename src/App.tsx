@@ -13,6 +13,7 @@ import { useStore } from './hooks/useStore';
 
 import { PageTransition } from './components/ui/PageTransition';
 import { Loading } from './components/ui/Loading';
+import { SplashScreen } from './components/ui/SplashScreen';
 import { AnimatePresence } from 'framer-motion';
 import { useDynamicFavicon } from './hooks/useDynamicFavicon';
 import { MoodSelector } from './components/MoodSelector';
@@ -47,42 +48,13 @@ function App() {
 
 
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { data, user } = useStore();
+  const { data, user, authLoading } = useStore();
 
   // Midnight Reset Logic: Check every minute if the day has changed
   useEffect(() => {
     const checkMidnight = () => {
       const now = new Date();
-      // Compare day/month/year. If different from 'currentDate' (and 'currentDate' was "today"), update it.
-      // Note: We only auto-update if the user was looking at "today".
-      // If they were looking at last month, we shouldn't jump them to today suddenly.
-
       if (now.getDate() !== currentDate.getDate() || now.getMonth() !== currentDate.getMonth()) {
-        // Only force update if the view was ostensibly "today" or we just want to ensure "today" is correct logic.
-        // Actually, for the MoodSelector to reset, we just need to ensure 'currentDate' reflects 'now' if the user intends it to be today.
-        // Let's assume if they are on Dashboard, they usually want Today.
-
-        // But wait, 'currentDate' is also used for navigating months. 
-        // If I am looking at "December 2025", I don't want it to jump to "February 2026" at midnight.
-        // However, MoodSelector usually uses 'currentDate'.
-
-        // Let's refine: The MoodSelector should arguably use "Today" or the "Selected Date".
-        // The user wants "Daily energy... reset after 11:59".
-        // This implies they are using it for "Today".
-
-        // Code-wise: 'currentDate' initializes to `new Date()`.
-        // If I keep the app open overnight, `currentDate` remains yesterday.
-        // So yes, I should update `currentDate` ONLY IF `currentDate` implies "Today" (i.e. it matched the system time previously).
-
-        // Simplification: Check if `currentDate` is effectively "Yesterday" relative to `now`.
-        // If so, update it to `now`.
-
-        // Actually, safer: Just check periodically. If `currentDate` < `now` (date-wise) AND user hasn't explicitly navigated back, update.
-        // But we don't know if they navigated.
-
-        // Force update strategy:
-        // If the day changes, update `currentDate` to the new Today.
-        // Note: This might disrupt if viewing history, but ensures the "Reset" requirement is met.
         setCurrentDate(new Date());
       }
     };
@@ -105,10 +77,21 @@ function App() {
     }
   }, [user, data.preferences?.startView, view]);
 
+  // 1. Show Splash Screen while checking auth
+  if (authLoading) {
+    return (
+      <AnimatePresence>
+        <SplashScreen />
+      </AnimatePresence>
+    );
+  }
+
+  // 2. Show Auth Page if no user
   if (!user) {
     return <AuthPage />;
   }
 
+  // 3. Show Loading if data is loading (but user is authed)
   if (data.loading) {
     return (
       <Layout currentView={view} onNavigate={setView} currentDate={currentDate}>
@@ -119,7 +102,6 @@ function App() {
 
   const currentMonthName = currentDate.toLocaleString('default', { month: 'long' });
   const currentYear = currentDate.getFullYear();
-  // ... rest of component starts ...
 
   const handleMonthSelect = (date: Date) => {
     setCurrentDate(date);
@@ -195,7 +177,6 @@ function App() {
         {view === 'dashboard' ? (
           <PageTransition key="dashboard" className="space-y-8 pb-10">
             <header className="flex flex-col gap-6 md:flex-row md:items-end justify-between border-b border-surfaceHighlight pb-6">
-              {/* ... header content kept identical, just wrapped ... */}
               <div className="space-y-4 flex-1">
                 <div>
                   <h1 className="text-3xl md:text-4xl font-bold text-foreground pb-1">

@@ -8,6 +8,7 @@ import type { Session, User } from '@supabase/supabase-js';
 interface AuthContextType {
     session: Session | null;
     user: User | null;
+    loading: boolean;
     signOut: () => Promise<{ error: any }>;
 }
 
@@ -16,12 +17,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [session, setSession] = useState<Session | null>(null);
     const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         // Initial Session
         supabase.auth.getSession().then(({ data: { session } }) => {
             setSession(session);
             setUser(session?.user ?? null);
+            setLoading(false);
         });
 
         // Listen for changes
@@ -30,6 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } = supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session);
             setUser(session?.user ?? null);
+            setLoading(false);
         });
 
         return () => subscription.unsubscribe();
@@ -42,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const value = {
         session,
         user,
+        loading,
         signOut
     };
 

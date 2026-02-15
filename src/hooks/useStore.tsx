@@ -19,7 +19,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
 // Legacy hook that combines everything
 export function useStore() {
-    const { session, user, signOut } = useAuth();
+    const { session, user, signOut, loading: authLoading } = useAuth();
     const {
         preferences, updatePreferences, setTheme, toggleTheme, setLanguage, toggleSpellCheck,
         setDateFormat, setTimeFormat, setStartOfWeek, togglePrivacyBlur, toggleReducedMotion
@@ -52,6 +52,7 @@ export function useStore() {
     return {
         session,
         user,
+        authLoading,
         signOut,
         data,
 
