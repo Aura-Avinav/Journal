@@ -130,35 +130,31 @@ export function DataProvider({ children }: { children: ReactNode }) {
     // --- Actions ---
 
     const toggleHabit = async (habitId: string, date: string) => {
-        // 1. Optimistic Update
-        let isCompleting = false;
+        // 1. Determine action based on current state (safe enough for UI event)
+        const currentHabit = habits.find(h => h.id === habitId);
+        if (!currentHabit) return;
+
+        const isCompleted = currentHabit.completedDates.includes(date);
+
+        // 2. Optimistic Update
         setHabits(prev => prev.map(h => {
             if (h.id !== habitId) return h;
-            const exists = h.completedDates.includes(date);
-            isCompleting = !exists; // If it exists, we are removing (un-completing). If not, completing.
             return {
                 ...h,
-                completedDates: exists ? h.completedDates.filter(d => d !== date) : [...h.completedDates, date]
+                completedDates: isCompleted
+                    ? h.completedDates.filter(d => d !== date)
+                    : [...h.completedDates, date]
             };
         }));
 
         if (!user) return;
 
-        // 2. Database Sync using the calculated action
-        // We trust the 'isCompleting' logic derived from the previous state mapping
-        // But we need to recapture it correctly. 
-        // Actually, we can just query the previous state before setting it?
-
-        // Safer: Just try to delete. If it affected 0 rows, then insert.
-        // OR: Explicitly check state.
-
-        // Let's use the state logic:
-        const currentHabit = habits.find(h => h.id === habitId);
-        const alreadyCompleted = currentHabit?.completedDates.includes(date);
-
-        if (alreadyCompleted) {
+        // 3. Database Sync
+        if (isCompleted) {
+            // It WAS completed -> Remove it
             await supabase.from('habit_completions').delete().match({ habit_id: habitId, completed_date: date, user_id: user.id });
         } else {
+            // It WAS NOT completed -> Add it
             await supabase.from('habit_completions').insert({ habit_id: habitId, completed_date: date, user_id: user.id });
         }
     };
