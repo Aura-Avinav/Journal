@@ -3,6 +3,7 @@ import { useStore } from '../hooks/useStore';
 import { cn } from '../lib/utils';
 import { Battery, BatteryLow, BatteryMedium, BatteryFull } from 'lucide-react';
 import { format } from 'date-fns';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const MOODS = [
     { value: 1, emoji: '😫', label: 'Awful', color: 'bg-red-500/20 text-red-500 border-red-500/30' },
@@ -47,21 +48,44 @@ export function MoodSelector({ date }: { date: Date }) {
             <div>
                 <h3 className="text-xs font-semibold text-secondary uppercase tracking-wider mb-3">Daily Mood</h3>
                 <div className="grid grid-cols-5 gap-2">
-                    {MOODS.map((m) => (
-                        <button
-                            key={m.value}
-                            onClick={() => handleMoodSelect(m.value)}
-                            className={cn(
-                                "flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-300 group",
-                                mood === m.value
-                                    ? m.color + " scale-105 shadow-lg ring-2 ring-offset-2 ring-offset-background " + m.color.split(' ')[0].replace('/20', '')
-                                    : "bg-surface/50 border-transparent hover:bg-surfaceHighlight text-secondary opacity-70 hover:opacity-100 hover:scale-105"
-                            )}
-                        >
-                            <span className="text-2xl mb-1 filter drop-shadow-sm transition-transform duration-300 group-hover:scale-110">{m.emoji}</span>
-                            <span className="text-[10px] font-medium">{m.label}</span>
-                        </button>
-                    ))}
+                    {MOODS.map((m) => {
+                        const isSelected = mood === m.value;
+                        return (
+                            <button
+                                key={m.value}
+                                onClick={() => handleMoodSelect(m.value)}
+                                className="relative flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 isolate group"
+                            >
+                                {isSelected && (
+                                    <motion.div
+                                        layoutId="mood-active-bg"
+                                        className={cn("absolute inset-0 rounded-xl z-[-1]", m.color.split(' ')[0], "opacity-100")}
+                                        initial={false}
+                                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                    />
+                                )}
+
+                                <motion.span
+                                    className="text-2xl mb-1 filter drop-shadow-sm select-none"
+                                    animate={{
+                                        scale: isSelected ? 1.4 : 1,
+                                        y: isSelected ? -2 : 0
+                                    }}
+                                    whileHover={{ scale: 1.2 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                                >
+                                    {m.emoji}
+                                </motion.span>
+
+                                <span className={cn(
+                                    "text-[10px] font-medium transition-colors duration-200",
+                                    isSelected ? m.color.split(' ')[1] : "text-secondary group-hover:text-foreground"
+                                )}>
+                                    {m.label}
+                                </span>
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -69,52 +93,86 @@ export function MoodSelector({ date }: { date: Date }) {
             <div>
                 <div className="flex items-center justify-between mb-3">
                     <h3 className="text-xs font-semibold text-secondary uppercase tracking-wider">Energy Level</h3>
-                    {energy && (
-                        <span className={cn(
-                            "text-xs font-bold px-2 py-0.5 rounded-full",
-                            energy >= 8 ? "bg-green-500/20 text-green-500" :
-                                energy >= 5 ? "bg-yellow-500/20 text-yellow-500" :
-                                    "bg-red-500/20 text-red-500"
-                        )}>
-                            {energy}/10
-                        </span>
-                    )}
+                    <AnimatePresence mode="wait">
+                        {energy && (
+                            <motion.span
+                                key="energy-label"
+                                initial={{ opacity: 0, y: 5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                                className={cn(
+                                    "text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1",
+                                    energy >= 8 ? "bg-green-500/10 text-green-500 ring-1 ring-green-500/20" :
+                                        energy >= 5 ? "bg-yellow-500/10 text-yellow-500 ring-1 ring-yellow-500/20" :
+                                            "bg-red-500/10 text-red-500 ring-1 ring-red-500/20"
+                                )}>
+                                <span>{energy}/10</span>
+                            </motion.span>
+                        )}
+                    </AnimatePresence>
                 </div>
 
-                <div className="relative h-12 bg-surface/50 rounded-xl border border-surfaceHighlight flex items-center px-4 overflow-hidden group">
+                <div className="relative h-14 bg-surface/30 rounded-xl border border-surfaceHighlight flex items-center px-2 overflow-hidden group">
                     {/* Interactive Slider Area */}
-                    <div className="absolute inset-0 z-10 grid grid-cols-10 opacity-0 hover:opacity-10 cursor-pointer">
+                    <div className="absolute inset-0 z-20 grid grid-cols-10 cursor-pointer">
                         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(v => (
                             <div
                                 key={v}
                                 onClick={() => handleEnergySelect(v)}
-                                className="h-full hover:bg-white transition-colors"
+                                className="h-full hover:bg-white/5 transition-colors"
+                                title={`Energy: ${v}/10`}
                             />
                         ))}
                     </div>
 
-                    {/* Battery Icon */}
-                    <div className="z-0 mr-4 text-secondary">
-                        {energy === null ? <Battery className="w-5 h-5 opacity-50" /> :
-                            energy >= 8 ? <BatteryFull className="w-5 h-5 text-green-500" /> :
-                                energy >= 4 ? <BatteryMedium className="w-5 h-5 text-yellow-500" /> :
-                                    <BatteryLow className="w-5 h-5 text-red-500" />
-                        }
-                    </div>
+                    {/* Background Track */}
+                    <div className="absolute left-2 right-2 top-1/2 -translate-y-1/2 h-2 bg-surfaceHighlight/50 rounded-full overflow-hidden"></div>
 
-                    {/* Progress Bar */}
-                    <div className="flex-1 h-2 bg-surfaceHighlight rounded-full overflow-hidden relative">
-                        <div
+                    {/* Animated Fill Bar */}
+                    <div className="absolute left-2 right-2 top-1/2 -translate-y-1/2 h-2 rounded-full pointer-events-none">
+                        <motion.div
+                            layout
                             className={cn(
-                                "h-full rounded-full transition-all duration-500 ease-out",
-                                !energy ? "w-0" :
-                                    energy >= 8 ? "bg-gradient-to-r from-green-500 to-emerald-400" :
-                                        energy >= 5 ? "bg-gradient-to-r from-yellow-500 to-orange-400" :
-                                            "bg-gradient-to-r from-red-500 to-rose-400"
+                                "h-full rounded-full shadow-[0_0_15px_rgba(0,0,0,0.3)]",
+                                !energy ? "w-0 opacity-0" :
+                                    energy >= 8 ? "bg-gradient-to-r from-green-500 to-emerald-400 shadow-[0_0_10px_rgba(34,197,94,0.4)]" :
+                                        energy >= 5 ? "bg-gradient-to-r from-yellow-500 to-orange-400 shadow-[0_0_10px_rgba(234,179,8,0.4)]" :
+                                            "bg-gradient-to-r from-red-500 to-rose-400 shadow-[0_0_10px_rgba(239,68,68,0.4)]"
                             )}
-                            style={{ width: `${(energy || 0) * 10}%` }}
+                            animate={{
+                                width: `${(energy || 0) * 10}%`,
+                            }}
+                            transition={{ type: "spring", stiffness: 150, damping: 20 }}
                         />
                     </div>
+
+                    {/* Floating Battery Icon Indicator */}
+                    <motion.div
+                        className="absolute top-1/2 -translate-y-1/2 z-10 pointer-events-none"
+                        animate={{
+                            left: `calc(${(energy || 0) * 10}% - 14px)`,
+                            opacity: energy ? 1 : 0.5
+                        }}
+                        transition={{ type: "spring", stiffness: 150, damping: 20 }}
+                    >
+                        <div className={cn(
+                            "w-8 h-8 rounded-full flex items-center justify-center bg-background border shadow-lg",
+                            !energy ? "border-surfaceHighlight text-secondary" :
+                                energy >= 8 ? "border-green-500/50 text-green-500" :
+                                    energy >= 5 ? "border-yellow-500/50 text-yellow-500" :
+                                        "border-red-500/50 text-red-500"
+                        )}>
+                            {energy === null ? <Battery className="w-4 h-4 opacity-50" /> :
+                                energy >= 8 ? <BatteryFull className="w-4 h-4 fill-current" /> :
+                                    energy >= 4 ? <BatteryMedium className="w-4 h-4 fill-current" /> :
+                                        <BatteryLow className="w-4 h-4 fill-current" />
+                            }
+                        </div>
+                    </motion.div>
+                </div>
+                <div className="flex justify-between text-[10px] text-secondary/40 mt-1 px-1 font-medium select-none">
+                    <span>Low</span>
+                    <span>High</span>
                 </div>
             </div>
         </div>
