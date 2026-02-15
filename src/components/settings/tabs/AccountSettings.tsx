@@ -1,17 +1,23 @@
-import { useState, useEffect, useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { User, Loader2, Upload, Mail, LogOut, Trash2 } from 'lucide-react';
 import { useStore } from '../../../hooks/useStore';
 import { supabase } from '../../../lib/supabase';
+import { Modal, Button } from '../../ui/Modal';
 
 
 export function AccountSettings() {
-    const { session } = useStore();
+    const { session, signOut, resetData } = useStore();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [displayName, setDisplayName] = useState('');
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const [originalDisplayName, setOriginalDisplayName] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Modals
+    const [isLogoutOpen, setIsLogoutOpen] = useState(false);
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const email = session?.user?.email || 'guest@example.com';
     const userId = session?.user?.id;
@@ -120,12 +126,35 @@ export function AccountSettings() {
             if (error) throw error;
 
             setOriginalDisplayName(displayName);
-            alert('Profile updated!');
+            // alert('Profile updated!'); // Removed alert per user preference for no external prompts, maybe add toast later?
         } catch (error: any) {
-            alert(`Error updating profile: ${error.message || 'Unknown error'}`);
-            console.error(error);
+            console.error('Error updating profile:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        try {
+            setIsDeleting(true);
+            if (!userId) return;
+
+            // 1. Wipe Data
+            await resetData();
+
+            // 2. Delete Profile (ResetData doesn't do this yet)
+            await supabase.from('profiles').delete().eq('id', userId);
+
+            // 3. Sign Out
+            await signOut();
+
+            // 4. Close Modal (although we will likely be redirected)
+            setIsDeleteOpen(false);
+
+        } catch (e) {
+            console.error("Delete failed", e);
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -261,11 +290,7 @@ export function AccountSettings() {
 
                 <div className="space-y-3">
                     <button
-                        onClick={() => {
-                            if (window.confirm('Are you sure you want to log out?')) {
-                                session?.user && useStore().signOut();
-                            }
-                        }}
+                        onClick={() => setIsLogoutOpen(true)}
                         className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-red-500/10 transition-all group border border-transparent hover:border-red-200/20"
                     >
                         <div className="text-left">
@@ -278,12 +303,7 @@ export function AccountSettings() {
                     </button>
 
                     <button
-                        onClick={() => {
-                            if (window.confirm('PERMANENT ACTION: Are you sure you want to delete your account? This action cannot be undone.')) {
-                                alert("Account deletion request submitted.");
-                                useStore().signOut();
-                            }
-                        }}
+                        onClick={() => setIsDeleteOpen(true)}
                         className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-red-500/20 transition-all group border border-transparent hover:border-red-500/20"
                     >
                         <div className="text-left">
@@ -296,6 +316,54 @@ export function AccountSettings() {
                     </button>
                 </div>
             </div>
+
+            {/* Logout Modal */}
+            <Modal
+                isOpen={isLogoutOpen}
+                onClose={() => setIsLogoutOpen(false)}
+                title="Log Out?"
+            >
+                <div className="space-y-6">
+                    <p className="text-secondary">
+                        Are you sure you want to sign out? Your data will remain safely stored.
+                    </p>
+                    <div className="flex justify-end gap-3">
+                        <Button variant="secondary" onClick={() => setIsLogoutOpen(false)}>Cancel</Button>
+                        <Button variant="danger" onClick={() => { signOut(); setIsLogoutOpen(false); }}>Log Out</Button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Delete Modal */}
+            <Modal
+                isOpen={isDeleteOpen}
+                onClose={() => setIsDeleteOpen(false)}
+                title="Delete Account?"
+            >
+                <div className="space-y-6">
+                    <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                        <p className="text-red-500 text-sm font-medium flex items-start gap-2">
+                            <Trash2 className="w-4 h-4 shrink-0 mt-0.5" />
+                            Warning: This action is permanent.
+                        </p>
+                    </div>
+                    <p className="text-secondary text-sm leading-relaxed">
+                        This will <span className="text-foreground font-bold">permanently delete</span> your account, habits, journal entries, and achievements.
+                        <br /><br />
+                        This action <u>cannot</u> be undone.
+                    </p>
+                    <div className="flex justify-end gap-3">
+                        <Button variant="secondary" onClick={() => setIsDeleteOpen(false)}>Cancel</Button>
+                        <Button
+                            variant="danger"
+                            onClick={handleDeleteAccount}
+                            disabled={isDeleting}
+                        >
+                            {isDeleting ? 'Deleting...' : 'Yes, Delete Everything'}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }
