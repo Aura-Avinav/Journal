@@ -11,6 +11,8 @@ import { SettingsView } from './components/SettingsView';
 import { getDaysInMonth, differenceInCalendarDays, startOfYear, endOfYear, format } from 'date-fns';
 import { useStore } from './hooks/useStore';
 
+import { PageTransition } from './components/ui/PageTransition';
+import { AnimatePresence } from 'framer-motion';
 import { useDynamicFavicon } from './hooks/useDynamicFavicon';
 import { MoodSelector } from './components/MoodSelector';
 
@@ -180,96 +182,105 @@ function App() {
 
   return (
     <Layout currentView={view} onNavigate={setView} currentDate={currentDate}>
-      {view === 'dashboard' ? (
-        <div className="space-y-8 pb-10">
-          <header className="flex flex-col gap-6 md:flex-row md:items-end justify-between border-b border-surfaceHighlight pb-6">
-            <div className="space-y-4 flex-1">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground pb-1">
-                  {isCurrentYear ? 'Dashboard' : `${currentYear} Overview`}
-                </h1>
-                <p className="text-secondary text-lg mt-1">
-                  {currentMonthName} {currentYear}
-                </p>
-              </div>
+      <AnimatePresence mode="wait">
+        {view === 'dashboard' ? (
+          <PageTransition key="dashboard" className="space-y-8 pb-10">
+            <header className="flex flex-col gap-6 md:flex-row md:items-end justify-between border-b border-surfaceHighlight pb-6">
+              {/* ... header content kept identical, just wrapped ... */}
+              <div className="space-y-4 flex-1">
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-bold text-foreground pb-1">
+                    {isCurrentYear ? 'Dashboard' : `${currentYear} Overview`}
+                  </h1>
+                  <p className="text-secondary text-lg mt-1">
+                    {currentMonthName} {currentYear}
+                  </p>
+                </div>
 
-              {!isCurrentYear && (
-                <button
-                  onClick={() => handleMonthSelect(new Date())}
-                  className="text-xs px-3 py-1.5 bg-accent/10 text-accent font-medium rounded-full hover:bg-accent/20 transition-all hover:pr-4 group flex items-center gap-1"
-                >
-                  <span className="opacity-0 w-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-300">←</span>
-                  Back to Today
-                </button>
-              )}
+                {!isCurrentYear && (
+                  <button
+                    onClick={() => handleMonthSelect(new Date())}
+                    className="text-xs px-3 py-1.5 bg-accent/10 text-accent font-medium rounded-full hover:bg-accent/20 transition-all hover:pr-4 group flex items-center gap-1"
+                  >
+                    <span className="opacity-0 w-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-300">←</span>
+                    Back to Today
+                  </button>
+                )}
 
-              <div className="flex gap-8 max-w-xs">
-                <div className="flex-1 space-y-2">
-                  <div className="flex justify-between text-xs font-medium text-secondary uppercase tracking-wider">
-                    <span>Monthly Progress</span>
-                    <span className="text-primary">{progress.monthly}%</span>
-                  </div>
-                  <div className="h-2 w-full bg-surfaceHighlight rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-1000 ease-out"
-                      style={{ width: `${progress.monthly}%` }}
-                    />
+                <div className="flex gap-8 max-w-xs">
+                  <div className="flex-1 space-y-2">
+                    <div className="flex justify-between text-xs font-medium text-secondary uppercase tracking-wider">
+                      <span>Monthly Progress</span>
+                      <span className="text-primary">{progress.monthly}%</span>
+                    </div>
+                    <div className="h-2 w-full bg-surfaceHighlight rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-1000 ease-out"
+                        style={{ width: `${progress.monthly}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex flex-col items-end gap-2 shrink-0">
-              <div className="px-3 py-2 bg-surface/50 rounded-xl border border-surfaceHighlight/50 backdrop-blur-sm text-center">
-                <span className="block text-lg font-bold text-foreground font-mono">
-                  {isCurrentMonth ? `${todayDate} / ${daysInMonth}` : daysInMonth}
-                </span>
-                <span className="text-[10px] text-secondary font-medium uppercase tracking-wider">
-                  {isCurrentMonth ? 'Day' : 'Total Days'}
-                </span>
+              <div className="flex flex-col items-end gap-2 shrink-0">
+                <div className="px-3 py-2 bg-surface/50 rounded-xl border border-surfaceHighlight/50 backdrop-blur-sm text-center">
+                  <span className="block text-lg font-bold text-foreground font-mono">
+                    {isCurrentMonth ? `${todayDate} / ${daysInMonth}` : daysInMonth}
+                  </span>
+                  <span className="text-[10px] text-secondary font-medium uppercase tracking-wider">
+                    {isCurrentMonth ? 'Day' : 'Total Days'}
+                  </span>
+                </div>
               </div>
-            </div>
-          </header>
+            </header>
 
-          {/* Section 1: Protocols (Habits) */}
-          <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
-            <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-              <HabitGrid date={currentDate} key={`habit-grid-${currentDate.toISOString()}`} />
-            </div>
-          </section>
+            {/* Section 1: Protocols (Habits) */}
+            <section>
+              <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                <HabitGrid date={currentDate} key={`habit-grid-${currentDate.toISOString()}`} />
+              </div>
+            </section>
 
-          {/* Section 1.5: Mood & Energy (New) */}
-          <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
-            <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl">
-              <MoodSelector date={currentDate} />
-            </div>
-          </section>
+            {/* Section 1.5: Mood & Energy (New) */}
+            <section>
+              <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl">
+                <MoodSelector date={currentDate} />
+              </div>
+            </section>
 
-          {/* Section 2: Achievements & ToDo */}
-          <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
-            <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl h-full min-h-[400px]">
-              <AchievementBoard date={currentDate} key={`achievements-${currentDate.toISOString()}`} />
-            </div>
-            <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl h-full min-h-[400px]">
-              <TodoBoard />
-            </div>
-          </section>
+            {/* Section 2: Achievements & ToDo */}
+            <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl h-full min-h-[400px]">
+                <AchievementBoard date={currentDate} key={`achievements-${currentDate.toISOString()}`} />
+              </div>
+              <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl h-full min-h-[400px]">
+                <TodoBoard />
+              </div>
+            </section>
 
-          {/* Section 3: Metrics */}
-          <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
-            <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl">
-              <MetricGraph date={currentDate} key={currentDate.toISOString()} />
-            </div>
-          </section>
-        </div>
-      ) : view === 'journal' ? (
-        <JournalEditor />
-      ) : view === 'year' ? (
-        <YearView onSelectMonth={handleMonthSelect} />
-      ) : view === 'settings' ? (
-        <SettingsView onBack={() => setView('dashboard')} />
-      ) : null}
+            {/* Section 3: Metrics */}
+            <section>
+              <div className="bg-surface/30 backdrop-blur-md border border-surfaceHighlight rounded-2xl p-4 md:p-6 shadow-xl">
+                <MetricGraph date={currentDate} key={currentDate.toISOString()} />
+              </div>
+            </section>
+          </PageTransition>
+        ) : view === 'journal' ? (
+          <PageTransition key="journal">
+            <JournalEditor />
+          </PageTransition>
+        ) : view === 'year' ? (
+          <PageTransition key="year">
+            <YearView onSelectMonth={handleMonthSelect} />
+          </PageTransition>
+        ) : view === 'settings' ? (
+          <PageTransition key="settings">
+            <SettingsView onBack={() => setView('dashboard')} />
+          </PageTransition>
+        ) : null}
+      </AnimatePresence>
     </Layout>
   );
 }
