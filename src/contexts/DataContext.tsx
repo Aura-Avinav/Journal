@@ -71,8 +71,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
             const userId = user.id;
 
             // 1. Habits & Completions
-            const { data: dbHabits } = await supabase.from('habits').select('*').eq('user_id', userId);
-            const { data: dbCompletions } = await supabase.from('habit_completions').select('*').eq('user_id', userId);
+            const { data: dbHabits, error: habitError } = await supabase.from('habits').select('*').eq('user_id', userId);
+            const { data: dbCompletions, error: complError } = await supabase.from('habit_completions').select('*').eq('user_id', userId);
+
+            if (habitError) console.error("Error fetching habits:", habitError);
+            if (complError) console.error("Error fetching completions:", complError);
+
+            // console.log("DB Habits:", dbHabits);
+            // console.log("DB Completions:", dbCompletions);
 
             const habitsFormatted = (dbHabits || []).map((h: any) => ({
                 id: h.id,
@@ -152,10 +158,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
         // 3. Database Sync
         if (isCompleted) {
             // It WAS completed -> Remove it
-            await supabase.from('habit_completions').delete().match({ habit_id: habitId, completed_date: date, user_id: user.id });
+            const { error } = await supabase.from('habit_completions').delete().match({ habit_id: habitId, completed_date: date, user_id: user.id });
+            if (error) console.error("Error deleting completion:", error);
         } else {
             // It WAS NOT completed -> Add it
-            await supabase.from('habit_completions').insert({ habit_id: habitId, completed_date: date, user_id: user.id });
+            const { error } = await supabase.from('habit_completions').insert({ habit_id: habitId, completed_date: date, user_id: user.id });
+            if (error) console.error("Error inserting completion:", error);
         }
     };
 
