@@ -57,7 +57,8 @@ export function HabitGrid({ date }: { date: Date }) {
 
     // Filter habits for the current month view
     const visibleHabits = data.habits.filter(h => {
-        return h.month === currentMonthStr;
+        // Show if it matches current month OR if it's a global habit (no month)
+        return h.month === currentMonthStr || !h.month;
     });
 
     // Calculate Daily Progress for "Celebration"
