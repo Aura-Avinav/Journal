@@ -6,16 +6,32 @@ import { format, eachDayOfInterval } from 'date-fns';
 
 export function MetricGraph({ date }: { date: Date }) {
     const { data } = useStore();
+    // Default to 'blue' (indigo) if not set, or map preferences
+    const accent = data.preferences?.accentColor || 'blue';
+
+    const colorMap: Record<string, string> = {
+        blue: '#6366f1',   // Indigo-500
+        purple: '#a855f7', // Purple-500
+        rose: '#f43f5e',   // Rose-500
+        orange: '#f97316', // Orange-500
+        green: '#22c55e',  // Green-500
+        cyan: '#06b6d4',   // Cyan-500
+    };
+
+    const activeColor = colorMap[accent] || '#6366f1';
+
     const currentMonthStr = format(date, 'yyyy-MM');
 
     // Filter habits for the current month (Strict separation to match HabitGrid)
-    const activeHabits = data.habits.filter(h => h.month === currentMonthStr);
+    const activeHabits = data.habits.filter(h => {
+        return h.month === currentMonthStr || !h.month;
+    });
 
     return (
         <div className="h-full flex flex-col">
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold flex items-center gap-2 text-foreground">
-                    <Activity className="w-5 h-5 text-indigo-500" />
+                    <Activity className="w-5 h-5" style={{ color: activeColor }} />
                     Productivity Flow
                 </h3>
                 <div className="flex items-center gap-2 bg-surfaceHighlight/30 rounded-md p-1">
@@ -28,8 +44,8 @@ export function MetricGraph({ date }: { date: Date }) {
                     <AreaChart data={getChartData(data, date, activeHabits)}>
                         <defs>
                             <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
-                                <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                                <stop offset="5%" stopColor={activeColor} stopOpacity={0.4} />
+                                <stop offset="95%" stopColor={activeColor} stopOpacity={0} />
                             </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
@@ -57,7 +73,7 @@ export function MetricGraph({ date }: { date: Date }) {
                         <Area
                             type="basis"
                             dataKey="value"
-                            stroke="#6366f1"
+                            stroke={activeColor}
                             strokeWidth={3}
                             fillOpacity={1}
                             fill="url(#colorValue)"
