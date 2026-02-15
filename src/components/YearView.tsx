@@ -49,10 +49,10 @@ export function YearView({ onSelectMonth }: YearViewProps) {
             <header className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-surfaceHighlight pb-6">
                 <div>
                     <h1 className="text-4xl font-bold text-primary">
-                        {year} Overview
+                        {year} Chronicles
                     </h1>
                     <p className="text-secondary mt-1 text-lg">
-                        Year at a Glance
+                        Your Year in Review
                     </p>
                 </div>
 
