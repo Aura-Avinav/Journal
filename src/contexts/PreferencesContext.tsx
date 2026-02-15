@@ -156,6 +156,27 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('ituts_preferences_v1', JSON.stringify(preferences));
     }, [preferences]);
 
+    // 4. Sync FROM Cloud (on load)
+    useEffect(() => {
+        if (user?.user_metadata?.preferences) {
+            const cloudPrefs = user.user_metadata.preferences;
+            // console.log('[Preferences] Syncing FROM Cloud:', cloudPrefs);
+            setPreferences(prev => {
+                // Only update if cloud has newer timestamp or different values (simple merge for now)
+                // We trust cloud if it exists and we are just loading.
+                // To avoid loops or overwriting newer local drafts, ideally check timestamps.
+                // For now, let's assuming cloud source of truth on mount.
+
+                // Compare timestamps if available
+                if (cloudPrefs._updatedAt && prev._updatedAt && cloudPrefs._updatedAt < prev._updatedAt) {
+                    return prev;
+                }
+
+                return { ...prev, ...cloudPrefs };
+            });
+        }
+    }, [user]);
+
     // 5. Sync Accent Color to DOM (CSS Variable)
     useEffect(() => {
         const root = document.documentElement;

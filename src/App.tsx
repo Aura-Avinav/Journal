@@ -41,8 +41,24 @@ function App() {
     localStorage.setItem('journal_current_view', view);
   }, [view]);
 
+
+
   const [currentDate, setCurrentDate] = useState(new Date());
   const { data, user } = useStore();
+
+  // Handle Startup View Preference (Once per session/load)
+  useEffect(() => {
+    if (user && data.preferences?.startView) {
+      const prefView = data.preferences.startView;
+      if (view === 'dashboard' && prefView !== 'dashboard') {
+        const hasRedirected = sessionStorage.getItem('ituts_start_redirect');
+        if (!hasRedirected) {
+          setView(prefView);
+          sessionStorage.setItem('ituts_start_redirect', 'true');
+        }
+      }
+    }
+  }, [user, data.preferences?.startView, view]);
 
   if (!user) {
     return <AuthPage />;
