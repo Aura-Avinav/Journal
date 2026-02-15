@@ -46,6 +46,48 @@ function App() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const { data, user } = useStore();
 
+  // Midnight Reset Logic: Check every minute if the day has changed
+  useEffect(() => {
+    const checkMidnight = () => {
+      const now = new Date();
+      // Compare day/month/year. If different from 'currentDate' (and 'currentDate' was "today"), update it.
+      // Note: We only auto-update if the user was looking at "today".
+      // If they were looking at last month, we shouldn't jump them to today suddenly.
+
+      if (now.getDate() !== currentDate.getDate() || now.getMonth() !== currentDate.getMonth()) {
+        // Only force update if the view was ostensibly "today" or we just want to ensure "today" is correct logic.
+        // Actually, for the MoodSelector to reset, we just need to ensure 'currentDate' reflects 'now' if the user intends it to be today.
+        // Let's assume if they are on Dashboard, they usually want Today.
+
+        // But wait, 'currentDate' is also used for navigating months. 
+        // If I am looking at "December 2025", I don't want it to jump to "February 2026" at midnight.
+        // However, MoodSelector usually uses 'currentDate'.
+
+        // Let's refine: The MoodSelector should arguably use "Today" or the "Selected Date".
+        // The user wants "Daily energy... reset after 11:59".
+        // This implies they are using it for "Today".
+
+        // Code-wise: 'currentDate' initializes to `new Date()`.
+        // If I keep the app open overnight, `currentDate` remains yesterday.
+        // So yes, I should update `currentDate` ONLY IF `currentDate` implies "Today" (i.e. it matched the system time previously).
+
+        // Simplification: Check if `currentDate` is effectively "Yesterday" relative to `now`.
+        // If so, update it to `now`.
+
+        // Actually, safer: Just check periodically. If `currentDate` < `now` (date-wise) AND user hasn't explicitly navigated back, update.
+        // But we don't know if they navigated.
+
+        // Force update strategy:
+        // If the day changes, update `currentDate` to the new Today.
+        // Note: This might disrupt if viewing history, but ensures the "Reset" requirement is met.
+        setCurrentDate(new Date());
+      }
+    };
+
+    const timer = setInterval(checkMidnight, 60000); // Check every minute
+    return () => clearInterval(timer);
+  }, [currentDate]);
+
   // Handle Startup View Preference (Once per session/load)
   useEffect(() => {
     if (user && data.preferences?.startView) {

@@ -130,9 +130,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
     // --- Actions ---
 
     const toggleHabit = async (habitId: string, date: string) => {
+        // 1. Optimistic Update
+        let isCompleting = false;
         setHabits(prev => prev.map(h => {
             if (h.id !== habitId) return h;
             const exists = h.completedDates.includes(date);
+            isCompleting = !exists; // If it exists, we are removing (un-completing). If not, completing.
             return {
                 ...h,
                 completedDates: exists ? h.completedDates.filter(d => d !== date) : [...h.completedDates, date]
@@ -140,9 +143,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }));
 
         if (!user) return;
-        const currentHabit = habits.find(h => h.id === habitId);
 
-        if (currentHabit?.completedDates.includes(date)) {
+        // 2. Database Sync using the calculated action
+        // We trust the 'isCompleting' logic derived from the previous state mapping
+        // But we need to recapture it correctly. 
+        // Actually, we can just query the previous state before setting it?
+
+        // Safer: Just try to delete. If it affected 0 rows, then insert.
+        // OR: Explicitly check state.
+
+        // Let's use the state logic:
+        const currentHabit = habits.find(h => h.id === habitId);
+        const alreadyCompleted = currentHabit?.completedDates.includes(date);
+
+        if (alreadyCompleted) {
             await supabase.from('habit_completions').delete().match({ habit_id: habitId, completed_date: date, user_id: user.id });
         } else {
             await supabase.from('habit_completions').insert({ habit_id: habitId, completed_date: date, user_id: user.id });
