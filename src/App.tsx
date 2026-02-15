@@ -12,6 +12,7 @@ import { getDaysInMonth, differenceInCalendarDays, startOfYear, endOfYear, forma
 import { useStore } from './hooks/useStore';
 
 import { PageTransition } from './components/ui/PageTransition';
+import { Loading } from './components/ui/Loading';
 import { AnimatePresence } from 'framer-motion';
 import { useDynamicFavicon } from './hooks/useDynamicFavicon';
 import { MoodSelector } from './components/MoodSelector';
@@ -106,6 +107,14 @@ function App() {
 
   if (!user) {
     return <AuthPage />;
+  }
+
+  if (data.loading) {
+    return (
+      <Layout currentView={view} onNavigate={setView} currentDate={currentDate}>
+        <Loading />
+      </Layout>
+    );
   }
 
   const currentMonthName = currentDate.toLocaleString('default', { month: 'long' });

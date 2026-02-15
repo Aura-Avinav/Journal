@@ -46,6 +46,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const [todos, setTodos] = useState<ToDo[]>([]);
     const [journal, setJournal] = useState<Record<string, string>>({});
     const [metrics, setMetrics] = useState<MetricData[]>([]);
+    const [loading, setLoading] = useState(true);
 
     // Load Data
     useEffect(() => {
@@ -114,6 +115,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
             // 5. Metrics
             const { data: dbMetrics } = await supabase.from('metrics').select('*').eq('user_id', userId);
             setMetrics((dbMetrics || []).map((m: any) => ({ id: m.id, date: m.date, value: m.value, label: m.label })));
+
+            setLoading(false);
         };
 
         fetchData();
